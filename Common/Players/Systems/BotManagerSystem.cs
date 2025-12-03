@@ -10,22 +10,20 @@ using Terraria.GameContent.Achievements;
 namespace FirstMod_Sp.Common.Systems
 {
     public class BotData {
-        public Vector2 Position;
-        public Vector2 Velocity;
-        public int FallStart;
-        public int FallStart2;
         public bool ControlLeft;
         public bool ControlRight;
-        public bool ControlJump;
-        public bool ControlDown;
+        public bool ControlJump; 
+        public bool ControlDown; 
+        public bool ControlHook; 
+        // Added: Aiming is required for Hooks to know which direction to fire
+        public Vector2 AimDirection; 
     }
 
     public class BotInputOverride : ModPlayer
     {
         public override void SetControls() {
-            // Safety check: Ensure index is valid and it is marked as a bot
             if (Player.whoAmI >= 0 && Player.whoAmI < 256 && BotManagerSystem.IsBot[Player.whoAmI]) {
-                // 1. Wipe all inputs first
+                // 1. Reset hardware inputs
                 Player.controlLeft = false;
                 Player.controlRight = false;
                 Player.controlJump = false;
@@ -34,13 +32,20 @@ namespace FirstMod_Sp.Common.Systems
                 Player.controlUseItem = false;
                 Player.controlHook = false;
                 Player.controlMount = false;
+                // Player.controlSmart = false; // Removed as requested
 
-                // 2. Apply bot specific inputs
+                // 2. Inject Bot inputs
                 if (BotManagerSystem.BotStates.TryGetValue(Player.whoAmI, out var data)) {
                     if (data.ControlLeft) Player.controlLeft = true;
                     if (data.ControlRight) Player.controlRight = true;
                     if (data.ControlJump) Player.controlJump = true;
                     if (data.ControlDown) Player.controlDown = true;
+                    if (data.ControlHook) Player.controlHook = true;
+                    
+                    if (data.ControlLeft && data.ControlRight) {
+                        Player.controlLeft = false;
+                        Player.controlRight = false;
+                    }
                 }
             }
         }
@@ -50,10 +55,7 @@ namespace FirstMod_Sp.Common.Systems
     {
         public static List<int> ActiveBots = new List<int>();
         public static Dictionary<int, BotData> BotStates = new Dictionary<int, BotData>();
-        
-        // Fast lookup array
         public static bool[] IsBot = new bool[256]; 
-        
         public const int MAX_BOTS = 50;
 
         public override void Load() {
@@ -78,17 +80,13 @@ namespace FirstMod_Sp.Common.Systems
 
         private void InjectBotInputs(On_Player.orig_UpdateBiomes orig, Player self) {
             orig(self);
-            
-            // Double-check inputs here in case other mods interfere during Biome updates
             if (self.whoAmI >= 0 && self.whoAmI < 256 && IsBot[self.whoAmI]) {
                 if (BotStates.TryGetValue(self.whoAmI, out var data)) {
                     self.controlLeft = data.ControlLeft;
                     self.controlRight = data.ControlRight;
                     self.controlJump = data.ControlJump;
                     self.controlDown = data.ControlDown;
-                    
-                    if (data.ControlLeft) self.controlRight = false;
-                    if (data.ControlRight) self.controlLeft = false;
+                    self.controlHook = data.ControlHook;
                 }
             }
         }
@@ -110,12 +108,7 @@ namespace FirstMod_Sp.Common.Systems
         }
 
         private void SkipEngineUpdateForBots(On_Player.orig_Update orig, Player self, int i) {
-            if (IsBot[i]) {
-                // If the bot is the "current player" (during our loop), let it update.
-                // Otherwise, if the engine tries to update it normally, skip it 
-                // (unless we want double updates, but usually we control it manually).
-                if (Main.myPlayer != i) return; 
-            }
+            if (IsBot[i] && Main.myPlayer != i) return; 
             orig(self, i);
         }
 
@@ -141,31 +134,26 @@ namespace FirstMod_Sp.Common.Systems
                     BotStates[botIndex] = data;
                 }
 
-                // --- AI LOGIC (Placeholder) ---
-                data.ControlLeft = false;
-                data.ControlRight = false;
-                data.ControlJump = false;
-                data.ControlDown = false;
-
-                // Simple behavior for testing
-                if (i == 0) data.ControlLeft = true;
-                else if (i == 1) data.ControlRight = true;
-                else if (i == 2 && bot.velocity.Y == 0) data.ControlJump = true;
-                else if (i == 3) data.ControlDown = true;
-                // ----------------
-
-                // Set Main.myPlayer to the bot so logic thinks it's the local player
                 Main.myPlayer = botIndex;
+
+                // --- APPLY AIMING ---
+                // Terraria uses Main.mouseX/Y (Screen Coordinates) to determine where hooks fire.
+                // We calculate this based on the bot's Center + AimOffset relative to Screen.
+                if (data.AimDirection != Vector2.Zero) {
+                    // data.AimDirection should be a vector like (200, 0) for right, (0, -200) for up.
+                    Vector2 aimScreenPos = bot.Center - Main.screenPosition + data.AimDirection;
+                    Main.mouseX = (int)aimScreenPos.X;
+                    Main.mouseY = (int)aimScreenPos.Y;
+                } else {
+                    // Default aim (forward) if zero provided
+                    Vector2 defaultAim = bot.Center - Main.screenPosition + new Vector2(bot.direction * 100, 0);
+                    Main.mouseX = (int)defaultAim.X;
+                    Main.mouseY = (int)defaultAim.Y;
+                }
+
                 bot.Update(botIndex);
-                
-                // Save state back
-                data.Position = bot.position;
-                data.Velocity = bot.velocity;
-                data.FallStart = bot.fallStart;
-                data.FallStart2 = bot.fallStart2;
             }
 
-            // Restore Real Player
             Main.myPlayer = realPlayerID;
         }
 
@@ -173,7 +161,6 @@ namespace FirstMod_Sp.Common.Systems
             if (ActiveBots.Count >= MAX_BOTS) return -1;
 
             int slot = -1;
-            // Find empty slot (iterate backwards to avoid low slots usually taken by host/NPCs)
             for (int i = 254; i > 0; i--) {
                 if (!Main.player[i].active) {
                     slot = i;
@@ -183,37 +170,23 @@ namespace FirstMod_Sp.Common.Systems
 
             if (slot == -1) return -1;
 
-            // 1. Create a fresh player object. This clears inventory, buffs, etc. automatically.
             Main.player[slot] = new Player();
             Player bot = Main.player[slot];
             
-            // 2. Initialize Identity
             bot.active = true;
             bot.whoAmI = slot;
             bot.name = $"Bot_{slot}";
             bot.skinVariant = 0;
-            
-            // 3. Initialize Physics/Position
-            // Set dimensions explicitly before setting Center
             bot.width = 20;
             bot.height = 42;
             bot.Center = position;
-            
             bot.fallStart = (int)(position.Y / 16f);
             bot.fallStart2 = (int)(position.Y / 16f);
-            
-            // 4. Initialize Stats
             bot.statLife = 100;
             bot.statLifeMax = 100;
             bot.dead = false;
 
-            // 5. Initialize Bot System Data
             BotData data = new BotData();
-            data.Position = position;
-            data.Velocity = Vector2.Zero;
-            data.FallStart = bot.fallStart;
-            data.FallStart2 = bot.fallStart2;
-            
             BotStates[slot] = data;
             ActiveBots.Add(slot);
             IsBot[slot] = true;
