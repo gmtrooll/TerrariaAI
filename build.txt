@@ -1,0 +1,3 @@
+displayName = FirstMod_Sp
+author = GMTrooll
+version = 0.1

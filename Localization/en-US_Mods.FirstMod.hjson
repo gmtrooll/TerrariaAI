@@ -1,0 +1,134 @@
+# This file will automatically update with entries for new content after a build and reload.
+
+Items: {
+	TutorialSword: {
+		DisplayName: Big Sword
+		Tooltip: This is a BIG Sword
+	}
+
+	DebugMonitor: {
+		DisplayName: Debug Monitor
+		Tooltip: ""
+	}
+
+	TargetSpawner: {
+		DisplayName: Target Spawner
+		Tooltip: ""
+	}
+
+	TimeTurner: {
+		DisplayName: Time Turner
+		Tooltip: ""
+	}
+
+	BotSpawner: {
+		DisplayName: Bot Spawner
+		Tooltip: ""
+	}
+}
+
+InfoDisplays: {
+	DebugSpeedDisplay.DisplayName: Debug Speed Display
+	DebugPositionDisplay.DisplayName: Debug Position Display
+	DebugAirDisplay.DisplayName: Debug Air Display
+	DebugBodyDisplay.DisplayName: Debug Body Display
+	DebugPhysicsDisplay.DisplayName: Debug Physics Display
+	DebugStateDisplay.DisplayName: Debug State Display
+	DebugTargetDisplay.DisplayName: Debug Target Display
+}
+
+Projectiles.TargetMarkerProjectile.DisplayName: Target Marker Projectile
+
+Sp: {
+	InfoDisplays: {
+		DebugTargetDisplay: {
+			DisplayName: {
+				$parentVal: Debug Target Display
+			}
+		}
+
+		DebugStateDisplay: {
+			DisplayName: {
+				$parentVal: Debug State Display
+			}
+		}
+
+		DebugPhysicsDisplay: {
+			DisplayName: {
+				$parentVal: Debug Physics Display
+			}
+		}
+
+		DebugBodyDisplay: {
+			DisplayName: {
+				$parentVal: Debug Body Display
+			}
+		}
+
+		DebugAirDisplay: {
+			DisplayName: {
+				$parentVal: Debug Air Display
+			}
+		}
+	}
+
+	Items: {
+		DebugMonitor: {
+			DisplayName: {
+				$parentVal: Debug Monitor
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
+
+		BotSpawner: {
+			DisplayName: {
+				$parentVal: Bot Spawner
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
+
+		TargetSpawner: {
+			DisplayName: {
+				$parentVal: Target Spawner
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
+
+		TimeTurner: {
+			DisplayName: {
+				$parentVal: Time Turner
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
+
+		TutorialSword: {
+			DisplayName: {
+				$parentVal: Tutorial Sword
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
+	}
+
+	Projectiles: {
+		TargetMarkerProjectile: {
+			DisplayName: {
+				$parentVal: Target Marker Projectile
+			}
+		}
+	}
+}
