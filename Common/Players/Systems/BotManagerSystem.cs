@@ -12,6 +12,7 @@ namespace FirstMod_Sp.Common.Systems
     public class BotData {
         public bool ControlLeft;
         public bool ControlRight;
+        public bool ControlUp;
         public bool ControlJump; 
         public bool ControlDown; 
         public bool ControlHook; 
@@ -31,18 +32,15 @@ namespace FirstMod_Sp.Common.Systems
                 Player.controlUseItem = false;
                 Player.controlHook = false;
                 Player.controlMount = false;
-                // Removed Player.controlSmart as requested
 
                 // 2. Inject Bot inputs
                 if (BotManagerSystem.BotStates.TryGetValue(Player.whoAmI, out var data)) {
                     if (data.ControlLeft) Player.controlLeft = true;
                     if (data.ControlRight) Player.controlRight = true;
+                    if (data.ControlUp) Player.controlUp = true;
                     if (data.ControlJump) Player.controlJump = true;
                     if (data.ControlDown) Player.controlDown = true;
                     if (data.ControlHook) Player.controlHook = true;
-                    
-                    // Note: No manual Left/Right conflict resolution needed; 
-                    // Terraria engine handles opposing inputs naturally.
                 }
             }
         }
@@ -118,14 +116,18 @@ namespace FirstMod_Sp.Common.Systems
 
                 Main.myPlayer = botIndex;
 
+                // --- TEST LOGIC: JUMPING ---
+                // Pulse Jump input every 0.5 seconds (30 frames)
+                // This simulates pressing and releasing the space bar, which triggers double jumps.
+                bool jumpPulse = (Main.GameUpdateCount % 60) < 30;
+                data.ControlJump = jumpPulse;
+
                 // --- APPLY AIMING ---
                 if (data.AimDirection != Vector2.Zero) {
-                    // Calculate Aim relative to screen position
                     Vector2 aimScreenPos = bot.Center - Main.screenPosition + data.AimDirection;
                     Main.mouseX = (int)aimScreenPos.X;
                     Main.mouseY = (int)aimScreenPos.Y;
                 } else {
-                    // Default aim (forward)
                     Vector2 defaultAim = bot.Center - Main.screenPosition + new Vector2(bot.direction * 100, 0);
                     Main.mouseX = (int)defaultAim.X;
                     Main.mouseY = (int)defaultAim.Y;
@@ -165,6 +167,10 @@ namespace FirstMod_Sp.Common.Systems
             bot.statLife = 100;
             bot.statLifeMax = 100;
             bot.dead = false;
+            
+            // --- EQUIP ACCESSORY FOR TESTING ---
+            // Armor indices 0-2 are armor, 3-9 are accessories
+            bot.armor[3].SetDefaults(ItemID.TsunamiInABottle);
 
             BotData data = new BotData();
             BotStates[slot] = data;

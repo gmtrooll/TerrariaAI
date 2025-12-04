@@ -71,7 +71,11 @@ Sp: {
 			}
 		}
 
-		DebugJumpDisplay.DisplayName: Debug Jump Display
+		DebugJumpDisplay: {
+			DisplayName: {
+				$parentVal: Debug Jump Display
+			}
+		}
 	}
 
 	Items: {

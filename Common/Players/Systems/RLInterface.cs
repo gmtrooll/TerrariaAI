@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.DataStructures; // Required for ExtraJumpState
+using Terraria.DataStructures; 
 
 namespace FirstMod_Sp.Common.Systems
 {
@@ -12,13 +12,22 @@ namespace FirstMod_Sp.Common.Systems
         // =================================================================================
         // 1. OBSERVATION SPACE
         // Returns flattened data regarding physics, detailed jump states, flight, and hooks.
-        // Total Size: 35 Floats
+        // Total Size: 44 Floats
         // =================================================================================
         public static float[] GetObservation(int botIndex) {
             Player bot = Main.player[botIndex];
             
-            // Physics (6) + BaseJump (1) + 6 Jumps * 3 stats (18) + Flight (3) + Grapple (2) + Env (5) = 35
-            int obsSize = 35;
+            // Size Breakdown:
+            // 1. Physics (6)
+            // 2. Body Stats (4) -> Added Width/Height back
+            // 3. Jumps (19)
+            // 4. Flight (3)
+            // 5. Grapple (2)
+            // 6. Environment (7)
+            // 7. Fall Data (1)
+            // 8. Survival (2)
+            // Total: 44
+            int obsSize = 44;
             float[] obs = new float[obsSize];
 
             if (!bot.active || bot.dead) {
@@ -32,18 +41,19 @@ namespace FirstMod_Sp.Common.Systems
             obs[idx++] = bot.velocity.Y;
             obs[idx++] = bot.direction; 
             obs[idx++] = bot.gravDir;
-            obs[idx++] = bot.Center.X;
-            obs[idx++] = bot.Center.Y;
+            // Sub-tile position (0-16)
+            obs[idx++] = bot.Center.X % 16;
+            obs[idx++] = bot.Center.Y % 16;
 
-            // --- 2. JUMPING DETAILED (19) ---
-            // Base Jump Height Counter (0 = grounded/not jumping)
+            // --- 2. BODY STATS (4) ---
+            obs[idx++] = bot.accRunSpeed;       
+            obs[idx++] = bot.runAcceleration;   
+            // Restored Dimensions
+            obs[idx++] = (float)bot.width;
+            obs[idx++] = (float)bot.height;
+
+            // --- 3. JUMPING DETAILED (19) ---
             obs[idx++] = bot.jump; 
-
-            // Add detailed stats for each Vanilla Extra Jump type:
-            // 1. Enabled (Equipped)
-            // 2. Available (Charge ready)
-            // 3. Active (Currently boosting)
-            
             AddJumpObservation(bot, ExtraJump.CloudInABottle, ref idx, obs);
             AddJumpObservation(bot, ExtraJump.SandstormInABottle, ref idx, obs);
             AddJumpObservation(bot, ExtraJump.BlizzardInABottle, ref idx, obs);
@@ -51,26 +61,38 @@ namespace FirstMod_Sp.Common.Systems
             AddJumpObservation(bot, ExtraJump.TsunamiInABottle, ref idx, obs);
             AddJumpObservation(bot, ExtraJump.BasiliskMount, ref idx, obs);
 
-            // --- 3. FLIGHT & ROCKETS (3) ---
+            // --- 4. FLIGHT & ROCKETS (3) ---
             obs[idx++] = bot.wingTime;
             obs[idx++] = bot.wingTimeMax;
             obs[idx++] = bot.rocketTime;
 
-            // --- 4. GRAPPLING HOOKS (2) ---
+            // --- 5. GRAPPLING HOOKS (2) ---
             obs[idx++] = bot.grapCount > 0 ? 1f : 0f; 
             obs[idx++] = bot.grapCount;        
 
-            // --- 5. ENVIRONMENT & STATE (5) ---
+            // --- 6. ENVIRONMENT & STATE (7) ---
+            // Liquid states
             obs[idx++] = bot.wet ? 1f : 0f;
-            obs[idx++] = bot.mount.Active ? 1f : 0f;
+            obs[idx++] = bot.honeyWet ? 1f : 0f;
+            obs[idx++] = bot.lavaWet ? 1f : 0f;
+            // Crowd Control states
             obs[idx++] = bot.frozen ? 1f : 0f;
             obs[idx++] = bot.webbed ? 1f : 0f;
             obs[idx++] = bot.stoned ? 1f : 0f;
+            // Movement State
+            obs[idx++] = bot.pulley ? 1f : 0f; 
+
+            // --- 7. FALL DATA (1) --- 
+            float fallDist = (bot.position.Y / 16f) - bot.fallStart2;
+            obs[idx++] = fallDist;
+
+            // --- 8. SURVIVAL (2) ---
+            obs[idx++] = (float)bot.statLife / (float)bot.statLifeMax;
+            obs[idx++] = (float)bot.immuneTime;
 
             return obs;
         }
 
-        // Helper to flatten ExtraJumpState into 3 floats
         private static void AddJumpObservation(Player bot, ExtraJump jump, ref int idx, float[] obs) {
             ExtraJumpState state = bot.GetJumpState(jump);
             obs[idx++] = state.Enabled ? 1f : 0f;   // Equipped
@@ -80,25 +102,26 @@ namespace FirstMod_Sp.Common.Systems
 
         // =================================================================================
         // 2. ACTION SPACE
-        // [0] = Left, [1] = Right, [2] = Jump, [3] = Down, [4] = Hook
-        // [5] = Aim X, [6] = Aim Y
+        // [0] = Left, [1] = Right, [2] = Up, [3] = Down, [4] = Jump, [5] = Hook
+        // [6] = Aim X, [7] = Aim Y
         // =================================================================================
         public static void ApplyAction(int botIndex, float[] actions) {
             if (!BotManagerSystem.BotStates.TryGetValue(botIndex, out BotData data)) return;
 
             // Movement Inputs
-            if (actions.Length >= 5) {
+            if (actions.Length >= 6) {
                 data.ControlLeft    = actions[0] > 0.5f;
                 data.ControlRight   = actions[1] > 0.5f;
-                data.ControlJump    = actions[2] > 0.5f;
+                data.ControlUp      = actions[2] > 0.5f;
                 data.ControlDown    = actions[3] > 0.5f;
-                data.ControlHook    = actions[4] > 0.5f;
+                data.ControlJump    = actions[4] > 0.5f;
+                data.ControlHook    = actions[5] > 0.5f;
             }
 
             // Aiming Inputs
-            if (actions.Length >= 7) {
-                if (actions[5] != 0 || actions[6] != 0) {
-                    data.AimDirection = new Vector2(actions[5], actions[6]);
+            if (actions.Length >= 8) {
+                if (actions[6] != 0 || actions[7] != 0) {
+                    data.AimDirection = new Vector2(actions[6], actions[7]);
                 } else {
                     data.AimDirection = Vector2.Zero;
                 }
