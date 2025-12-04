@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\FirstMod_Sp-Sp\\FirstMod_Sp.csproj",
+      "projectUniqueName": "C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\FirstMod_Sp\\FirstMod_Sp.csproj",
       "projectName": "FirstMod_Sp",
-      "projectPath": "C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\FirstMod_Sp-Sp\\FirstMod_Sp.csproj",
+      "projectPath": "C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\FirstMod_Sp\\FirstMod_Sp.csproj",
       "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\FirstMod_Sp-Sp\\obj\\",
+      "outputPath": "C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader\\ModSources\\FirstMod_Sp\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config"

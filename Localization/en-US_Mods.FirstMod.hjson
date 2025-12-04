@@ -70,6 +70,8 @@ Sp: {
 				$parentVal: Debug Air Display
 			}
 		}
+
+		DebugJumpDisplay.DisplayName: Debug Jump Display
 	}
 
 	Items: {

@@ -15,7 +15,6 @@ namespace FirstMod_Sp.Common.Systems
         public bool ControlJump; 
         public bool ControlDown; 
         public bool ControlHook; 
-        // Added: Aiming is required for Hooks to know which direction to fire
         public Vector2 AimDirection; 
     }
 
@@ -32,7 +31,7 @@ namespace FirstMod_Sp.Common.Systems
                 Player.controlUseItem = false;
                 Player.controlHook = false;
                 Player.controlMount = false;
-                // Player.controlSmart = false; // Removed as requested
+                // Removed Player.controlSmart as requested
 
                 // 2. Inject Bot inputs
                 if (BotManagerSystem.BotStates.TryGetValue(Player.whoAmI, out var data)) {
@@ -42,10 +41,8 @@ namespace FirstMod_Sp.Common.Systems
                     if (data.ControlDown) Player.controlDown = true;
                     if (data.ControlHook) Player.controlHook = true;
                     
-                    if (data.ControlLeft && data.ControlRight) {
-                        Player.controlLeft = false;
-                        Player.controlRight = false;
-                    }
+                    // Note: No manual Left/Right conflict resolution needed; 
+                    // Terraria engine handles opposing inputs naturally.
                 }
             }
         }
@@ -63,7 +60,6 @@ namespace FirstMod_Sp.Common.Systems
             On_Player.SavePlayer += SkipSave;
             On_AchievementsHelper.HandleRunning += SkipAchievements;
             On_CombatText.NewText_Rectangle_Color_string_bool_bool += SkipCombatText;
-            On_Player.UpdateBiomes += InjectBotInputs;
         }
 
         public override void Unload() {
@@ -71,24 +67,10 @@ namespace FirstMod_Sp.Common.Systems
             On_Player.SavePlayer -= SkipSave;
             On_AchievementsHelper.HandleRunning -= SkipAchievements;
             On_CombatText.NewText_Rectangle_Color_string_bool_bool -= SkipCombatText;
-            On_Player.UpdateBiomes -= InjectBotInputs;
             
             ActiveBots.Clear();
             BotStates.Clear();
             Array.Clear(IsBot, 0, IsBot.Length);
-        }
-
-        private void InjectBotInputs(On_Player.orig_UpdateBiomes orig, Player self) {
-            orig(self);
-            if (self.whoAmI >= 0 && self.whoAmI < 256 && IsBot[self.whoAmI]) {
-                if (BotStates.TryGetValue(self.whoAmI, out var data)) {
-                    self.controlLeft = data.ControlLeft;
-                    self.controlRight = data.ControlRight;
-                    self.controlJump = data.ControlJump;
-                    self.controlDown = data.ControlDown;
-                    self.controlHook = data.ControlHook;
-                }
-            }
         }
 
         private void SkipSave(On_Player.orig_SavePlayer orig, PlayerFileData playerFile, bool skipMapSave) {
@@ -137,15 +119,13 @@ namespace FirstMod_Sp.Common.Systems
                 Main.myPlayer = botIndex;
 
                 // --- APPLY AIMING ---
-                // Terraria uses Main.mouseX/Y (Screen Coordinates) to determine where hooks fire.
-                // We calculate this based on the bot's Center + AimOffset relative to Screen.
                 if (data.AimDirection != Vector2.Zero) {
-                    // data.AimDirection should be a vector like (200, 0) for right, (0, -200) for up.
+                    // Calculate Aim relative to screen position
                     Vector2 aimScreenPos = bot.Center - Main.screenPosition + data.AimDirection;
                     Main.mouseX = (int)aimScreenPos.X;
                     Main.mouseY = (int)aimScreenPos.Y;
                 } else {
-                    // Default aim (forward) if zero provided
+                    // Default aim (forward)
                     Vector2 defaultAim = bot.Center - Main.screenPosition + new Vector2(bot.direction * 100, 0);
                     Main.mouseX = (int)defaultAim.X;
                     Main.mouseY = (int)defaultAim.Y;
