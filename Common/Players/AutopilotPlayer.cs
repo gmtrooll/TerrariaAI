@@ -1,4 +1,4 @@
-using FirstMod_Sp.Content.Projectiles;
+/*using FirstMod_Sp.Content.Projectiles;
 using Terraria;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
@@ -60,3 +60,4 @@ namespace FirstMod_Sp.Common.Players
 		}
 	}
 }
+*/

@@ -6,6 +6,7 @@ using Terraria.ID;
 using Terraria.ModLoader;
 using Terraria.IO;
 using Terraria.GameContent.Achievements;
+using Terraria.Localization; // Required for NetworkText
 
 namespace FirstMod_Sp.Common.Systems
 {
@@ -34,28 +35,42 @@ namespace FirstMod_Sp.Common.Systems
     public class BotInputOverride : ModPlayer
     {
         public override void SetControls() {
+            // 1. Handle FAKE BOTS
             if (Player.whoAmI >= 0 && Player.whoAmI < 256 && BotManagerSystem.IsBot[Player.whoAmI]) {
-                // 1. Reset hardware inputs
-                Player.controlLeft = false;
-                Player.controlRight = false;
-                Player.controlUp = false;
-                Player.controlDown = false;
-                Player.controlJump = false;
-                Player.controlUseItem = false;
-                Player.controlHook = false;
-                Player.controlMount = false;
-
-                // 2. Inject Bot inputs
+                ResetInputs();
                 if (BotManagerSystem.BotStates.TryGetValue(Player.whoAmI, out var data)) {
-                    if (data.ControlLeft) Player.controlLeft = true;
-                    if (data.ControlRight) Player.controlRight = true;
-                    if (data.ControlUp) Player.controlUp = true;
-                    if (data.ControlDown) Player.controlDown = true;
-                    if (data.ControlJump) Player.controlJump = true;
-                    if (data.ControlHook) Player.controlHook = true;
-                    if (data.ControlUseItem) Player.controlUseItem = true;
+                    ApplyData(data);
                 }
             }
+        }
+
+        // --- NEW FEATURE: INSTANT RESPAWN ---
+        public override void UpdateDead() {
+            // If this is a bot, force the timer to 0 to respawn immediately
+            if (Player.whoAmI >= 0 && Player.whoAmI < 256 && BotManagerSystem.IsBot[Player.whoAmI]) {
+                Player.respawnTimer = 0;
+            }
+        }
+
+        private void ResetInputs() {
+            Player.controlLeft = false;
+            Player.controlRight = false;
+            Player.controlUp = false;
+            Player.controlDown = false;
+            Player.controlJump = false;
+            Player.controlUseItem = false;
+            Player.controlHook = false;
+            Player.controlMount = false;
+        }
+
+        private void ApplyData(BotData data) {
+            if (data.ControlLeft) Player.controlLeft = true;
+            if (data.ControlRight) Player.controlRight = true;
+            if (data.ControlUp) Player.controlUp = true;
+            if (data.ControlDown) Player.controlDown = true;
+            if (data.ControlJump) Player.controlJump = true;
+            if (data.ControlHook) Player.controlHook = true;
+            if (data.ControlUseItem) Player.controlUseItem = true;
         }
     }
 
@@ -63,6 +78,9 @@ namespace FirstMod_Sp.Common.Systems
     {
         public static List<int> ActiveBots = new List<int>();
         public static Dictionary<int, BotData> BotStates = new Dictionary<int, BotData>();
+        
+        public static BotData LocalPlayerOverride = new BotData(); 
+        
         public static bool[] IsBot = new bool[256]; 
         public const int MAX_BOTS = 50;
 
@@ -71,11 +89,11 @@ namespace FirstMod_Sp.Common.Systems
             On_Player.SavePlayer += SkipSave;
             On_AchievementsHelper.HandleRunning += SkipAchievements;
             On_CombatText.NewText_Rectangle_Color_string_bool_bool += SkipCombatText;
-            
-            // --- NEW HOOK ---
-            // This forces the game to treat bot projectiles (Hooks) as "Locally Owned"
-            // so they actually collide with tiles instead of flying through them.
             On_Projectile.Update += EnableBotProjectileAI;
+            
+            // --- NEW HOOKS ---
+            On_Player.DropTombstone += PreventBotTombstones;
+            On_Player.Spawn += PreserveBotPositionOnSpawn;
         }
 
         public override void Unload() {
@@ -84,30 +102,53 @@ namespace FirstMod_Sp.Common.Systems
             On_AchievementsHelper.HandleRunning -= SkipAchievements;
             On_CombatText.NewText_Rectangle_Color_string_bool_bool -= SkipCombatText;
             On_Projectile.Update -= EnableBotProjectileAI;
+            On_Player.DropTombstone -= PreventBotTombstones;
+            On_Player.Spawn -= PreserveBotPositionOnSpawn;
             
             ActiveBots.Clear();
             BotStates.Clear();
+            LocalPlayerOverride = null;
             Array.Clear(IsBot, 0, IsBot.Length);
         }
 
-        // --- NEW METHOD: FIXES HOOK PHYSICS ---
+        // --- RESPAWN WHERE DIED LOGIC ---
+        private void PreserveBotPositionOnSpawn(On_Player.orig_Spawn orig, Player self, PlayerSpawnContext context) {
+            bool isBot = self.whoAmI >= 0 && self.whoAmI < 256 && IsBot[self.whoAmI];
+            
+            // Capture position BEFORE spawn resets it to the bed/world spawn
+            Vector2 deathPos = self.Center;
+            
+            // Run standard Spawn (Resets Health, Mana, Buffs, etc.)
+            orig(self, context);
+            
+            if (isBot) {
+                // If they died in a valid location, put them back there.
+                // If they fell out of the world (Vector Zero or OOB), let them spawn at default to prevent loop.
+                if (deathPos != Vector2.Zero && WorldGen.InWorld((int)deathPos.X / 16, (int)deathPos.Y / 16)) {
+                    self.Center = deathPos;
+                    self.velocity = Vector2.Zero;
+                    self.fallStart = (int)(self.position.Y / 16f);
+                }
+            }
+        }
+
+        private void PreventBotTombstones(On_Player.orig_DropTombstone orig, Player self, long coinsOwned, NetworkText deathText, int hitDirection) {
+            if (self.whoAmI >= 0 && self.whoAmI < 256 && IsBot[self.whoAmI]) {
+                return;
+            }
+            orig(self, coinsOwned, deathText, hitDirection);
+        }
+
         private void EnableBotProjectileAI(On_Projectile.orig_Update orig, Projectile self, int i) {
-            // Check if this projectile belongs to a bot
             if (self.active && self.owner >= 0 && self.owner < 256 && IsBot[self.owner]) {
-                // Save the real local player
                 int realPlayer = Main.myPlayer;
-                
-                // Pretend the bot is the local player for this update
                 Main.myPlayer = self.owner;
-                
                 try {
                     orig(self, i);
                 } finally {
-                    // Always restore the real player, even if the update crashes
                     Main.myPlayer = realPlayer;
                 }
             } else {
-                // Normal behavior for everyone else
                 orig(self, i);
             }
         }
@@ -135,6 +176,7 @@ namespace FirstMod_Sp.Common.Systems
 
         public override void PostUpdatePlayers() {
             UpdateBots();
+            if (LocalPlayerOverride != null) LocalPlayerOverride.Reset();
         }
 
         private void UpdateBots() {
@@ -145,8 +187,9 @@ namespace FirstMod_Sp.Common.Systems
                 int botIndex = ActiveBots[i];
                 Player bot = Main.player[botIndex];
 
-                if (!bot.active || bot.dead) {
-                    bot.velocity = Vector2.Zero;
+                // FIX: Do NOT skip if bot is dead. 
+                // We must run Update() so the respawn timer logic can execute.
+                if (!bot.active) {
                     continue;
                 }
 
@@ -157,14 +200,11 @@ namespace FirstMod_Sp.Common.Systems
 
                 Main.myPlayer = botIndex;
 
-                // Apply Aiming
                 if (data.AimDirection != Vector2.Zero) {
-                    // Convert the relative aim (Vector2) to Screen Coordinates for the bot
                     Vector2 aimScreenPos = bot.Center - Main.screenPosition + data.AimDirection;
                     Main.mouseX = (int)aimScreenPos.X;
                     Main.mouseY = (int)aimScreenPos.Y;
                 } else {
-                    // Default aim: Look forward so hooks don't shoot into the floor immediately
                     Vector2 defaultAim = bot.Center - Main.screenPosition + new Vector2(bot.direction * 200, -50);
                     Main.mouseX = (int)defaultAim.X;
                     Main.mouseY = (int)defaultAim.Y;
@@ -179,7 +219,6 @@ namespace FirstMod_Sp.Common.Systems
 
         public static int SpawnBot(Vector2 position) {
             if (ActiveBots.Count >= MAX_BOTS) return -1;
-
             int slot = -1;
             for (int i = 254; i > 0; i--) {
                 if (!Main.player[i].active) {
@@ -195,6 +234,7 @@ namespace FirstMod_Sp.Common.Systems
             
             bot.active = true;
             bot.whoAmI = slot;
+            bot.Spawn(PlayerSpawnContext.SpawningIntoWorld); 
             bot.name = $"Bot_{slot}";
             bot.skinVariant = 0;
             bot.width = 20;

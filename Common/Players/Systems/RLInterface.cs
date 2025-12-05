@@ -3,27 +3,21 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Terraria;
 using Terraria.ModLoader;
-using Terraria.DataStructures; 
+using Terraria.DataStructures;
+using FirstMod_Sp.Content.Projectiles; // Required for TargetMarkerProjectile
 
 namespace FirstMod_Sp.Common.Systems
 {
     public class RLInterface : ModSystem
     {
-        // CACHED MEMORY: Created once, reused forever. 
-        // Prevents Garbage Collector lag spikes.
-        private static float[] _cachedObservation = new float[44];
+        // UPDATED SIZE: 44 -> 46
+        private static float[] _cachedObservation = new float[46];
 
-        // =================================================================================
-        // 1. OBSERVATION SPACE
-        // =================================================================================
         public static float[] GetObservation(int playerIndex) {
             Player p = Main.player[playerIndex];
-            
-            // Use the cached array instead of 'new float[44]'
             float[] obs = _cachedObservation;
 
-            // If player is dead/inactive, zero out the array and return
-            if (!p.active || p.dead) {
+            if (p == null || !p.active || p.dead) {
                 Array.Clear(obs, 0, obs.Length);
                 return obs;
             }
@@ -31,12 +25,12 @@ namespace FirstMod_Sp.Common.Systems
             int idx = 0;
 
             // --- 1. PHYSICS (6) ---
-            obs[idx++] = p.velocity.X;
-            obs[idx++] = p.velocity.Y;
-            obs[idx++] = p.direction; 
-            obs[idx++] = p.gravDir;
-            obs[idx++] = p.Center.X % 16; 
-            obs[idx++] = p.Center.Y % 16;
+            obs[idx++] = MathHelper.Clamp(p.velocity.X / 10f, -10f, 10f); // Normalized Velocity
+            obs[idx++] = MathHelper.Clamp(p.velocity.Y / 10f, -10f, 10f);
+            obs[idx++] = (float)p.direction; 
+            obs[idx++] = (float)p.gravDir;
+            obs[idx++] = p.Center.X % 16 / 16f; // Normalized Sub-tile
+            obs[idx++] = p.Center.Y % 16 / 16f;
 
             // --- 2. BODY STATS (4) ---
             obs[idx++] = p.accRunSpeed;       
@@ -45,7 +39,7 @@ namespace FirstMod_Sp.Common.Systems
             obs[idx++] = (float)p.height;
 
             // --- 3. JUMPING (19) ---
-            obs[idx++] = p.jump; 
+            obs[idx++] = (float)p.jump; 
             AddJumpObservation(p, ExtraJump.CloudInABottle, ref idx, obs);
             AddJumpObservation(p, ExtraJump.SandstormInABottle, ref idx, obs);
             AddJumpObservation(p, ExtraJump.BlizzardInABottle, ref idx, obs);
@@ -60,7 +54,7 @@ namespace FirstMod_Sp.Common.Systems
 
             // --- 5. GRAPPLE (2) ---
             obs[idx++] = p.grapCount > 0 ? 1f : 0f; 
-            obs[idx++] = p.grapCount;        
+            obs[idx++] = (float)p.grapCount;        
 
             // --- 6. ENVIRONMENT (7) ---
             obs[idx++] = p.wet ? 1f : 0f;
@@ -73,11 +67,37 @@ namespace FirstMod_Sp.Common.Systems
 
             // --- 7. FALL (1) --- 
             float fallDist = (p.position.Y / 16f) - p.fallStart2;
-            obs[idx++] = fallDist;
+            obs[idx++] = MathHelper.Clamp(fallDist / 50f, -10f, 10f); // Normalized fall
 
             // --- 8. SURVIVAL (2) ---
-            obs[idx++] = (float)p.statLife / (float)p.statLifeMax;
+            float maxLife = (float)p.statLifeMax;
+            if (maxLife <= 0f) maxLife = 1f; 
+            obs[idx++] = MathHelper.Clamp((float)p.statLife / maxLife, 0f, 1f);
             obs[idx++] = (float)p.immuneTime;
+
+            // --- 9. TARGET INFO (2) --- [NEW]
+            Vector2 targetDelta = Vector2.Zero;
+            int targetType = ModContent.ProjectileType<TargetMarkerProjectile>();
+            
+            for (int i = 0; i < Main.maxProjectiles; i++) {
+                if (Main.projectile[i].active && Main.projectile[i].type == targetType) {
+                    targetDelta = Main.projectile[i].Center - p.Center;
+                    break;
+                }
+            }
+            
+            // NORMALIZATION FIX:
+            // Neural nets fail if inputs are too big (like 500.0).
+            // We divide by 16 (blocks) and then clamp. 
+            // 20 blocks range is enough for "precise" movement.
+            // If target is further than 20 blocks, the AI just sees "20" (Max Direction).
+            obs[idx++] = MathHelper.Clamp(targetDelta.X / 16f, -20f, 20f); 
+            obs[idx++] = MathHelper.Clamp(targetDelta.Y / 16f, -20f, 20f);
+
+            // FINAL SAFETY PASS
+            for (int i = 0; i < obs.Length; i++) {
+                if (float.IsNaN(obs[i]) || float.IsInfinity(obs[i])) obs[i] = 0f;
+            }
 
             return obs;
         }
@@ -89,30 +109,18 @@ namespace FirstMod_Sp.Common.Systems
             obs[idx++] = state.Active ? 1f : 0f;    
         }
 
-        // =================================================================================
-        // 2. ACTION APPLIER (Bots Only)
-        // =================================================================================
         public static void ApplyAction(int playerIndex, float[] actions) {
-            
-            // We ONLY check the Bot Dictionary now.
-            // We do not check for Real Player override.
             if (BotManagerSystem.BotStates.TryGetValue(playerIndex, out BotData data)) {
+                // MultiBinary Logic:
+                // actions[0] = Left
+                // actions[1] = Right
+                // actions[2] = Jump
+                // (We ignore Up/Down/Hook for now to simplify learning)
                 
-                if (actions.Length >= 6) {
+                if (actions.Length >= 3) {
                     data.ControlLeft    = actions[0] > 0.5f;
                     data.ControlRight   = actions[1] > 0.5f;
-                    data.ControlUp      = actions[2] > 0.5f;
-                    data.ControlDown    = actions[3] > 0.5f;
-                    data.ControlJump    = actions[4] > 0.5f;
-                    data.ControlHook    = actions[5] > 0.5f;
-                }
-
-                if (actions.Length >= 8) {
-                    if (actions[6] != 0 || actions[7] != 0) {
-                        data.AimDirection = new Vector2(actions[6], actions[7]);
-                    } else {
-                        data.AimDirection = Vector2.Zero;
-                    }
+                    data.ControlJump    = actions[2] > 0.5f;
                 }
             }
         }
