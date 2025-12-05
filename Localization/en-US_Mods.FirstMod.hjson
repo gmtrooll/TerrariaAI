@@ -137,4 +137,12 @@ Sp: {
 			}
 		}
 	}
+
+	Keybinds: {
+		"Extract Grid": {
+			DisplayName: {
+				$parentVal: Extract  Grid
+			}
+		}
+	}
 }

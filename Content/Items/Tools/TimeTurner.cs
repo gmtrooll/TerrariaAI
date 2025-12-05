@@ -45,12 +45,12 @@ namespace FirstMod_Sp.Content.Items.Tools
 			int targetSpeed = (int)(distance / 16f);
 
 			if (targetSpeed < 1) targetSpeed = 1;
-			if (targetSpeed > 100) targetSpeed = 100;
+			if (targetSpeed > 10) targetSpeed = 10;
 
 			if (PhysicsAccelerator.TimeScale != targetSpeed) {
 				PhysicsAccelerator.TimeScale = targetSpeed;
 				
-				Color color = Color.Lerp(Color.LimeGreen, Color.Red, targetSpeed / 100f);
+				Color color = Color.Lerp(Color.LimeGreen, Color.Red, targetSpeed / 10f);
 				Main.NewText($"Game Speed: {targetSpeed}x", color);
 			}
 
