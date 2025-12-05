@@ -16,7 +16,7 @@ namespace FirstMod_Sp.Content.Projectiles
 			Projectile.hostile = false;
 			Projectile.tileCollide = false; // Don't hit walls
 			Projectile.ignoreWater = true;
-			Projectile.timeLeft = 36000; // Last for 10 minutes
+			Projectile.timeLeft = 360000; // Last for 10 minutes
 			Projectile.penetrate = -1;
 		}
 

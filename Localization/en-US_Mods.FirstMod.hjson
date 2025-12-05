@@ -128,6 +128,16 @@ Sp: {
 				$parentVal: ""
 			}
 		}
+
+		BotTeleporter: {
+			DisplayName: {
+				$parentVal: Bot Teleporter
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
 	}
 
 	Projectiles: {
