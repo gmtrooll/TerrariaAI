@@ -138,6 +138,26 @@ Sp: {
 				$parentVal: ""
 			}
 		}
+
+		ZoneMarkerTool: {
+			Tooltip: {
+				$parentVal: ""
+			}
+
+			DisplayName: {
+				$parentVal: Zone Marker Tool
+			}
+		}
+
+		MobSpawnToggle: {
+			DisplayName: {
+				$parentVal: Mob Spawn Toggle
+			}
+
+			Tooltip: {
+				$parentVal: ""
+			}
+		}
 	}
 
 	Projectiles: {
