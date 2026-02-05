@@ -24,6 +24,17 @@ namespace FirstMod_Sp.Content.Items.Tools
         }
 
         public override bool AltFunctionUse(Player player) => true;
+        
+        public override void ModifyTooltips(System.Collections.Generic.List<TooltipLine> tooltips)
+        {
+            // Load config to show current bot count
+            TrainingConfigLoader.LoadConfig();
+            int botCount = TrainingConfigLoader.NumBots;
+            
+            tooltips.Add(new TooltipLine(Mod, "BotCount", $"[c/FFFF00:Ctrl + Click] - Spawn {botCount} bots"));
+            tooltips.Add(new TooltipLine(Mod, "Controls1", "[c/00FF00:Left Click] - Spawn 1 bot"));
+            tooltips.Add(new TooltipLine(Mod, "Controls2", "[c/FF0000:Right Click] - Remove all bots & targets"));
+        }
 
         public override bool? UseItem(Player player) {
             if (player.whoAmI != Main.myPlayer) return true;
@@ -48,16 +59,20 @@ namespace FirstMod_Sp.Content.Items.Tools
             }
 
             // LEFT CLICK HANDLING
-            // Check if Control is held down (Changed from Shift)
+            // Check if Control is held down
             if (Main.keyState.IsKeyDown(Keys.LeftControl) || Main.keyState.IsKeyDown(Keys.RightControl)) {
                 
-                // Spawn 16 Bots
-                for (int i = 0; i < 16; i++) {
+                // Load config to get bot count
+                TrainingConfigLoader.LoadConfig();
+                int botCount = TrainingConfigLoader.NumBots;
+                
+                // Spawn bots based on config
+                for (int i = 0; i < botCount; i++) {
                     // Add a small random offset so they don't spawn inside each other
                     Vector2 offset = Main.rand.NextVector2Circular(32, 0); 
                     BotManagerSystem.SpawnBot(Main.MouseWorld + offset);
                 }
-                Main.NewText("Spawned 16 Bots!", 100, 255, 100);
+                Main.NewText($"Spawned {botCount} Bots!", 100, 255, 100);
             
             } else {
                 // Standard: Spawn 1 Bot

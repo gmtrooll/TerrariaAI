@@ -82,7 +82,7 @@ namespace FirstMod_Sp.Common.Systems
         public static BotData LocalPlayerOverride = new BotData(); 
         
         public static bool[] IsBot = new bool[256]; 
-        public const int MAX_BOTS = 50;
+        public const int MAX_BOTS = 200;
 
         public override void Load() {
             On_Player.Update += SkipEngineUpdateForBots;

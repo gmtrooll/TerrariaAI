@@ -1,0 +1,29 @@
+{
+  "_comment": "Terraria RL Training Configuration - Change values here to adjust training parameters",
+  
+  "core_settings": {
+    "num_bots": 16,
+    "port": 5555,
+    "max_steps_per_zone": 500,
+    "frame_skip": 4
+  },
+  
+  "training_hyperparameters": {
+    "learning_rate": 0.0002,
+    "n_steps": 512,
+    "batch_size": 512,
+    "n_epochs": 4,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "ent_coef": 0.01,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5
+  },
+  
+  "zone_settings": {
+    "zone_min_difficulty": 1,
+    "zone_max_difficulty": 10,
+    "use_performance_sampling": true
+  }
+}

@@ -2,6 +2,7 @@ using System;
 using System.Net.Sockets;
 using System.IO;
 using Terraria;
+using Terraria.ID;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
 using System.Collections.Generic;
@@ -16,35 +17,73 @@ namespace FirstMod_Sp.Common.Systems
         private BinaryWriter writer;
         private BinaryReader reader;
 
-        private const int BATCH_SIZE = 16; 
-        private byte[] sendBuffer = new byte[262144]; 
+        // CONFIG VALUES (loaded from training_config.json)
+        private int BATCH_SIZE; 
+        private int MAX_STEPS_PER_ZONE;
+        private int FRAME_SKIP;
+        
+        // DYNAMIC ARRAYS (sized based on config)
+        private byte[] sendBuffer;
         private float[] emptyStats = new float[46]; 
         private float[] emptyGrid = new float[1600];
         
+        // --- PER-BOT ZONE TARGETS ---
+        private Vector2[] botSpawnPos;
+        private Vector2[] botTargetPos;
+        private bool[] botHasZone;
+        
+        // --- ZONE TIMEOUT TRACKING ---
+        private int[] botStepsSinceZoneAssignment;
+        
         // --- FLOW FIELD VARIABLES ---
-        // We calculate "True Path Distance" instead of "Air Distance"
         private int[,] flowMap; 
         private Point flowMapCenter;
-        private const int FLOW_MAP_SIZE = 120; // 120x120 tiles (covers ~screen size)
+        private const int FLOW_MAP_SIZE = 120;
         private Vector2 lastTargetPosForFlow = Vector2.Zero;
         // ----------------------------
 
-        private float[] prevMetric = new float[BATCH_SIZE]; 
-        private bool[] wasDead = new bool[BATCH_SIZE];
+        private float[] prevMetric;
+        private bool[] wasDead;
+        private int[] justTeleportedTimer; // Timer to suppress rewards after teleport
+        private int[] winCooldown; // Debounce timer for victory
         
         // FRAME SKIPPING
-        private const int FRAME_SKIP = 4; 
         private int framesSinceUpdate = 0;
-        private int[] lastActions = new int[BATCH_SIZE];
+        private int[] lastActions;
 
         private bool trainingActive = false;
+        private int reconnectTimer = 0;
+        private const int RECONNECT_INTERVAL = 120; // ~2 seconds at 60fps
 
         public override void OnWorldLoad() 
         { 
+            // Load configuration first
+            TrainingConfigLoader.LoadConfig();
+            BATCH_SIZE = TrainingConfigLoader.NumBots;
+            MAX_STEPS_PER_ZONE = TrainingConfigLoader.MaxStepsPerZone;
+            FRAME_SKIP = TrainingConfigLoader.FrameSkip;
+            
+            // Allocate arrays based on config
+            // Each bot sends ~1650 floats (vision+stats) = 6600 bytes
+            // Add safety margin + Protocol Overhead
+            int bufferSize = (BATCH_SIZE * 7000) + 4096; 
+            sendBuffer = new byte[bufferSize]; 
+            
+            Main.NewText($"[RL] Allocated {bufferSize/1024} KB network buffer for {BATCH_SIZE} bots", 100, 255, 100);
+            
+            botSpawnPos = new Vector2[BATCH_SIZE];
+            botTargetPos = new Vector2[BATCH_SIZE];
+            botHasZone = new bool[BATCH_SIZE];
+            botStepsSinceZoneAssignment = new int[BATCH_SIZE];
+            prevMetric = new float[BATCH_SIZE];
+            wasDead = new bool[BATCH_SIZE];
+            justTeleportedTimer = new int[BATCH_SIZE];
+            winCooldown = new int[BATCH_SIZE];
+            lastActions = new int[BATCH_SIZE];
+            flowMap = new int[FLOW_MAP_SIZE, FLOW_MAP_SIZE];
+            
             ConnectToPython(); 
             ResetTrackers();
-            // Init Flow Map memory
-            flowMap = new int[FLOW_MAP_SIZE, FLOW_MAP_SIZE];
         }
 
         public override void OnWorldUnload() 
@@ -57,20 +96,73 @@ namespace FirstMod_Sp.Common.Systems
                 prevMetric[i] = -1f; 
                 wasDead[i] = false;
                 lastActions[i] = 0;
+                botHasZone[i] = false;
+                botSpawnPos[i] = Vector2.Zero;
+                botTargetPos[i] = Vector2.Zero;
+                botStepsSinceZoneAssignment[i] = 0;
             }
             trainingActive = false;
             framesSinceUpdate = 0;
         }
 
+        /// <summary>
+        /// Assign a zone to a specific bot and teleport them to the spawn point
+        /// </summary>
+        public void AssignZoneToBot(int batchIndex, Vector2 spawnPos, Vector2 targetPos)
+        {
+            if (batchIndex < 0 || batchIndex >= BATCH_SIZE) return;
+            
+            botSpawnPos[batchIndex] = spawnPos;
+            botTargetPos[batchIndex] = targetPos;
+            botHasZone[batchIndex] = true;
+            prevMetric[batchIndex] = -1f;  // Reset progress tracking
+            botStepsSinceZoneAssignment[batchIndex] = 0;  // Reset step counter for new zone
+            justTeleportedTimer[batchIndex] = 20; // Suppress checks (increased to 20)
+            winCooldown[batchIndex] = 0; // Reset cooldown
+            
+            // Teleport the bot to spawn position
+            // Teleport the bot to spawn position
+            int botIndex = GetBotIndex(batchIndex);
+            if (botIndex != -1 && Main.player[botIndex].active)
+            {
+                Player bot = Main.player[botIndex];
+                
+                // FORCE POSITION instead of asking nicely with Teleport()
+                // This prevents "failed to teleport because block" issues
+                bot.position = spawnPos - new Vector2(bot.width/2, bot.height);
+                bot.velocity = Vector2.Zero;
+                
+                // Also trigger internal teleport method to reset state but with style 0 (silent)
+                bot.Teleport(spawnPos, 0); 
+                
+                Main.NewText($"[RL] Bot {batchIndex} FORCED TP -> ({spawnPos.X:F0}, {spawnPos.Y:F0})", 100, 255, 100);
+            }
+            else
+            {
+                Main.NewText($"[RL] WARNING: Bot {batchIndex} not active yet", 255, 200, 100);
+            }
+        }
+
+        /// <summary>
+        /// Get the target position for a specific bot
+        /// </summary>
+        public Vector2 GetBotTarget(int batchIndex)
+        {
+            if (batchIndex >= 0 && batchIndex < BATCH_SIZE && botHasZone[batchIndex])
+                return botTargetPos[batchIndex];
+            return Vector2.Zero;
+        }
+
         private void ConnectToPython()
         {
             try {
-                client = new TcpClient("127.0.0.1", 5000); 
+                int port = TrainingConfigLoader.Port;
+                client = new TcpClient("127.0.0.1", port); 
                 client.NoDelay = true; 
                 stream = client.GetStream();
                 writer = new BinaryWriter(stream);
                 reader = new BinaryReader(stream);
-                Main.NewText($"Connected! Batch: {BATCH_SIZE}", 50, 255, 50);
+                Main.NewText($"Connected to port {port}! Batch: {BATCH_SIZE}", 50, 255, 50);
             } catch {
                 Main.NewText("Could not connect to AI Server.", 255, 50, 50);
                 CleanupConnection();
@@ -79,7 +171,11 @@ namespace FirstMod_Sp.Common.Systems
 
         private void CleanupConnection()
         {
-            client?.Close();
+            trainingActive = false;
+            try { reader?.Dispose(); } catch { }
+            try { writer?.Dispose(); } catch { }
+            try { stream?.Dispose(); } catch { }
+            try { client?.Close(); } catch { }
             client = null;
             stream = null;
             writer = null;
@@ -174,7 +270,15 @@ namespace FirstMod_Sp.Common.Systems
 
         public override void PostUpdatePlayers()
         {
-            if (client == null || !client.Connected) return;
+            // Auto-reconnect if not connected
+            if (client == null || !client.Connected) {
+                reconnectTimer++;
+                if (reconnectTimer >= RECONNECT_INTERVAL) {
+                    reconnectTimer = 0;
+                    ConnectToPython();
+                }
+                return;
+            }
 
             if (BotManagerSystem.ActiveBots.Count < BATCH_SIZE) 
             {
@@ -245,92 +349,170 @@ namespace FirstMod_Sp.Common.Systems
                     bufferOffset += 6400;
                 }
 
-                // 3. SEND REWARDS (FLOW FIELD LOGIC)
                 for (int i = 0; i < BATCH_SIZE; i++)
                 {
                     int botIndex = GetBotIndex(i);
                     Player bot = (botIndex != -1) ? Main.player[botIndex] : null;
                     
-                    float reward = 0f;
-                    bool isDone = false;
+                    // ------------------------------------------------------------------------
+                    // REWARD REFACTOR: SEND RAW DATA + FLAGS
+                    // ------------------------------------------------------------------------
+                    
+                    float distRaw = -1.0f;
+                    byte flags = 0; // Bit 0=Done, 1=Win, 2=Die, 3=Timeout
 
-                    if (bot != null && bot.active) {
+                    // GRACE PERIOD: If timer > 0, decrement and skip logic
+                    if (justTeleportedTimer[i] > 0) {
+                        justTeleportedTimer[i]--;
+                        distRaw = -1f; // Neutral
+                        // Flags = 0 (Not Done)
+                    }
+                    else if (bot != null && bot.active) {
                         
-                        // Calculate "Metric" (Distance)
-                        float currentMetric = 0f;
-
-                        if (hasTarget) {
-                            // Use FLOW DISTANCE (Scent) instead of Air Distance
-                            currentMetric = GetFlowDistance(bot.Center);
-                        } else {
-                            // Fallback: Run Right (Negative X is bad, Positive X is good)
-                            // We treat "Metric" as "Distance from Goal", so we invert X.
-                            // Moving Right -> Metric Decreases.
-                            currentMetric = -bot.position.X / 16f; 
+                        if (winCooldown[i] > 0) winCooldown[i]--; // Decrement cooldown
+                        
+                        // Determine Target Logic
+                        Vector2 thisTargetPos = Vector2.Zero;
+                        bool thisHasTarget = false;
+                        
+                        if (botHasZone[i]) {
+                            thisTargetPos = botTargetPos[i];
+                            thisHasTarget = true;
+                        } else if (hasTarget) {
+                            thisTargetPos = targetPos;
+                            thisHasTarget = true;
+                        }
+                        
+                        // Calculate Raw Distance (in blocks)
+                        if (thisHasTarget) {
+                            distRaw = Vector2.Distance(bot.Center, thisTargetPos) / 16f;
                         }
 
-                        if (prevMetric[i] == -1f) prevMetric[i] = currentMetric;
+                        // CHECK FLAGS (Done/Win/Die/Timeout)
+                        bool isDone = false;
+                        bool isWin = false;
+                        bool isDie = false;
+                        bool isTimeout = false;
 
-                        // IMPROVEMENT = OldMetric - NewMetric
-                        // If FlowDistance goes 50 -> 49, Improvement is +1. Good.
-                        float progress = prevMetric[i] - currentMetric;
-                        
-                        // Strong Reward for following the scent
-                        reward += progress * 0.5f; 
-                        
-                        prevMetric[i] = currentMetric;
-
-                        // Target reached
-                        if (hasTarget) {
-                            // Simple Euclidean check for final touch
-                            if (Vector2.Distance(bot.Center, targetPos) < 32f) { 
-                                reward += 20.0f; 
-                                isDone = true;   
-                                prevMetric[i] = -1f; 
-                            }
+                        // 1. WIN
+                        if (thisHasTarget && distRaw < 2.0f && winCooldown[i] == 0) { // < 32 pixels
+                            isWin = true;
+                            isDone = true;
+                            winCooldown[i] = 100; // Debounce
+                            Main.NewText($"[RL] Bot {i} WIN! Dist={distRaw:F1}", 50, 255, 50);
                         }
 
+                        // 2. DIE
                         if (bot.dead) {
                             if (!wasDead[i]) {
-                                reward -= 5.0f;
+                                isDie = true;
                                 isDone = true;
+                                winCooldown[i] = 100; // Debounce
+                                Main.NewText($"[RL] Bot {i} DIED!", 255, 50, 50);
                             }
                             wasDead[i] = true;
-                            prevMetric[i] = -1f;
                         } else {
                             wasDead[i] = false;
                         }
-                    } else {
-                        prevMetric[i] = -1f;
+                        
+                        // 3. TIMEOUT
+                        if (botHasZone[i]) {
+                            botStepsSinceZoneAssignment[i]++;
+                            if (botStepsSinceZoneAssignment[i] >= MAX_STEPS_PER_ZONE && winCooldown[i] == 0) {
+                                isTimeout = true;
+                                isDone = true;
+                                winCooldown[i] = 100; // Debounce
+                                Main.NewText($"[RL] Bot {i} TIMEOUT!", 255, 200, 100);
+                            }
+                            // DEBUG: Log progress for Bot 0
+                            if (i == 0 && botStepsSinceZoneAssignment[i] % 100 == 0) {
+                                Main.NewText($"[RL] Bot 0 Steps: {botStepsSinceZoneAssignment[i]}/{MAX_STEPS_PER_ZONE}", 200, 200, 255);
+                            }
+                        }
+
+                        // Pack Flags
+                        if (isDone) flags |= 1;
+                        if (isWin)  flags |= 2;
+                        if (isDie)  flags |= 4;
+                        if (isTimeout) flags |= 8;
+                    } 
+                    else {
+                        // BOT IS INACTIVE (Despawned?)
+                        // Reset persistent state so next bot works correctly
+                        botHasZone[i] = false;
+                        winCooldown[i] = 0;
+                        botStepsSinceZoneAssignment[i] = 0;
+                        botTargetPos[i] = Vector2.Zero;
                         wasDead[i] = false;
-                        isDone = true; 
+                        
+                        // Send "Done" flag to ensure Python resets its tracker too
+                        flags |= 1; 
+                        distRaw = -1f;
                     }
                     
                     if (bot != null && bot.active) wasDead[i] = false;
 
-                    byte[] rewardBytes = BitConverter.GetBytes(reward);
-                    sendBuffer[bufferOffset] = rewardBytes[0];
-                    sendBuffer[bufferOffset+1] = rewardBytes[1];
-                    sendBuffer[bufferOffset+2] = rewardBytes[2];
-                    sendBuffer[bufferOffset+3] = rewardBytes[3];
+                    // WRITE PACKET
+                    // Slot 1: Raw Distance (Float) - replaces 'reward'
+                    byte[] distBytes = BitConverter.GetBytes(distRaw);
+                    sendBuffer[bufferOffset] = distBytes[0];
+                    sendBuffer[bufferOffset+1] = distBytes[1];
+                    sendBuffer[bufferOffset+2] = distBytes[2];
+                    sendBuffer[bufferOffset+3] = distBytes[3];
                     bufferOffset += 4;
 
-                    sendBuffer[bufferOffset] = isDone ? (byte)1 : (byte)0;
+                    // Slot 2: Flags (Byte) - replaces 'isDone' byte
+                    sendBuffer[bufferOffset] = flags;
                     bufferOffset += 1;
                 }
 
                 stream.Write(sendBuffer, 0, bufferOffset);
 
-                // 4. READ & EXECUTE
+                // 4. READ & EXECUTE ACTIONS + ZONE ASSIGNMENTS
                 for (int i = 0; i < BATCH_SIZE; i++)
                 {
-                    int actionIndex = reader.ReadInt32();
-                    lastActions[i] = actionIndex;
+                    int command = reader.ReadInt32();
+                    
+                    // DEBUG: Log first bot command to check protocol
+                    if (i == 0 && command >= 1000000) {
+                        Main.NewText($"[RL] RX Bot 0 CMD: {command}", 255, 255, 0);
+                    }
 
-                    int botIndex = GetBotIndex(i);
-                    if (botIndex != -1) {
-                        float[] actionParams = ConvertActionToParams(actionIndex);
-                        RLInterface.ApplyAction(botIndex, actionParams);
+                    // Check if this is a zone assignment command (command >= 1000000)
+                    if (command >= 1000000)
+                    {
+                        // Extract actual action
+                        int actionIndex = command - 1000000;
+                        lastActions[i] = actionIndex;
+                        
+                        // Read zone coordinates (4 floats = 16 bytes)
+                        float spawnX = reader.ReadSingle();
+                        float spawnY = reader.ReadSingle();
+                        float targetX = reader.ReadSingle();
+                        float targetY = reader.ReadSingle();
+                        
+                        // Assign zone to bot and teleport
+                        Vector2 spawnPos = new Vector2(spawnX, spawnY);
+                        Vector2 zoneTargetPos = new Vector2(targetX, targetY);
+                        AssignZoneToBot(i, spawnPos, zoneTargetPos);
+                        
+                        // Apply action
+                        int botIndex = GetBotIndex(i);
+                        if (botIndex != -1) {
+                            float[] actionParams = ConvertActionToParams(actionIndex);
+                            RLInterface.ApplyAction(botIndex, actionParams);
+                        }
+                    }
+                    else
+                    {
+                        // Normal action
+                        lastActions[i] = command;
+                        
+                        int botIndex = GetBotIndex(i);
+                        if (botIndex != -1) {
+                            float[] actionParams = ConvertActionToParams(command);
+                            RLInterface.ApplyAction(botIndex, actionParams);
+                        }
                     }
                 }
             }
