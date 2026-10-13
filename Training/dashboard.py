@@ -11,7 +11,7 @@ import time
 import os
 import subprocess
 import sys
-from train_terraria import TrainingManager, TrainingConfig
+from train_terraria import TrainingManager, TrainingConfig, LOGS_DIR
 
 # --- PAGE CONFIG ---
 st.set_page_config(
@@ -131,11 +131,12 @@ with st.sidebar:
     num_bots = st.slider(
         "Number of Bots",
         min_value=1,
-        max_value=32,
+        max_value=max(64, st.session_state.config.num_bots),
         value=st.session_state.config.num_bots,
         step=1,
         disabled=manager.is_training,
-        help="Number of parallel training environments"
+        help="Number of bots / parallel environments. Must equal num_bots in the training_config.json "
+             "the mod loaded, or the connection is rejected."
     )
     
     learning_rate = st.select_slider(
@@ -157,8 +158,8 @@ with st.sidebar:
     )
     
     batch_size = st.select_slider(
-        "Batch Size",
-        options=[512, 1024, 2048, 4096, 8192],
+        "PPO Minibatch Size",
+        options=sorted({512, 1024, 2048, 4096, 8192, st.session_state.config.batch_size}),
         value=st.session_state.config.batch_size,
         disabled=manager.is_training
     )
@@ -229,7 +230,7 @@ with col2:
     if st.button("📊 Open TensorBoard", use_container_width=True):
         if st.session_state.tensorboard_process is None or st.session_state.tensorboard_process.poll() is not None:
             st.session_state.tensorboard_process = subprocess.Popen(
-                [sys.executable, "-m", "tensorboard", "--logdir", "./logs/", "--port", "6006"],
+                [sys.executable, "-m", "tensorboard", "--logdir", LOGS_DIR, "--port", "6006"],
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
@@ -245,7 +246,7 @@ with col3:
 # --- METRICS ---
 st.header("📈 Live Metrics")
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 
 with col1:
     st.metric(
@@ -272,6 +273,13 @@ with col4:
     st.metric(
         label="Episode Length",
         value=f"{metrics.get('mean_episode_length', 0):.0f}",
+        delta=None
+    )
+
+with col5:
+    st.metric(
+        label="Success Rate (100 ep)",
+        value=f"{metrics.get('success_rate', 0) * 100:.0f}%",
         delta=None
     )
 
