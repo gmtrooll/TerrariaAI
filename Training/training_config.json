@@ -1,13 +1,18 @@
 {
-  "_comment": "Terraria RL Training Configuration - Change values here to adjust training parameters",
-  
+  "_comment": "Terraria RL training configuration, read by both the mod (C#) and the trainer (Python). Values the mod reads: num_bots, port, max_steps_per_zone, frame_skip, path_settings.*, logging.debug. num_bots must match on both sides (checked at connect).",
+
   "core_settings": {
     "num_bots": 16,
     "port": 5555,
     "max_steps_per_zone": 500,
-    "frame_skip": 4
+    "seed": null
   },
-  
+
+  "observation_settings": {
+    "frame_skip": 4,
+    "frame_stack": 1
+  },
+
   "training_hyperparameters": {
     "learning_rate": 0.0002,
     "n_steps": 512,
@@ -20,10 +25,29 @@
     "vf_coef": 0.5,
     "max_grad_norm": 0.5
   },
-  
+
+  "reward_settings": {
+    "win_reward": 20.0,
+    "death_penalty": -5.0,
+    "timeout_penalty": -1.0,
+    "progress_weight": 0.5,
+    "max_progress_per_step": 5.0
+  },
+
+  "path_settings": {
+    "max_jump_tiles": 14,
+    "field_radius_tiles": 96,
+    "off_path_penalty_tiles": 10.0
+  },
+
   "zone_settings": {
     "zone_min_difficulty": 1,
     "zone_max_difficulty": 10,
-    "use_performance_sampling": true
+    "use_performance_sampling": true,
+    "zone_database_path": null
+  },
+
+  "logging": {
+    "debug": false
   }
 }

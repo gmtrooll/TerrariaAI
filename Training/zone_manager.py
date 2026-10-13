@@ -10,9 +10,6 @@ from typing import List, Dict, Optional, Any
 from collections import deque
 import time
 
-# Initialize random seed for proper zone sampling
-random.seed()
-
 
 @dataclass
 class ZoneLocation:
@@ -86,9 +83,16 @@ class TrainingZone:
 class ZoneManager:
     """Manages training zones - loading, sampling, and tracking stats"""
     
-    def __init__(self, database_path: Optional[str] = None):
+    # Performance-based sampling weights by success rate
+    WEIGHT_STRUGGLING = 3.0  # success rate < 0.3
+    WEIGHT_LEARNING = 2.0    # success rate < 0.7
+    WEIGHT_MASTERED = 0.5
+
+    def __init__(self, database_path: Optional[str] = None, seed: Optional[int] = None, verbose: bool = False):
         self.zones: List[TrainingZone] = []
         self.database_path = database_path
+        self.rng = random.Random(seed)
+        self.verbose = verbose
         
         # Per-bot zone assignments
         self.bot_zones: Dict[int, TrainingZone] = {}
@@ -116,9 +120,10 @@ class ZoneManager:
             self.zones = [TrainingZone.from_dict(z) for z in zones_data]
             self.database_path = path
             
-            print(f"[ZoneManager] Loaded {len(self.zones)} zones")
-            for z in self.zones:
-                print(f"  - {z.zone_id}: difficulty={z.difficulty}, distance={z.distance_tiles:.1f}")
+            print(f"[ZoneManager] Loaded {len(self.zones)} zones from {path}")
+            if self.verbose:
+                for z in self.zones:
+                    print(f"  - {z.zone_id}: difficulty={z.difficulty}, distance={z.distance_tiles:.1f}")
             
             return True
             
@@ -126,40 +131,51 @@ class ZoneManager:
             print(f"[ZoneManager] Error loading database: {e}")
             return False
     
-    def save_database(self):
-        """Save updated zone stats back to database"""
-        if not self.database_path or not self.zones:
-            return
-        
+    def filter_world(self, world_name: str) -> int:
+        """Keep only zones recorded in this world (zones without a world name are kept). Returns how many were dropped."""
+        before = len(self.zones)
+        self.zones = [z for z in self.zones
+                      if not z.original_location.world_name or z.original_location.world_name == world_name]
+        return before - len(self.zones)
+
+    def save_stats(self, path: str):
+        """
+        Write per-zone training stats to a separate JSON report. The zone database itself belongs
+        to the mod (ZoneDatabase.cs rewrites it whenever a zone is added), so Python never writes it.
+        """
+        report = {
+            "Zones": [{
+                "ZoneId": z.zone_id,
+                "TimesTrained": z.stats.times_trained,
+                "SuccessfulAttempts": z.stats.successful_attempts,
+                "FailedAttempts": z.stats.failed_attempts,
+                "SuccessRate": z.stats.success_rate,
+                "AvgCompletionTime": z.stats.avg_completion_time,
+                "RecordTime": z.stats.record_time if z.stats.record_time != float('inf') else None,
+                "LastTrained": z.stats.last_trained,
+            } for z in self.zones]
+        }
         try:
-            # Read original to preserve terrain data
-            with open(self.database_path, 'r') as f:
-                data = json.load(f)
-            
-            # Update stats for each zone
-            for zone in self.zones:
-                for zone_data in data.get('Zones', []):
-                    if zone_data.get('ZoneId') == zone.zone_id:
-                        zone_data['Stats'] = {
-                            'TimesTrained': zone.stats.times_trained,
-                            'SuccessfulAttempts': zone.stats.successful_attempts,
-                            'FailedAttempts': zone.stats.failed_attempts,
-                            'AvgCompletionTime': zone.stats.avg_completion_time,
-                            'RecordTime': zone.stats.record_time if zone.stats.record_time != float('inf') else None,
-                            'LastTrained': zone.stats.last_trained
-                        }
-                        break
-            
-            with open(self.database_path, 'w') as f:
-                json.dump(data, f, indent=2)
-                
-        except Exception as e:
-            print(f"[ZoneManager] Error saving database: {e}")
-    
+            os.makedirs(os.path.dirname(os.path.abspath(path)), exist_ok=True)
+            tmp = path + ".tmp"
+            with open(tmp, 'w') as f:
+                json.dump(report, f, indent=2)
+            os.replace(tmp, path)
+        except OSError as e:
+            print(f"[ZoneManager] Error saving zone stats to {path}: {e}")
+
     def get_zones_by_difficulty(self, min_diff: int = 1, max_diff: int = 10) -> List[TrainingZone]:
         """Filter zones by difficulty range"""
         return [z for z in self.zones if min_diff <= z.difficulty <= max_diff]
     
+    def zone_weight(self, zone: TrainingZone) -> float:
+        """Sampling weight: zones the bots fail at are trained more often."""
+        if zone.stats.success_rate < 0.3:
+            return self.WEIGHT_STRUGGLING
+        if zone.stats.success_rate < 0.7:
+            return self.WEIGHT_LEARNING
+        return self.WEIGHT_MASTERED
+
     def sample_zone(self) -> Optional[TrainingZone]:
         """Sample a single zone based on current strategy"""
         eligible = self.get_zones_by_difficulty(self.min_difficulty, self.max_difficulty)
@@ -167,23 +183,12 @@ class ZoneManager:
             return None
         
         if not self.use_performance_sampling:
-            result = random.choice(eligible)
-            print(f"[ZoneManager] Sampled zone: {result.zone_id} (random)")
-            return result
-        
-        # Performance-based sampling: weight by inverse success rate
-        weights = []
-        for zone in eligible:
-            if zone.stats.success_rate < 0.3:
-                weight = 3.0  # Really struggling - train more
-            elif zone.stats.success_rate < 0.7:
-                weight = 2.0  # Still learning
-            else:
-                weight = 0.5  # Mastered but keep fresh
-            weights.append(weight)
-        
-        result = random.choices(eligible, weights=weights, k=1)[0]
-        print(f"[ZoneManager] Sampled zone: {result.zone_id} (weight={weights[eligible.index(result)]}, success_rate={result.stats.success_rate:.2f})")
+            result = self.rng.choice(eligible)
+        else:
+            weights = [self.zone_weight(z) for z in eligible]
+            result = self.rng.choices(eligible, weights=weights, k=1)[0]
+        if self.verbose:
+            print(f"[ZoneManager] Sampled zone: {result.zone_id} (success_rate={result.stats.success_rate:.2f})")
         return result
     
     def sample_zones_for_batch(self, num_bots: int) -> List[TrainingZone]:
@@ -194,7 +199,7 @@ class ZoneManager:
             if zone:
                 zones.append(zone)
             elif self.zones:
-                zones.append(random.choice(self.zones))
+                zones.append(self.rng.choice(self.zones))
         return zones
     
     def assign_zone_to_bot(self, bot_id: int, zone: TrainingZone):
@@ -240,25 +245,6 @@ class ZoneManager:
             'died': died
         })
     
-    def get_zone_assignments_data(self, bot_ids: List[int]) -> bytes:
-        """
-        Create binary data for zone assignments to send to C#.
-        Format per bot: spawn_x(4), spawn_y(4), target_x(4), target_y(4) = 16 bytes
-        """
-        import struct
-        data = bytearray()
-        
-        for bot_id in bot_ids:
-            zone = self.bot_zones.get(bot_id)
-            if zone:
-                loc = zone.original_location
-                data.extend(struct.pack('ffff', loc.spawn_x, loc.spawn_y, loc.target_x, loc.target_y))
-            else:
-                # No zone - use zeros (will be ignored)
-                data.extend(struct.pack('ffff', 0, 0, 0, 0))
-        
-        return bytes(data)
-    
     def set_difficulty_range(self, min_diff: int, max_diff: int):
         """Set the difficulty range for zone sampling"""
         self.min_difficulty = max(1, min(10, min_diff))
@@ -279,9 +265,16 @@ class ZoneManager:
 
 
 # Default database path (relative to Training folder)
-def get_default_database_path() -> str:
-    """Get the default path to zones_database.json"""
-    # Windows-compatible paths
+def get_default_database_path(configured_path: Optional[str] = None) -> str:
+    """
+    Path to zones_database.json. The mod writes it to
+    <Main.SavePath>/ModSources/FirstMod_Sp/TrainingZones/zones_database.json, which is this
+    repository's TrainingZones/ folder when the repo is cloned into ModSources as the README says.
+    Set zone_database_path in training_config.json if your tModLoader folder is elsewhere.
+    """
+    if configured_path:
+        return os.path.normpath(os.path.expanduser(configured_path))
+
     user_docs = os.path.expanduser("~")
     
     possible_paths = [

@@ -1,53 +1,24 @@
 """
 Configuration loader for Terraria RL training
-Loads settings from training_config.json
+Loads settings from training_config.json (sections are flattened into one dict).
 """
 import json
 import os
 from typing import Dict, Any
 
 
-def load_training_config(config_path: str = None) -> Dict[str, Any]:
-    """Load training configuration from JSON file"""
-    if config_path is None:
-        # Default to Training folder
-        script_dir = os.path.dirname(os.path.abspath(__file__))
-        config_path = os.path.join(script_dir, "training_config.json")
-    
-    if not os.path.exists(config_path):
-        print(f"[Config] WARNING: Config file not found at {config_path}")
-        print("[Config] Using default values")
-        return get_default_config()
-    
-    try:
-        with open(config_path, 'r') as f:
-            config = json.load(f)
-        
-        # Flatten nested structure for easier access
-        flat_config = {}
-        for category, values in config.items():
-            if isinstance(values, dict) and not category.startswith('_'):
-                flat_config.update(values)
-        
-        print(f"[Config] Loaded configuration from {config_path}")
-        print(f"[Config] Bot count: {flat_config.get('num_bots', 16)}")
-        
-        return flat_config
-        
-    except Exception as e:
-        print(f"[Config] ERROR loading config: {e}")
-        print("[Config] Using default values")
-        return get_default_config()
-
-
 def get_default_config() -> Dict[str, Any]:
-    """Return default configuration values"""
+    """Return default configuration values (also used for keys missing from the file)"""
     return {
         # Core settings
         'num_bots': 16,
         'port': 5555,
         'max_steps_per_zone': 1500,
-        'frame_skip': 4,
+        'seed': None,
+
+        # Observation
+        'frame_skip': 4,      # game ticks per decision (read by the mod)
+        'frame_stack': 1,     # >1 wraps the env in VecFrameStack
         
         # Training hyperparameters
         'learning_rate': 0.0002,
@@ -60,12 +31,59 @@ def get_default_config() -> Dict[str, Any]:
         'ent_coef': 0.01,
         'vf_coef': 0.5,
         'max_grad_norm': 0.5,
+
+        # Reward
+        'win_reward': 20.0,
+        'death_penalty': -5.0,
+        'timeout_penalty': -1.0,
+        'progress_weight': 0.5,
+        'max_progress_per_step': 5.0,
+
+        # Path distance field (read by the mod)
+        'max_jump_tiles': 14,
+        'field_radius_tiles': 96,
+        'off_path_penalty_tiles': 10.0,
         
         # Zone settings
         'zone_min_difficulty': 1,
         'zone_max_difficulty': 10,
-        'use_performance_sampling': True
+        'use_performance_sampling': True,
+        'zone_database_path': None,
+
+        # Logging
+        'debug': False,
     }
+
+
+def default_config_path() -> str:
+    return os.path.join(os.path.dirname(os.path.abspath(__file__)), "training_config.json")
+
+
+def load_training_config(config_path: str = None, verbose: bool = True) -> Dict[str, Any]:
+    """Load training configuration from JSON file"""
+    if config_path is None:
+        config_path = default_config_path()
+    
+    config = get_default_config()
+    if not os.path.exists(config_path):
+        print(f"[Config] WARNING: Config file not found at {config_path}, using default values")
+        return config
+    
+    try:
+        with open(config_path, 'r') as f:
+            raw = json.load(f)
+    except (OSError, ValueError) as e:
+        print(f"[Config] ERROR loading config {config_path}: {e}; using default values")
+        return config
+
+    # Flatten nested structure for easier access
+    for category, values in raw.items():
+        if isinstance(values, dict) and not category.startswith('_'):
+            config.update(values)
+    
+    if verbose:
+        print(f"[Config] Loaded configuration from {config_path} (num_bots={config['num_bots']})")
+    return config
 
 
 if __name__ == "__main__":
