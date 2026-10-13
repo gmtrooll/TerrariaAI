@@ -35,7 +35,12 @@ namespace FirstMod_Sp.Common.Systems
                 }
 
                 float[] fakeActions = GenerateRandomPattern(botIndex, _botStates[botIndex]);
-                RLInterface.ApplyAction(botIndex, fakeActions);
+                // Only left/right/jump reach the bot (same action space as the RL agent).
+                int bits = 0;
+                if (fakeActions[0] > 0.5f) bits |= 1; // Left
+                if (fakeActions[1] > 0.5f) bits |= 2; // Right
+                if (fakeActions[4] > 0.5f) bits |= 4; // Jump
+                RLInterface.ApplyActionBits(botIndex, bits);
             }
         }
 

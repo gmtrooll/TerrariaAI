@@ -59,32 +59,5 @@ namespace FirstMod_Sp.Common.Systems
         }
         Main.NewText($"Grid saved to {filePath}");
     }
-
-        private float ClassifyTile(Tile tile)
-        {
-            // 1. Check if tile is active and not actuated (actuated = ghost blocks you can walk through)
-            if (!tile.HasUnactuatedTile)
-            {
-                return 0f; // Air or Actuated
-            }
-
-            // 2. Check for Platforms (SolidTop means you can stand on it but move through it)
-            // Note: Main.tileSolid[type] is TRUE for platforms, so we must check SolidTop first or explicitly.
-            if (Main.tileSolidTop[tile.TileType])
-            {
-                return 0.5f; // Platform
-            }
-
-            // 3. Check for Solids
-            // tileSolid is true for blocks like Dirt, Stone, etc.
-            // We verify it's NOT a SolidTop to avoid mislabeling special furniture/platforms if logic changes.
-            if (Main.tileSolid[tile.TileType])
-            {
-                return 1f; // Solid Block
-            }
-
-            // 4. Fallback (Furniture, Grass, Torches - things that exist but aren't solid)
-            return 0f; 
-        }
     }
 }
