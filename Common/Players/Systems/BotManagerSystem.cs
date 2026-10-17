@@ -174,8 +174,13 @@ namespace FirstMod_Sp.Common.Systems
             orig(self, i);
         }
 
+        /// <summary>Stopwatch ticks spent in UpdateBots since launch; the benchmark reads deltas.</summary>
+        public static long UpdateTime;
+
         public override void PostUpdatePlayers() {
+            long start = System.Diagnostics.Stopwatch.GetTimestamp();
             UpdateBots();
+            UpdateTime += System.Diagnostics.Stopwatch.GetTimestamp() - start;
             if (LocalPlayerOverride != null) LocalPlayerOverride.Reset();
         }
 
@@ -229,9 +234,11 @@ namespace FirstMod_Sp.Common.Systems
 
             if (slot == -1) return -1;
 
+            // Mark the slot first: on a server the network thread deactivates any active slot that is not a bot.
+            IsBot[slot] = true;
             Main.player[slot] = new Player();
             Player bot = Main.player[slot];
-            
+
             bot.active = true;
             bot.whoAmI = slot;
             bot.Spawn(PlayerSpawnContext.SpawningIntoWorld); 

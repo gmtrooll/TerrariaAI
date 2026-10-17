@@ -30,6 +30,11 @@ namespace FirstMod_Sp.Common.Systems
     {
         public override void ProcessTriggers(TriggersSet triggersSet)
         {
+            // Keybinds exist only on a client and only for the real local player. Bots reach this hook because
+            // BotManagerSystem updates them as Main.myPlayer; on a server JustPressed then throws
+            // KeyNotFoundException every bot tick, and tModLoader's first-chance logging of it (stack trace with
+            // source lines) cost ~75% of the game thread in the first benchmark.
+            if (Main.dedServ || BotManagerSystem.IsBot[Player.whoAmI]) return;
             if (GridKeybindSystem.ExtractGridKey.JustPressed)
             {
                 ExtractGrid();
