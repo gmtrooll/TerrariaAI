@@ -25,7 +25,7 @@ COLUMNS = (["time", "label", "mode", "world", "processes", "bots_per_process", "
             "repeat", "ticks_per_s", "total_decisions_per_s", "ms_per_tick", "us_per_bot_tick"]
            + [f"ms_{s}" for s in SECTIONS]
            + ["cpu_cores", "working_set_mb", "private_mb", "managed_mb", "alloc_kb_per_tick", "gc0", "gc1", "gc2",
-              "errors", "npcs_active", "notes"])
+              "errors", "npcs_active", "fidelity_off", "bot_lean", "notes"])
 
 
 def bench_all(games: GameManager, names: list, timeout: float, **bench_args) -> list:
@@ -98,6 +98,8 @@ def summarize(label, mode, world, processes, bots, frame_skip, observe, ticks, r
         "gc2": sum(r["gc"]["gen2"] for r in results),
         "errors": sum(r["errors"] for r in results),
         "npcs_active": round(statistics.fmean(r["active"]["npcs"] for r in results), 1),
+        "fidelity_off": " ".join(results[0].get("fidelity_off", [])),
+        "bot_lean": results[0].get("bot_lean", ""),
         "notes": notes,
     }
     for s in SECTIONS:
@@ -141,6 +143,50 @@ def run_matrix(mode="server", world=config.DEFAULT_WORLD, bots_list=(4,), proces
                 for name in names:
                     games.stop(name)
     return rows
+
+
+def ab_sweep(mode="server", bots=16, switches=None, repeats=3, ticks=3000, extra_args=None, label="M2",
+             world=config.DEFAULT_WORLD, games=None) -> dict:
+    """Interleaved A/B test of fidelity switches in one instance: for each switch, alternate runs with the switch
+    on (vanilla) and off, `repeats` times, then all switches off together. Running both states in the same
+    process, alternately, cancels launch-to-launch and drift noise. Returns the speedup per switch."""
+    games = games or GameManager()
+    name = f"ab_{mode}"
+    games.launch(mode, world=world, bots=bots, name=name, extra_args=extra_args)
+    try:
+        state = games.call(name, "fidelity")["state"]
+        switches = list(switches or state.keys())
+        games.call(name, "bench", timeout=600, ticks=ticks)  # warmup run (default warmup), discarded
+
+        def measure(off: list, note: str) -> dict:
+            games.call(name, "fidelity", set={s: s not in off for s in state})
+            result = games.call(name, "bench", timeout=600, ticks=ticks, warmup=1000, warmup_seconds=0)
+            row = summarize(label, mode, world, 1, bots, 4, False, ticks, 0, [result], note)
+            append_rows([row])
+            return row
+
+        summary = {}
+        for switch in switches + ["all"]:
+            off = list(state) if switch == "all" else [switch]
+            on_rows, off_rows = [], []
+            for rep in range(repeats):
+                on_rows.append(measure([], f"A/B {switch}: on"))
+                off_rows.append(measure(off, f"A/B {switch}: off"))
+            on_tps = statistics.fmean(r["ticks_per_s"] for r in on_rows)
+            off_tps = statistics.fmean(r["ticks_per_s"] for r in off_rows)
+            summary[switch] = {
+                "ticks_per_s_on": round(on_tps, 1), "ticks_per_s_off": round(off_tps, 1),
+                "speedup_pct": round(100 * (off_tps / on_tps - 1), 1),
+                "spread_on_pct": round(100 * (max(r["ticks_per_s"] for r in on_rows) -
+                                              min(r["ticks_per_s"] for r in on_rows)) / on_tps, 1),
+                "ms_per_tick_saved": round(statistics.fmean(r["ms_per_tick"] for r in on_rows) -
+                                           statistics.fmean(r["ms_per_tick"] for r in off_rows), 4),
+            }
+            print(f"{label} bots={bots} {switch}: {summary[switch]}", flush=True)
+        games.call(name, "fidelity", set={s: True for s in state})
+        return summary
+    finally:
+        games.stop(name)
 
 
 def physics_check(modes=("server", "client"), world=config.DEFAULT_WORLD, bots=4, ticks=1200, frame_skip=4,
@@ -197,6 +243,14 @@ def main():
     run.add_argument("--notes", default="")
     run.add_argument("--extra-arg", action="append", default=[],
                      help="game launch argument, repeatable; use the = form for dashes: --extra-arg=-botlean")
+    ab = sub.add_parser("ab")
+    ab.add_argument("--mode", default="server", choices=["server", "client"])
+    ab.add_argument("--bots", type=int, nargs="+", default=[16])
+    ab.add_argument("--switches", nargs="*", default=None)
+    ab.add_argument("--repeats", type=int, default=3)
+    ab.add_argument("--ticks", type=int, default=3000)
+    ab.add_argument("--label", default="M2")
+    ab.add_argument("--extra-arg", action="append", default=[])
     phys = sub.add_parser("physics")
     phys.add_argument("--modes", nargs="+", default=["server", "client"])
     phys.add_argument("--bots", type=int, default=4)
@@ -210,6 +264,10 @@ def main():
         if args.command == "run":
             run_matrix(args.mode, args.world, args.bots, args.processes, args.frame_skip, args.ticks, args.warmup,
                        args.observe, args.repeats, args.label, args.notes, extra_args=args.extra_arg, games=games)
+        elif args.command == "ab":
+            for bots in args.bots:
+                print(json.dumps(ab_sweep(args.mode, bots, args.switches, args.repeats, args.ticks,
+                                          args.extra_arg, args.label, games=games), indent=2))
         else:
             variants = [tuple(v.split()) for v in (args.variant or [""])]
             print(json.dumps(physics_check(args.modes, bots=args.bots, ticks=args.ticks, variants=variants,

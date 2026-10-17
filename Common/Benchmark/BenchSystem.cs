@@ -274,6 +274,8 @@ namespace FirstMod_Sp.Common.Benchmark
                 alloc_kb_per_tick = Math.Round((GC.GetTotalAllocatedBytes() - done.AllocStart) / 1024.0 / done.Ticks, 2),
                 gc = new { gen0 = GC.CollectionCount(0) - done.Gc0, gen1 = GC.CollectionCount(1) - done.Gc1, gen2 = GC.CollectionCount(2) - done.Gc2 },
                 errors = BridgeSystem.ErrorCount - done.ErrorsStart,
+                fidelity_off = Fidelity.FidelitySystem.Switches.Where(s => !Fidelity.FidelitySystem.On(s)).ToList(),
+                bot_lean = Bots.BotLeanUpdate.Enabled,
                 world = new { Main.worldName, w = Main.maxTilesX, h = Main.maxTilesY },
                 active = new {
                     npcs = Main.npc.Count(n => n.active),
