@@ -170,12 +170,14 @@ The architecture plan trains Navigate first, then reuses its encoder for Mine, C
 2. **Throughput target:** at least 25,000 steps/s end to end with 8 servers, measured as learned-from steps, not produced steps.
 3. **Lag check:** overlapped against synchronous on the same task. Same final success within noise, or the overlap is dropped.
 
-## Open questions for our discussion
+## Answers so far
 
-1. Is a policy lag of one update acceptable to you, or should v1 be fully synchronous for simplicity and add overlap after?
-2. Is Navigate's observation staying as it is for the learner's first version (40×40 grid with 3 values + 23 stats), or does the richer observation from the architecture plan (about 10 grid channels, entities, inventory, capabilities) come first? It changes the encoder and the speed numbers.
-3. How much should the learner be reusable across skills from day one (decision 8), against getting Navigate trained soon?
-4. Cluster: if training moves there later, many servers per learner would favour APPO with V-trace. Plan for that now, or only on the PC?
+Decided on Oct 18:
+
+1. **Policy lag:** a lag of one update is acceptable, so v1 uses overlapped collection.
+2. **Observation:** to be designed from the game code first (grid size, what each cell holds, which stats). See `docs/Observation Design.md`. The encoder and the speed numbers follow from it.
+3. **Reuse across skills:** unclear whether it helps, so it is settled by training experiments. The learner keeps the modules separable (decision 8) so the experiment is possible.
+4. **Hardware:** PC only for now, so no APPO or V-trace in v1.
 
 ## Glossary
 
