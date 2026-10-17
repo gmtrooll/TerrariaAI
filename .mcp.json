@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "terraria": {
+      "command": "tools/.venv/Scripts/python.exe",
+      "args": ["tools/terraria_mcp/server.py"]
+    }
+  }
+}

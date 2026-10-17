@@ -13,3 +13,10 @@ Training/models/
 ppo_terraria_logs/
 models/
 *.zip
+
+# Terraria MCP virtual environment (recreate: see tools/README.md)
+tools/.venv/
+
+# Profiler traces and physics trajectory dumps (large, regenerable); results/bench/bench.csv is kept
+results/profiles/
+results/bench/physics_*.json

@@ -7,6 +7,7 @@ using System.Text;
 using Terraria;
 using Terraria.ModLoader;
 using Microsoft.Xna.Framework;
+using FirstMod_Sp.Common.Automation;
 using FirstMod_Sp.Content.Projectiles;
 
 namespace FirstMod_Sp.Common.Systems
@@ -103,7 +104,7 @@ namespace FirstMod_Sp.Common.Systems
             if (DEBUG) Main.NewText($"[RL] Allocated {sendBuffer.Length / 1024} KB network buffer for {BATCH_SIZE} bots", 100, 255, 100);
 
             connectFailureReported = false;
-            ConnectToPython();
+            if (AutomationArgs.RlEnabled) ConnectToPython();
         }
 
         public override void OnWorldUnload()
@@ -232,6 +233,8 @@ namespace FirstMod_Sp.Common.Systems
 
         public override void PostUpdatePlayers()
         {
+            if (!AutomationArgs.RlEnabled) return;
+
             // Auto-reconnect if not connected
             if (client == null) {
                 reconnectTimer++;
