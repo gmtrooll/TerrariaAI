@@ -166,3 +166,35 @@ Unthrottled (bench steps ticks back to back), `frame_skip` 4, random policy, sma
 | M4 | server, 64 lean bots | 9,478 | 592 | 19.0 | 500 MB | identical to M1 | +12%: skips keyboard copy, inventory UI, idle held-item clone, prompts, dyes, biome visuals |
 | M4 | server, 128 lean bots | 8,891 | 278 | 22.8 | 510 MB | | +8% |
 | M5 | 8 servers × 64 lean bots | **34,871** | 272 | 41.3 | 495 MB | | 4.0× from 8 processes; per-process speed falls as processes share the L3 cache and memory |
+| M2 | world_updates off, 16 lean bots | +27% (A/B) | 1,984 vs 1,568 | | | identical to full | +41% at 4 bots, +19% at 64. The only switch worth turning off: profile `movement` |
+| M2 | liquids / npc_spawns / wiring / events off | within ±10% noise | | | | | no gain in a settled world, so they stay on in every profile |
+
+**Learner (M8)**, fake environment that costs nothing, RTX 3060, `n_steps` 512, 4 epochs. Raw rows are in `results/bench/learner.csv`.
+
+| Learner | Network | Batch | Update (steps/s) | Total with rollout (steps/s) | Notes |
+| --- | --- | --- | --- | --- | --- |
+| SB3 PPO (current) | current CNN (first conv at 40×40) | 512 | 3,749 | 3,381 | 256 envs; the update is the bottleneck at any env count |
+| SB3 PPO | current CNN | 4096 | 4,503 | 4,050 | 512 envs |
+| plain PyTorch, fp32 | current CNN | 4096 | 4,678 | | SB3 is not the problem; the network's compute is |
+| plain PyTorch, bf16 + channels_last | current CNN | 4096 | 11,496 | | mixed precision: 2.6× |
+| SB3 PPO | stride-2 first conv | 4096 | 12,745 | 10,837 | 3× today with a cheaper network |
+| plain PyTorch, bf16 + channels_last | stride-2 first conv | 4096 | **44,935** | | enough to keep up with 8 game servers |
+
+SB3 also alternates: it collects, then updates. The game servers idle during every update, so total throughput is about 1/(1/game + 1/update). A learner that collects the next rollout during the update would reach about min(game, update).
+
+## Fidelity
+
+Training methods trade simulation detail for speed only where it pays. Each switch in `Common/Fidelity/FidelitySystem.cs` is documented from the decompiled code (what exactly it skips) and measured on its own with an interleaved A/B benchmark in one process. A switch joins a profile only when both hold:
+
+1. **It saves time:** clearly above the ±10% run-to-run noise.
+2. **The skill doesn't need what it skips:** argued from what the switch does, then checked with the physics check against full fidelity.
+
+| Switch | What it skips | Measured | Movement | Mining, building | Long-horizon tasks |
+| --- | --- | --- | --- | --- | --- |
+| world_updates | grass and plant growth, tree growth, corruption spread, town NPCs moving in, falling stars | +19–41% | off | to decide (trees regrowing, saplings) | on |
+| liquids | water, lava and honey flow and settling | noise | on | on (digging releases water) | on |
+| npc_spawns | natural enemy spawning | noise | on (scenario decides; isolation for checks) | on | on |
+| wiring | mechanism timers | noise | on | on | on |
+| events | clock, rain, slime rain, event timers | noise | on | on | on |
+
+Remaining fixed costs, below the threshold, are left alone: NPC AI (0.15 ms per tick with the default town NPCs), projectiles, items. Smaller worlds also cut the random tile-update cost, which scales with world area, and reduce RAM per process (to measure in M5).
