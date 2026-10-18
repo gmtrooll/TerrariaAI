@@ -17,7 +17,7 @@ namespace FirstMod_Sp.Common.Scenarios
     ///
     /// Positions are feet cells: the tile the player's feet occupy, with solid ground or a platform below and room
     /// for the 3-tile-tall body above. Bridge command:
-    ///   generate_scenarios {count, min_distance, max_distance, layer, seed, max_jump, radius, per_target, with_path}
+    ///   generate_scenarios {count, min_distance, max_distance, layer, seed, max_jump, max_air_gap, radius, per_target, with_path}
     /// </summary>
     public class ScenarioGenerator : ModSystem
     {
@@ -44,6 +44,7 @@ namespace FirstMod_Sp.Common.Scenarios
                 layer: a.Value<string>("layer") ?? "surface",
                 seed: a.Value<int?>("seed") ?? 1,
                 maxJump: a.Value<int?>("max_jump") ?? 13,  // measured: 6.1 tiles single jump, 13.1 with the bots' Tsunami in a Bottle
+                maxAirGap: a.Value<int?>("max_air_gap") ?? 5,
                 radius: a.Value<int?>("radius") ?? 120,
                 perTarget: a.Value<int?>("per_target") ?? 3,
                 withPath: a.Value<bool?>("with_path") ?? false,
@@ -81,7 +82,7 @@ namespace FirstMod_Sp.Common.Scenarios
         }
 
         public static List<Scenario> Generate(int count, int minDistance, int maxDistance, string layer, int seed,
-            int maxJump, int radius, int perTarget, bool withPath, out int targetsTried) {
+            int maxJump, int maxAirGap, int radius, int perTarget, bool withPath, out int targetsTried) {
             var rng = new Random(seed);
             var (top, bottom) = LayerRows(layer);
             var result = new List<Scenario>();
@@ -99,7 +100,7 @@ namespace FirstMod_Sp.Common.Scenarios
                 int ty = column[rng.Next(column.Count)];
 
                 // Target point = body centre of a player standing on the target cell (as in PathDistanceField's goals).
-                var field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, radius, maxJump, 1.5f);
+                var field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, radius, maxJump, 1.5f, maxAirGap);
                 var byDistance = new List<(int x, int y, int d)>();
                 for (int y = ty - radius; y <= ty + radius; y++) {
                     for (int x = tx - radius; x <= tx + radius; x++) {

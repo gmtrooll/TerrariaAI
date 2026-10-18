@@ -30,10 +30,10 @@ def generate_world_set(world: str, seed: int, per_layer: int = 400, max_jump: in
             for band_index, (lo, hi) in enumerate(BANDS):
                 result = games.call(name, "generate_scenarios", timeout=600, count=per_layer // len(BANDS),
                                     min_distance=lo, max_distance=hi, layer=layer, seed=seed * 100 + band_index,
-                                    max_jump=max_jump, radius=max(hi + 10, 40))
+                                    max_jump=max_jump, max_air_gap=5, radius=max(hi + 10, 40))
                 for s in result["scenarios"]:
                     s.pop("path", None)
-                    s.update(world=world, world_seed=seed, band=f"{lo}-{hi}", max_jump=max_jump)
+                    s.update(world=world, world_seed=seed, band=f"{lo}-{hi}", max_jump=max_jump, max_air_gap=5)
                     rows.append(s)
     finally:
         games.stop(name)

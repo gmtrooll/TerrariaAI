@@ -54,8 +54,12 @@ namespace FirstMod_Sp.Common.Systems
         /// <param name="radius">Field covers target +/- radius tiles.</param>
         /// <param name="goalRadiusTiles">Feet cells whose body centre is within this many tiles of
         /// the target are goals (distance 0).</param>
+        /// <param name="maxAirGapTiles">Sideways moves through air are allowed only within this many tiles (in the
+        /// same row) of a cell the player could jump from (height above ground at most maxJumpTiles). Without the
+        /// limit the model let the player walk across the open sky, so far targets looked reachable that are not.
+        /// int.MaxValue keeps the old behaviour.</param>
         public static PathDistanceField Build(Func<int, int, PathTile> tileAt, float targetTileX, float targetTileY,
-            int radius, int maxJumpTiles, float goalRadiusTiles)
+            int radius, int maxJumpTiles, float goalRadiusTiles, int maxAirGapTiles = int.MaxValue)
         {
             int size = radius * 2 + 1;
             int originX = (int)Math.Floor(targetTileX) - radius;
@@ -81,6 +85,30 @@ namespace FirstMod_Sp.Common.Systems
                     if (y + 1 < size && (below == PathTile.Solid || below == PathTile.Platform)) h = 0;
                     else if (h != int.MaxValue) h++;
                     heightAboveGround[y * size + x] = h;
+                }
+            }
+
+            // Per cell: horizontal distance (same row) to the nearest passable cell within jump height of the ground.
+            var nearJumpable = new int[n];
+            Array.Fill(nearJumpable, int.MaxValue);
+            if (maxAirGapTiles != int.MaxValue)
+            {
+                for (int y = 0; y < size; y++)
+                {
+                    int last = int.MinValue / 2;
+                    for (int x = 0; x < size; x++)
+                    {
+                        int i = y * size + x;
+                        if (Passable(x, y) && heightAboveGround[i] <= maxJumpTiles) last = x;
+                        nearJumpable[i] = x - last;
+                    }
+                    last = int.MaxValue / 2;
+                    for (int x = size - 1; x >= 0; x--)
+                    {
+                        int i = y * size + x;
+                        if (Passable(x, y) && heightAboveGround[i] <= maxJumpTiles) last = x;
+                        nearJumpable[i] = Math.Min(nearJumpable[i], last - x);
+                    }
                 }
             }
 
@@ -111,9 +139,12 @@ namespace FirstMod_Sp.Common.Systems
                 int dx = idx % size, dy = idx / size;
                 int next = dist[idx] + 1;
 
-                // p left/right of d: horizontal edge p -> d is always allowed.
-                TryRelax(dx - 1, dy);
-                TryRelax(dx + 1, dy);
+                // p left/right of d: horizontal edge p -> d, through air only near jumpable ground.
+                if (maxAirGapTiles == int.MaxValue || nearJumpable[idx] <= maxAirGapTiles)
+                {
+                    TryRelax(dx - 1, dy);
+                    TryRelax(dx + 1, dy);
+                }
                 // p above d: falling into d, not allowed through a platform.
                 if (T(dx, dy) != PathTile.Platform) TryRelax(dx, dy - 1);
                 // p below d: jumping up into d, only within jump height of the ground.

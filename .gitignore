@@ -20,3 +20,7 @@ tools/.venv/
 # Profiler traces and physics trajectory dumps (large, regenerable); results/bench/bench.csv is kept
 results/profiles/
 results/bench/physics_*.json
+
+# Training runs (progress.csv is small and kept; checkpoints are not)
+results/training/**/*.pt
+results/training/**/sb3_model*

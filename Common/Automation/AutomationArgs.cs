@@ -10,15 +10,15 @@ namespace FirstMod_Sp.Common.Automation
     /// </summary>
     public static class AutomationArgs
     {
-        public static readonly int BridgePort = GetInt("-bridgeport", 0);
-        public static readonly int AutoBots = GetInt("-autobots", 0);
+        public static readonly int BridgePort = GetIntArg("-bridgeport", 0);
+        public static readonly int AutoBots = GetIntArg("-autobots", 0);
 
         public static bool Enabled => BridgePort > 0;
 
         /// <summary>The RL socket retries a blocking connect, which stalls the game for ~2 s per try on Windows.</summary>
         public static bool RlEnabled => !Enabled || Program.LaunchParameters.ContainsKey("-rltrain");
 
-        private static int GetInt(string key, int fallback) {
+        public static int GetIntArg(string key, int fallback) {
             return Program.LaunchParameters.TryGetValue(key, out string value) && int.TryParse(value, out int n) ? n : fallback;
         }
     }
