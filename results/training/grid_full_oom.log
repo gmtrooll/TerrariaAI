@@ -1,0 +1,52 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\train.py", line 157, in <module>
+    main()
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\train.py", line 117, in main
+    ppo.learn(args.steps, on_iteration)
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\ppo.py", line 179, in learn
+    stats = self.update(self.buffers[current])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\ppo.py", line 132, in update
+    logp, entropy, value = self.model.evaluate(mb_obs, flat_actions[idx])
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\model.py", line 127, in evaluate
+    logits, value = self(obs)
+                    ^^^^^^^^^
+  File "C:\Users\User\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\model.py", line 107, in forward
+    f = self.encoder(obs)
+        ^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\module.py", line 1736, in _wrapped_call_impl
+    return self._call_impl(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\AppData\Roaming\Python\Python312\site-packages\torch\nn\modules\module.py", line 1747, in _call_impl
+    return forward_call(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\model.py", line 75, in forward
+    parts = [self.fine_head(self.fine_cnn(self.decode_fine(obs["fine"])))]
+                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\model.py", line 65, in decode_fine
+    x = torch.cat([cls, shape, amount.unsqueeze(-1), kind, flags], dim=-1)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+torch.OutOfMemoryError: CUDA out of memory. Tried to allocate 4.73 GiB. GPU 0 has a total capacity of 12.00 GiB of which 2.91 GiB is free. Of the allocated memory 7.50 GiB is allocated by PyTorch, and 544.68 MiB is reserved by PyTorch but unallocated. If reserved but unallocated memory is large try setting PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True to avoid fragmentation.  See documentation for Memory Management  (https://pytorch.org/docs/stable/notes/cuda.html#environment-variables)
+Exception in thread Thread-13 (collect):
+Traceback (most recent call last):
+  File "C:\Python312\Lib\threading.py", line 1075, in _bootstrap_inner
+    self.run()
+  File "C:\Python312\Lib\threading.py", line 1012, in run
+    self._target(*self._args, **self._kwargs)
+  File "C:\Users\User\AppData\Roaming\Python\Python312\site-packages\torch\utils\_contextlib.py", line 116, in decorate_context
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\ppo.py", line 84, in collect
+    self.env.step_async(actions.cpu().numpy())
+  File "C:\Users\User\Documents\My Games\Terraria\tModLoader\ModSources\FirstMod_Sp\Training\navigate\env.py", line 299, in step_async
+    s.sock.sendall(out)
+OSError: [WinError 10038] An operation was attempted on something that is not a socket

@@ -2,6 +2,24 @@
 
 Oct 18–19, 2026. Decisions taken while you were away, why, and the results. Newest entries at the bottom of each section.
 
+## Summary for the morning
+
+1. **The custom PPO matches SB3** on the same environment and network: the learning curves overlap, the held-out results are 68% vs 70%, and it is faster. It replaces SB3 (Results 1, 3).
+2. **The waypoint was missing, and it matters most.** The agreed design gives Navigate the next route waypoint, but the code only gave the final target. With the waypoint: **78% vs 64%** on unseen worlds, and 65% vs 46% on 60–120 tile routes (Results 4, 6).
+3. **Evaluate with sampled actions.** Always taking the most likely action makes the same policy look like the scripted baseline (49% vs 68%), because it gets stuck. There is no gap between training and unseen worlds (Results 3).
+4. **The planner had two errors, both from not matching the game:** the player is 2 tiles wide, not 1 (`Player.width = 20`), and bots can drop through platforms. Both are fixed and all scenario sets regenerated (Results 2).
+5. **Experiments, one seed each (Results 6):**
+   - Stride-2 first convolution: same quality, +31% speed → recommended default.
+   - Visibility all / exposed / exposed+memory: 75 / 78 / 79%, no real difference → the fair observation costs nothing.
+   - 40×40 grid without the overview: same overall, +24% speed, a little lower on the longest routes → needs a second seed.
+   - Full 120×68 grid: see the table.
+6. **Speed:** the learner is still the bottleneck. bf16 + overlap gives 1,525 → 2,200 steps/s, and stride 2 brings it to 2,850. Overlap is held back by collection and update sharing one Python process; collecting in a separate process is the next speed fix.
+7. **Best held-out result so far: 79%** (stride 2, and memory). The best scripted baseline gets 54%, random 1%.
+
+Questions for you:
+- Make stride 2 the default? Run second seeds for square40 vs the two-resolution grid?
+- Navigate is good enough to move on to other parts (controller / planner integration) once the longest routes improve. Or should it be pushed further first (longer training, more worlds)?
+
 ## Decisions
 
 | # | Decision | Why | Easy to change? |

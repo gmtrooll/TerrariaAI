@@ -24,3 +24,5 @@
 10:10 start grid_square40
 10:43 done grid_square40 (exit 0)
 10:43 start grid_full
+10:45 done grid_full (exit 0)
+10:46 start grid_full (micro-batch 1024)

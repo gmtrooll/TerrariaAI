@@ -86,6 +86,7 @@ def main():
     p.add_argument("--ent", type=float, default=0.01)
     p.add_argument("--bf16", action="store_true")
     p.add_argument("--overlap", action="store_true")
+    p.add_argument("--micro-batch", type=int, default=0, help="gradient accumulation chunk (0 = whole minibatch)")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -106,7 +107,8 @@ def main():
             encoder = make_encoder(env.spec, env.fine_shape, coarse_shape, env.float_count, args.stride)
             model = ActorCritic(encoder)
             cfg = PPOConfig(n_steps=args.n_steps, batch_size=args.batch, n_epochs=args.epochs, lr=args.lr,
-                            gamma=args.gamma, ent_coef=args.ent, bf16=args.bf16, overlap=args.overlap)
+                            gamma=args.gamma, ent_coef=args.ent, bf16=args.bf16, overlap=args.overlap,
+                            micro_batch=args.micro_batch)
             ppo = PPO(env, model, cfg)
 
             def on_iteration(stats, episodes):

@@ -21,6 +21,7 @@
   "ent": 0.01,
   "bf16": true,
   "overlap": true,
+  "micro_batch": 1024,
   "port": 5635,
   "seed": 0,
   "checkpoint_every": 50

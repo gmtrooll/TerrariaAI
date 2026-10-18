@@ -33,6 +33,7 @@ class PPOConfig:
     max_grad_norm: float = 0.5
     bf16: bool = False
     overlap: bool = False
+    micro_batch: int = 0  # 0 = whole minibatch at once
 
 
 class Rollout:
@@ -127,19 +128,24 @@ class PPO:
             perm = torch.randperm(T * N, device=self.device)
             for s in range(0, T * N, cfg.batch_size):
                 idx = perm[s:s + cfg.batch_size]
-                mb_obs = {k: v[idx] for k, v in flat_obs.items()}
-                with self._autocast():
-                    logp, entropy, value = self.model.evaluate(mb_obs, flat_actions[idx])
-                a = flat_adv[idx]
-                a = (a - a.mean()) / (a.std() + 1e-8)
-                log_ratio = logp - flat_logp[idx]
-                ratio = log_ratio.exp()
-                pg_loss = -torch.min(ratio * a, ratio.clamp(1 - cfg.clip, 1 + cfg.clip) * a).mean()
-                value_loss = (flat_ret[idx] - value).pow(2).mean()
-                ent = entropy.mean()
-                loss = pg_loss + cfg.vf_coef * value_loss - cfg.ent_coef * ent
+                a_all = flat_adv[idx]
+                a_all = (a_all - a_all.mean()) / (a_all.std() + 1e-8)
                 self.optimizer.zero_grad(set_to_none=True)
-                loss.backward()
+                # Gradient accumulation over micro-batches (same update as one pass over the minibatch, less memory).
+                micro = cfg.micro_batch or len(idx)
+                for m in range(0, len(idx), micro):
+                    sub = idx[m:m + micro]
+                    a = a_all[m:m + micro]
+                    mb_obs = {k: v[sub] for k, v in flat_obs.items()}
+                    with self._autocast():
+                        logp, entropy, value = self.model.evaluate(mb_obs, flat_actions[sub])
+                    log_ratio = logp - flat_logp[sub]
+                    ratio = log_ratio.exp()
+                    pg_loss = -torch.min(ratio * a, ratio.clamp(1 - cfg.clip, 1 + cfg.clip) * a).mean()
+                    value_loss = (flat_ret[sub] - value).pow(2).mean()
+                    ent = entropy.mean()
+                    loss = pg_loss + cfg.vf_coef * value_loss - cfg.ent_coef * ent
+                    (loss * (len(sub) / len(idx))).backward()
                 nn.utils.clip_grad_norm_(self.model.parameters(), cfg.max_grad_norm)
                 self.optimizer.step()
                 with torch.no_grad():
