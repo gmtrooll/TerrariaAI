@@ -147,9 +147,11 @@ class NavigateVecEnv(VecEnv):
         errors = []
 
         def launch(i, world):
+            # wait=False: a server that has connected to this learner blocks inside its tick waiting for actions, so
+            # it cannot answer the bridge's readiness check; readiness is the connection itself (accepted below).
             name = f"env{port}_{i}_{world}"
             try:
-                self.games.launch("server", world=world, bots=bots_per_server, name=name, extra_args=args, timeout=launch_timeout)
+                self.games.launch("server", world=world, bots=bots_per_server, name=name, extra_args=args, wait=False)
                 self.instance_names.append(name)
             except Exception as e:  # noqa: BLE001
                 errors.append(f"{world}: {e}")
