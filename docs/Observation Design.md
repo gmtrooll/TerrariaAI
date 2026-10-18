@@ -241,6 +241,40 @@ Before training, three measurements:
 2. **Bytes per second** on the wire.
 3. **Learner update speed** with the new encoder, using `bench_update_ceiling.py` with the real input shapes.
 
+## Implementation (Oct 18)
+
+`Common/Observation/`, switchable at runtime (`observation_config`) or at launch (`-obs grid=fovea,visibility=exposed,light=20,coarse_every=4,entities=0`):
+
+- **Tile classes:** the per-type lookup table, 63 classes in vanilla.
+- **Builder:** fine and coarse grids, the three fairness options, self state (41 numbers), capabilities (27), goal (6), entities (16 × 14).
+- **Bridge commands:** `observe`, `observation_spec` and `observation_config`.
+- **MCP tools:** `get_observation` and `render_observation`, which draws what the bot sees, for checking against a screenshot.
+
+The benchmark's `observe` option measures the cost in the real loop.
+
+**Option b (the game's own lighting) is not implemented.** Even on a client, the game lights only the area around the local player's camera, so it cannot light 64 bots spread over the world.
+
+**Measured cost** on one server, 64 lean bots, movement profile, bots near the spawn point:
+
+| Grid / visibility | µs per bot per decision | Decisions/s | Bytes |
+| --- | --- | --- | --- |
+| none | 0 | 10,042 | |
+| legacy (40×40 floats + 23 stats) | 12 | 8,636 | 6,492 |
+| 40×40 / all | 27 | 7,824 | 7,592 |
+| 40×40 / exposed | 44 | 6,777 | 7,592 |
+| 41×41 + overview / all | 63 | 6,046 | 9,956 |
+| **41×41 + overview / exposed (default)** | **90** | **5,200** | 9,956 |
+| 41×41 + overview / exposed + memory | 103 | 4,864 | 9,956 |
+| 120×68 / exposed | 189 | 3,377 | 33,832 |
+
+**Where the time goes:** cache misses. Each bot reads a different patch of a 5-million-tile world, so the cost grows with the number of columns read times the number of game arrays read, not with the tile count. Three measures brought the default from 252 to 90 µs:
+
+- the overview reads fewer arrays, and refreshes only every 4 decisions or when the bot has moved more than one overview cell
+- the sky flood starts only from the edges of the sky-lit area
+- memory is a raw bitmap
+
+Bots spread across the world in training will miss the cache more than in this benchmark. The next step, if needed, is a world-wide pre-packed tile array (one array instead of four), which needs tracking of tile changes.
+
 ## Decisions (Oct 18)
 
 1. **Grid:** two resolutions is the default. The 40×40 and full 120×68 variants are also trained, for comparison.

@@ -28,8 +28,10 @@ namespace FirstMod_Sp.Common.Benchmark
         {
             public BridgeRequest Request;
             public int Warmup, Ticks, FrameSkip, Seed;
-            public bool Observe, Record, FixEnvironment, Isolate;
+            public bool Record, FixEnvironment, Isolate;
+            public bool Observe => ObserveMode != "none";
             public string Policy;
+            public string ObserveMode;
             public bool WasPaused;
             public int TickIndex;
             public bool Measuring;
@@ -50,6 +52,7 @@ namespace FirstMod_Sp.Common.Benchmark
         private static Run run;
         private static int currentSection = -1;
         private static long sectionStart;
+        private static byte[] observationBytes = Array.Empty<byte>();
         private static readonly float[] observationCopy = new float[GridSensors.GRID_SIZE * GridSensors.GRID_SIZE + RLInterface.STATS_SIZE];
 
         public override void Load() {
@@ -78,7 +81,9 @@ namespace FirstMod_Sp.Common.Benchmark
                 Ticks = Math.Max(1, a.Value<int?>("ticks") ?? 3000),
                 FrameSkip = Math.Max(1, a.Value<int?>("frame_skip") ?? 4),
                 Seed = a.Value<int?>("seed") ?? 1,
-                Observe = a.Value<bool?>("observe") ?? false,
+                // observe: false, true (= "new"), "new" or "legacy"
+                ObserveMode = a["observe"]?.Type == Newtonsoft.Json.Linq.JTokenType.String ? a.Value<string>("observe")
+                    : a.Value<bool?>("observe") == true ? "new" : "none",
                 Record = a.Value<bool?>("record") ?? false,
                 FixEnvironment = a.Value<bool?>("fix_environment") ?? true,
                 Policy = a.Value<string>("policy") ?? "random",
@@ -205,14 +210,25 @@ namespace FirstMod_Sp.Common.Benchmark
         }
 
         /// <summary>What the RL loop builds per bot per decision: the 40x40 grid and the stats vector, copied out.</summary>
+        /// <summary>What the RL loop builds per bot per decision. "new": the observation of
+        /// docs/Observation Design.md (ObservationBuilder, current observation_config). "legacy": the original
+        /// 40x40 float grid and 23 stats.</summary>
         private static void Observe() {
             long start = Stopwatch.GetTimestamp();
             foreach (int index in run.Bots) {
                 Player bot = Main.player[index];
-                float[] grid = GridSensors.GetObservationGrid(bot);
-                Buffer.BlockCopy(grid, 0, observationCopy, 0, grid.Length * sizeof(float));
-                float[] stats = RLInterface.GetObservation(index, true, bot.Center + new Vector2(320f, 0f));
-                Buffer.BlockCopy(stats, 0, observationCopy, grid.Length * sizeof(float), stats.Length * sizeof(float));
+                if (run.ObserveMode == "legacy") {
+                    float[] grid = GridSensors.GetObservationGrid(bot);
+                    Buffer.BlockCopy(grid, 0, observationCopy, 0, grid.Length * sizeof(float));
+                    float[] stats = RLInterface.GetObservation(index, true, bot.Center + new Vector2(320f, 0f));
+                    Buffer.BlockCopy(stats, 0, observationCopy, grid.Length * sizeof(float), stats.Length * sizeof(float));
+                }
+                else {
+                    var op = bot.GetModPlayer<Observation.ObservationPlayer>();
+                    op.Target ??= bot.Center + new Vector2(320f, 0f);
+                    if (observationBytes.Length < Observation.ObservationBuilder.TotalBytes) observationBytes = new byte[Observation.ObservationBuilder.TotalBytes];
+                    Observation.ObservationBuilder.Build(bot, observationBytes);
+                }
             }
             run.ObserveTime += Stopwatch.GetTimestamp() - start;
         }
@@ -259,7 +275,9 @@ namespace FirstMod_Sp.Common.Benchmark
                 bots,
                 ticks = done.Ticks,
                 frame_skip = done.FrameSkip,
-                observe = done.Observe,
+                observe = done.ObserveMode,
+                observation_bytes = done.ObserveMode == "new" ? Observation.ObservationBuilder.TotalBytes : done.ObserveMode == "legacy" ? observationCopy.Length * sizeof(float) : 0,
+                observation = done.ObserveMode == "new" ? Observation.ObservationSystem.Layout() : null,
                 wall_s = Math.Round(wall, 3),
                 ticks_per_s = Math.Round(done.Ticks / wall, 1),
                 decisions_per_s = Math.Round(bots * done.Ticks / (double)done.FrameSkip / wall, 1),

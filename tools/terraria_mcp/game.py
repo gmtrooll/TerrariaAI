@@ -51,7 +51,8 @@ class GameManager:
         started = time.time()
         config.BUILD_STAGE_DIR.mkdir(parents=True, exist_ok=True)
         result = subprocess.run(
-            ["dotnet", "build", "-nologo", "-v", "q", "-clp:NoSummary",
+            # Release: a Debug assembly tells the JIT not to optimize, which made the mod's own loops ~10x slower.
+            ["dotnet", "build", "-c", "Release", "-nologo", "-v", "q", "-clp:NoSummary",
              f'-p:ExtraBuildModFlags=-tmlsavedirectory "{config.BUILD_STAGE_DIR}"'],
             cwd=config.MOD_SOURCE, capture_output=True, text=True, encoding="utf-8", errors="replace",
         )

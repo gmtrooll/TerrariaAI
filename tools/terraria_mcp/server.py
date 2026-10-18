@@ -260,6 +260,52 @@ def errors(clear: bool = False, instance: str = None) -> dict:
     return _call(instance, "errors", clear=clear or None)
 
 
+# ---------- observation ----------
+
+_spec_cache = {}
+
+
+def _spec(instance):
+    key = games.get(instance).name
+    if key not in _spec_cache:
+        _spec_cache[key] = _call(instance, "observation_spec")
+    return _spec_cache[key]
+
+
+@mcp.tool()
+def observation_config(grid: str = None, visibility: str = None, light: int = None, entities: bool = None,
+                       instance: str = None) -> dict:
+    """Change the observation settings and return the layout. grid: fovea (41x41 + 30x17 overview), square40,
+    full (120x68). visibility: all, exposed (exposed tiles + light radius), exposedmemory (+ tiles seen before).
+    light: light radius in tiles. entities: include the 16 nearest entities."""
+    _spec_cache.pop(games.get(instance).name, None)
+    return _call(instance, "observation_config", grid=grid, visibility=visibility, light=light,
+                 entities=None if entities is None else int(entities))
+
+
+@mcp.tool()
+def get_observation(bot: int = None, player: int = None, target_x: float = None, target_y: float = None,
+                    instance: str = None) -> dict:
+    """One observation as named values (self state, capabilities, goal, entities), with build time and size.
+    target_x/target_y (tiles) set the bot's goal first."""
+    target = {"x": target_x, "y": target_y} if target_x is not None and target_y is not None else None
+    result = _call(instance, "observe", target=target, **_target(bot, player))
+    result.pop("fine", None)
+    result.pop("coarse", None)
+    return result
+
+
+@mcp.tool()
+def render_observation(bot: int = None, player: int = None, target_x: float = None, target_y: float = None,
+                       scale: int = 8, instance: str = None) -> Image:
+    """Draw what the bot sees: the fine grid (black = not visible, darkened = remembered, red outline = the bot,
+    magenta line = goal) and the coarse overview with the fine area outlined. Compare with screenshot/render_map."""
+    from terraria_mcp import observation
+    target = {"x": target_x, "y": target_y} if target_x is not None and target_y is not None else None
+    result = _call(instance, "observe", target=target, **_target(bot, player))
+    return Image(data=observation.render(result, _spec(instance), scale=scale), format="png")
+
+
 # ---------- measurement ----------
 
 @mcp.tool()
