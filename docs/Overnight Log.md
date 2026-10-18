@@ -12,7 +12,7 @@ Oct 18–19, 2026. Decisions taken while you were away, why, and the results. Ne
    - Stride-2 first convolution: same quality, +31% speed → recommended default.
    - Visibility all / exposed / exposed+memory: 75 / 78 / 79%, no real difference → the fair observation costs nothing.
    - 40×40 grid without the overview: same overall, +24% speed, a little lower on the longest routes → needs a second seed.
-   - Full 120×68 grid: see the table.
+   - Full 120×68 grid: 76%, no better and 3.4× slower (645 steps/s) → drop it. (First attempt ran out of GPU memory; rerun with gradient accumulation, same minibatch of 4,096 in pieces of 1,024.)
 6. **Speed:** the learner is still the bottleneck. bf16 + overlap gives 1,525 → 2,200 steps/s, and stride 2 brings it to 2,850. Overlap is held back by collection and update sharing one Python process; collecting in a separate process is the next speed fix.
 7. **Best held-out result so far: 79%** (stride 2, and memory). The best scripted baseline gets 54%, random 1%.
 
@@ -134,6 +134,7 @@ Following the waypoint does not help the *scripted* policy. Routes traced along 
 | `vis_all` | grid=fovea,visibility=all | **75%** | 89% | 84% | 70% | 59% | 62% | 72% | 2,174 |
 | `vis_memory` | grid=fovea,visibility=exposedmemory | **79%** | 90% | 89% | 75% | 64% | 69% | 79% | 2,148 |
 | `grid_square40` | grid=square40,visibility=exposed | **78%** | 91% | 89% | 76% | 58% | 69% | 76% | 2,701 |
+| `grid_full` | grid=full,visibility=exposed | **76%** | 90% | 88% | 70% | 58% | 68% | 77% | 662 |
 
 Reference: 41×41 grid + 120×68 overview, exposed tiles, waypoint on, first convolution stride 1. "Train win" is the last iteration's success over all open bands; "Steps/s" the median.
 
@@ -143,3 +144,6 @@ Findings:
 - **Seeing every tile (no fairness limit) does not help**: 75% vs 78% with exposed tiles only, and caverns 62% vs 68%. The difference is within the noise of one seed. If anything, the hidden tiles inside rock are clutter. The fair observation costs nothing for movement.
 - **Tile memory makes no measurable difference** (79% vs 78%). Short Navigate episodes rarely come back to places seen earlier, so memory matters little here. It may matter for longer tasks (exploration, returning home). Keep it as an option, off by default for Navigate.
 - **A single 40×40 grid without the overview does as well overall** (78%) and is 24% faster (2,700 steps/s; no overview to build or encode). It is lower on the longest band (58% vs 65%), possibly because the overview helps on long routes, but one seed can't separate that from noise. With the waypoint carrying the route, the overview matters less than it would otherwise. Worth a second seed of both before choosing.
+- **The full 120×68 grid is no better and 3.4× slower** (76% vs 78%, 662 steps/s). The extra detail far from the bot does not help movement, as expected. Not worth pursuing.
+
+All curves: [experiments.png](../results/training/experiments.png).
