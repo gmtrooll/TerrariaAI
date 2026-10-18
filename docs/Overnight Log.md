@@ -114,6 +114,7 @@ Following the waypoint does not help the *scripted* policy. Routes traced along 
 | `no_waypoint` | grid=fovea,visibility=exposed,waypoint=0 | **64%** | 80% | 70% | 62% | 46% | 54% | 70% | 2,167 |
 | `stride2` | stride 2 | **79%** | 90% | 84% | 77% | 66% | 71% | 76% | 2,853 |
 | `vis_all` | grid=fovea,visibility=all | **75%** | 89% | 84% | 70% | 59% | 62% | 72% | 2,174 |
+| `vis_memory` | grid=fovea,visibility=exposedmemory | **79%** | 90% | 89% | 75% | 64% | 69% | 79% | 2,148 |
 
 Reference: 41×41 grid + 120×68 overview, exposed tiles, waypoint on, first convolution stride 1. "Train win" is the last iteration's success over all open bands; "Steps/s" the median.
 
@@ -121,3 +122,4 @@ Findings:
 - **The route waypoint is worth +14 points on held-out worlds** (78% vs 64%). The gain is largest on long routes (60–120: 65% vs 46%) and in caverns (68% vs 54%). It also learns faster ([curves](../results/training/waypoint.png)). The planner-sets-the-route split works as intended.
 - **First convolution stride 2 costs nothing in quality and gives +31% throughput** (79% vs 78% held-out, 2,850 vs 2,170 steps/s). The difference in success is within one seed's noise. Recommendation: stride 2 as the default from now on (not changed tonight, so that the remaining runs stay comparable with the reference).
 - **Seeing every tile (no fairness limit) does not help**: 75% vs 78% with exposed tiles only, and caverns 62% vs 68%. The difference is within the noise of one seed. If anything, the hidden tiles inside rock are clutter. The fair observation costs nothing for movement.
+- **Tile memory makes no measurable difference** (79% vs 78%). Short Navigate episodes rarely come back to places seen earlier, so memory matters little here. It may matter for longer tasks (exploration, returning home). Keep it as an option, off by default for Navigate.
