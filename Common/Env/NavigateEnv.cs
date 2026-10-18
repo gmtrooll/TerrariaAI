@@ -32,6 +32,11 @@ namespace FirstMod_Sp.Common.Env
     ///   jump u8 (0/1), has_next u8, next scenario 5 x i32 (read always, used when has_next = 1).
     /// When an episode ends the bot is moved to its queued next scenario in the same tick, so the learner must
     /// always keep one queued per bot.
+    ///
+    /// Watching (navigate.watch): -envrealtime keeps the game at normal speed instead of running ticks back to back.
+    /// A scenario with start x &lt; 0 starts where the bot is (no teleport); target x &lt; 0 means "follow the local
+    /// player" (the target moves with them). On a client the camera follows one bot (-envcamera N, keys 1-9 switch,
+    /// 0 = own player), markers show every bot's target (yellow) and waypoint (blue), and a status line is drawn.
     /// </summary>
     public class NavigateEnv : ModSystem
     {
@@ -47,6 +52,7 @@ namespace FirstMod_Sp.Common.Env
 
         public static readonly int Port = AutomationArgs.GetIntArg("-env", 0);
         public static readonly int FrameSkip = AutomationArgs.GetIntArg("-frameskip", 4);
+        public static readonly bool RealTime = Program.LaunchParameters.ContainsKey("-envrealtime");
         public static bool Active;
 
         private sealed class Scenario
@@ -61,6 +67,9 @@ namespace FirstMod_Sp.Common.Env
             public PathDistanceField Field;
             public int Steps;
             public byte Horizontal = 1, Vertical = 1, Jump;
+            public int FollowX = int.MinValue, FollowY;
+            public int Wins, Deaths, Timeouts;
+            public string LastResult = "";
         }
 
         private static BotEnv[] bots = Array.Empty<BotEnv>();
@@ -195,9 +204,11 @@ namespace FirstMod_Sp.Common.Env
             obsScratch = new byte[obsBytes];
             Active = true;
             tickInDecision = 0;
-            // Run ticks back to back, as fast as the learner answers.
-            BridgeSystem.Paused = true;
-            BridgeSystem.StepsLeft = int.MaxValue / 2;
+            // Run ticks back to back, as fast as the learner answers (unless watching in real time).
+            if (!RealTime) {
+                BridgeSystem.Paused = true;
+                BridgeSystem.StepsLeft = int.MaxValue / 2;
+            }
             SendStep(new bool[bots.Length], new byte[bots.Length], new float[bots.Length]);
             ReadCommands();
             ModContent.GetInstance<NavigateEnv>().Mod.Logger.Info($"[Env] connected to learner on {Port}: {bots.Length} bots, {obsBytes} observation bytes");
@@ -218,25 +229,45 @@ namespace FirstMod_Sp.Common.Env
                 p.dead = false;
                 p.Spawn(PlayerSpawnContext.ReviveFromDeath);
             }
-            p.position = new Vector2(s.StartX * 16 + 8 - p.width / 2f, (s.StartY + 1) * 16 - p.height);
-            p.velocity = Vector2.Zero;
-            p.fallStart = p.fallStart2 = (int)(p.position.Y / 16f);
+            if (s.StartX >= 0) {
+                p.position = new Vector2(s.StartX * 16 + 8 - p.width / 2f, (s.StartY + 1) * 16 - p.height);
+                p.velocity = Vector2.Zero;
+                p.fallStart = p.fallStart2 = (int)(p.position.Y / 16f);
+            }
             p.statLife = p.statLifeMax2;
             p.immuneTime = 0;
             p.jump = 0;
             p.breath = p.breathMax;
             var op = p.GetModPlayer<ObservationPlayer>();
             // Target point: body centre of a player standing on the target cell (as in PathDistanceField's goals).
-            op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
             op.Waypoint = null;
             op.SeenBits = null;
             op.CoarseCache = null;
             b.Current = s;
-            b.Field = GetField(s.TargetX, s.TargetY);
+            if (s.TargetX >= 0) {
+                op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
+                b.Field = GetField(s.TargetX, s.TargetY);
+            }
+            else {
+                b.FollowX = int.MinValue;
+                UpdateFollowTarget(b);
+            }
             b.Steps = 0;
             b.Horizontal = 1;
             b.Vertical = 1;
             b.Jump = 0;
+        }
+
+        /// <summary>Follow scenarios: the target is the local player's feet cell, re-planned when they move.</summary>
+        private static void UpdateFollowTarget(BotEnv b) {
+            if (Main.dedServ || Main.myPlayer < 0 || Main.myPlayer >= Main.maxPlayers) return;
+            Player me = Main.LocalPlayer;
+            int tx = (int)(me.Center.X / 16f), ty = (int)((me.Bottom.Y - 1f) / 16f);
+            if (tx == b.FollowX && ty == b.FollowY && b.Field != null) return;
+            b.FollowX = tx;
+            b.FollowY = ty;
+            b.Field = GetField(tx, ty);
+            Main.player[b.Slot].GetModPlayer<ObservationPlayer>().Target = new Vector2((tx + 0.5f) * 16f, (ty - 0.3f) * 16f);
         }
 
         private static PathDistanceField GetField(int tx, int ty) {
@@ -283,6 +314,7 @@ namespace FirstMod_Sp.Common.Env
             for (int i = 0; i < n; i++) {
                 BotEnv b = bots[i];
                 b.Steps++;
+                if (b.Current.TargetX < 0) UpdateFollowTarget(b);
                 Player p = Main.player[b.Slot];
                 float dist = PathDistance(b);
                 byte f = 0;
@@ -290,6 +322,10 @@ namespace FirstMod_Sp.Common.Env
                 else if (dist == 0) f |= Win;
                 else if (b.Steps >= b.Current.MaxSteps) f |= Timeout;
                 if (f == 0) continue;
+                if ((f & Win) != 0) b.Wins++;
+                else if ((f & Died) != 0) b.Deaths++;
+                else b.Timeouts++;
+                b.LastResult = (f & Win) != 0 ? "reached" : (f & Died) != 0 ? "died" : "timed out";
                 done[i] = true;
                 flags[i] = (byte)(f | Done | NewEpisode);
                 terminalDistance[i] = dist;
@@ -356,6 +392,76 @@ namespace FirstMod_Sp.Common.Env
                 bool hasNext = reader.ReadByte() != 0;
                 Scenario next = ReadScenario();
                 if (hasNext) b.Next = next;
+            }
+        }
+
+        // ---------- watching (client) ----------
+
+        private static int cameraBot = AutomationArgs.GetIntArg("-envcamera", 0);
+        private static readonly bool[] keyWasDown = new bool[10];
+
+        private static bool Watching => Active && !Main.dedServ && !Main.gameMenu;
+
+        public override void PostUpdateInput() {
+            if (!Watching || !Main.hasFocus || Main.drawingPlayerChat || Main.editSign || Main.editChest) return;
+            for (int k = 0; k <= 9; k++) {
+                bool down = Main.keyState.IsKeyDown(Microsoft.Xna.Framework.Input.Keys.D0 + k);
+                if (down && !keyWasDown[k]) cameraBot = k == 0 ? -1 : Math.Min(k - 1, bots.Length - 1);
+                keyWasDown[k] = down;
+            }
+        }
+
+        public override void PostUpdateDusts() {
+            if (!Watching) return;
+            // Light the whole view so caves are visible to the viewer. Display only: the bots' observation computes
+            // its own visibility and never reads the game's lighting.
+            Vector2 view = new Vector2(Main.screenWidth, Main.screenHeight) / Main.GameViewMatrix.Zoom;
+            Vector2 center = Main.screenPosition + new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
+            for (float x = center.X - view.X / 2 - 96; x <= center.X + view.X / 2 + 96; x += 40) {
+                for (float y = center.Y - view.Y / 2 - 96; y <= center.Y + view.Y / 2 + 96; y += 40) Lighting.AddLight(new Vector2(x, y), 1f, 1f, 1f);
+            }
+            if (Main.GameUpdateCount % 3 != 0) return;
+            foreach (BotEnv b in bots) {
+                var op = Main.player[b.Slot].GetModPlayer<ObservationPlayer>();
+                if (op.Target is Vector2 t && b.Current != null && b.Current.TargetX >= 0) Marker(t, Terraria.ID.DustID.GemTopaz, 1.4f);
+                if (op.Waypoint is Vector2 w) Marker(w, Terraria.ID.DustID.GemSapphire, 1.0f);
+            }
+        }
+
+        private static void Marker(Vector2 at, int type, float scale) {
+            Dust d = Dust.NewDustPerfect(at, type, Vector2.Zero, 0, default, scale);
+            d.noGravity = true;
+        }
+
+        public override void ModifyScreenPosition() {
+            if (!Watching || cameraBot < 0 || cameraBot >= bots.Length) return;
+            Player p = Main.player[bots[cameraBot].Slot];
+            Main.screenPosition = p.Center - new Vector2(Main.screenWidth, Main.screenHeight) / 2f;
+        }
+
+        public override void PostDrawInterface(Microsoft.Xna.Framework.Graphics.SpriteBatch spriteBatch) {
+            if (!Watching) return;
+            int wins = 0, deaths = 0, timeouts = 0;
+            foreach (BotEnv b in bots) {
+                wins += b.Wins;
+                deaths += b.Deaths;
+                timeouts += b.Timeouts;
+            }
+            int total = wins + deaths + timeouts;
+            var lines = new List<string> {
+                $"Navigate: {bots.Length} bots   |   reached {wins}, died {deaths}, timed out {timeouts}" + (total > 0 ? $"  ({100 * wins / total}% success)" : ""),
+                "Keys 1-9: follow a bot   0: your own player   (yellow = target, blue = route waypoint)",
+            };
+            if (cameraBot >= 0 && cameraBot < bots.Length) {
+                BotEnv b = bots[cameraBot];
+                string limit = b.Current.MaxSteps > 100000 ? "" : $"/{b.Current.MaxSteps}";
+                lines.Add($"Watching bot {cameraBot + 1}: decision {b.Steps}{limit}, {PathDistance(b):0} tiles of route left"
+                          + (b.LastResult.Length > 0 ? $"   |   last episode: {b.LastResult}" : ""));
+            }
+            float y = 110;
+            foreach (string line in lines) {
+                Utils.DrawBorderString(spriteBatch, line, new Vector2(Main.screenWidth / 2f, y), Color.White, 0.9f, 0.5f);
+                y += 24;
             }
         }
     }

@@ -126,7 +126,8 @@ class NavigateVecEnv(VecEnv):
     def __init__(self, worlds: list, bots_per_server: int = 32, port: int = 5600, obs: str = "grid=fovea,visibility=exposed",
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
-                 games: GameManager = None, launch_timeout: float = 300):
+                 games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None):
+        """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
         self.reward_cfg = reward or RewardConfig()
         self.curriculum = curriculum or Curriculum()
         self.rng = random.Random(seed)
@@ -144,14 +145,15 @@ class NavigateVecEnv(VecEnv):
         args = ["-env", str(port), "-frameskip", str(frame_skip), "-fidelity", fidelity, "-obs", obs]
         if bot_lean:
             args.append("-botlean")
+        args += list(extra_args or [])
         errors = []
 
         def launch(i, world):
             # wait=False: a server that has connected to this learner blocks inside its tick waiting for actions, so
             # it cannot answer the bridge's readiness check; readiness is the connection itself (accepted below).
-            name = f"env{port}_{i}_{world}"
+            name = f"{'watch' if mode == 'client' else 'env'}{port}_{i}_{world}"
             try:
-                self.games.launch("server", world=world, bots=bots_per_server, name=name, extra_args=args, wait=False)
+                self.games.launch(mode, world=world, bots=bots_per_server, name=name, extra_args=args, wait=False)
                 self.instance_names.append(name)
             except Exception as e:  # noqa: BLE001
                 errors.append(f"{world}: {e}")

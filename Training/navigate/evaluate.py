@@ -43,6 +43,26 @@ def fixed_lists(worlds, per_band: int, seed: int = 12345) -> dict:
     return out
 
 
+def load_policy(run_dir: Path, config: dict, env, deterministic: bool):
+    """act(obs) -> actions for a trained run (custom PPO or SB3)."""
+    device = "cuda"
+    if config.get("algo") == "sb3":
+        from stable_baselines3 import PPO as SB3PPO
+        sb3 = SB3PPO.load(run_dir / "sb3_model", device=device)
+        return lambda obs: sb3.predict(obs, deterministic=deterministic)[0]
+    encoder = make_encoder(env.spec, env.fine_shape, env.coarse_shape, env.float_count, config.get("stride", 1))
+    model = ActorCritic(encoder).to(device)
+    model.load_state_dict(torch.load(run_dir / "model.pt", map_location=device)["model"])
+    model.eval()
+
+    def act(obs):
+        with torch.no_grad():
+            t = {k: torch.as_tensor(v).to(device) for k, v in obs.items()}
+            a, _, _ = model.act(t, deterministic=deterministic)
+        return a.cpu().numpy()
+    return act
+
+
 def greedy_policy(spec, toward="target"):
     names = spec["self_names"] + spec["capability_names"] + spec["goal_names"]
     prefix = "wp_" if toward == "waypoint" else ""
@@ -80,22 +100,7 @@ def main():
                          curriculum=Curriculum(fixed=True), fixed_scenarios=lists)
     try:
         if args.policy == "model":
-            device = "cuda"
-            if config.get("algo") == "sb3":
-                from stable_baselines3 import PPO as SB3PPO
-                sb3 = SB3PPO.load(run_dir / "sb3_model", device=device)
-                act = lambda obs: sb3.predict(obs, deterministic=args.deterministic)[0]  # noqa: E731
-            else:
-                encoder = make_encoder(env.spec, env.fine_shape, env.coarse_shape, env.float_count, config.get("stride", 1))
-                model = ActorCritic(encoder).to(device)
-                model.load_state_dict(torch.load(run_dir / "model.pt", map_location=device)["model"])
-                model.eval()
-
-                def act(obs):
-                    with torch.no_grad():
-                        t = {k: torch.as_tensor(v).to(device) for k, v in obs.items()}
-                        a, _, _ = model.act(t, deterministic=args.deterministic)
-                    return a.cpu().numpy()
+            act = load_policy(run_dir, config, env, args.deterministic)
         elif args.policy in ("greedy", "greedy_wp"):
             act = greedy_policy(env.spec, "waypoint" if args.policy == "greedy_wp" else "target")
         else:
