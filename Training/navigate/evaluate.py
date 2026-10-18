@@ -20,7 +20,7 @@ import numpy as np
 import torch
 
 from navigate.env import BANDS, Curriculum, NavigateVecEnv
-from navigate.model import ActorCritic, make_encoder
+from navigate.model import ActorCritic, RecurrentActorCritic, make_encoder
 from terraria_mcp import scenarios as scenario_files
 
 RESULTS = Path(__file__).resolve().parents[2] / "results" / "training"
@@ -43,24 +43,46 @@ def fixed_lists(worlds, per_band: int, seed: int = 12345) -> dict:
     return out
 
 
-def load_policy(run_dir: Path, config: dict, env, deterministic: bool):
-    """act(obs) -> actions for a trained run (custom PPO or SB3)."""
-    device = "cuda"
-    if config.get("algo") == "sb3":
-        from stable_baselines3 import PPO as SB3PPO
-        sb3 = SB3PPO.load(run_dir / "sb3_model", device=device)
-        return lambda obs: sb3.predict(obs, deterministic=deterministic)[0]
-    encoder = make_encoder(env.spec, env.fine_shape, env.coarse_shape, env.float_count, config.get("stride", 1))
-    model = ActorCritic(encoder).to(device)
-    model.load_state_dict(torch.load(run_dir / "model.pt", map_location=device)["model"])
-    model.eval()
+class Policy:
+    """A trained run's policy: policy(obs) -> actions; policy.observe(dones) after every step (resets the memory
+    of recurrent policies when an episode ended)."""
 
-    def act(obs):
+    def __init__(self, run_dir: Path, config: dict, env, deterministic: bool, device: str = "cuda"):
+        self.deterministic = deterministic
+        self.device = device
+        self.sb3 = None
+        if config.get("algo") == "sb3":
+            from stable_baselines3 import PPO as SB3PPO
+            self.sb3 = SB3PPO.load(run_dir / "sb3_model", device=device)
+            return
+        encoder = make_encoder(env.spec, env.fine_shape, env.coarse_shape, env.float_count, config.get("stride", 1))
+        self.model = (RecurrentActorCritic(encoder) if config.get("recurrent") else ActorCritic(encoder)).to(device)
+        self.model.load_state_dict(torch.load(run_dir / "model.pt", map_location=device, weights_only=False)["model"])
+        self.model.eval()
+        self.recurrent = getattr(self.model, "recurrent", False)
+        if self.recurrent:
+            self.state = self.model.initial_state(env.num_envs, device)
+            self.starts = torch.ones(env.num_envs, device=device)
+
+    def __call__(self, obs):
+        if self.sb3 is not None:
+            return self.sb3.predict(obs, deterministic=self.deterministic)[0]
         with torch.no_grad():
-            t = {k: torch.as_tensor(v).to(device) for k, v in obs.items()}
-            a, _, _ = model.act(t, deterministic=deterministic)
+            t = {k: torch.as_tensor(v).to(self.device) for k, v in obs.items()}
+            if self.recurrent:
+                a, _, _, self.state = self.model.act(t, self.state, self.starts, deterministic=self.deterministic)
+                self.starts = torch.zeros_like(self.starts)
+            else:
+                a, _, _ = self.model.act(t, deterministic=self.deterministic)
         return a.cpu().numpy()
-    return act
+
+    def observe(self, dones):
+        if self.sb3 is None and self.recurrent:
+            self.starts = torch.as_tensor(np.asarray(dones, dtype=np.float32), device=self.device)
+
+
+def load_policy(run_dir: Path, config: dict, env, deterministic: bool) -> Policy:
+    return Policy(run_dir, config, env, deterministic)
 
 
 def greedy_policy(spec, toward="target"):
@@ -104,7 +126,8 @@ def main():
             old.unlink()
         extra = ["-envrecord", str(run_dir / "failures")]
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=obs_spec,
-                         curriculum=Curriculum(fixed=True), fixed_scenarios=lists, extra_args=extra)
+                         curriculum=Curriculum(fixed=True), fixed_scenarios=lists, extra_args=extra,
+                         frame_skip=config.get("frame_skip", 4))
     try:
         if args.policy == "model":
             act = load_policy(run_dir, config, env, args.deterministic)
@@ -119,7 +142,9 @@ def main():
         # The first scenario of every bot starts at connection, so run until every listed scenario has finished once.
         while len(results) < total:
             env.step_async(act(obs))
-            obs, _, _, infos = env.step_wait()
+            obs, _, dones, infos = env.step_wait()
+            if hasattr(act, "observe"):
+                act.observe(dones)
             for info in infos:
                 e = info.get("episode")
                 if e and e["id"] not in results:

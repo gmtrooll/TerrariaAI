@@ -40,9 +40,10 @@ class RewardConfig:
     max_progress_per_step: float = 3.0
 
 
-def max_decisions(path_distance: int) -> int:
-    """Episode time limit: generous for the distance (a bot covers ~0.75 tiles per 4-tick decision at run speed)."""
-    return 40 + 4 * int(path_distance)
+def max_decisions(path_distance: int, frame_skip: int = 4) -> int:
+    """Episode time limit: generous for the distance (a bot covers ~0.75 tiles per 4-tick decision at run speed).
+    Scaled with the decision interval, so every interval gets the same game time."""
+    return (40 + 4 * int(path_distance)) * 4 // frame_skip
 
 
 class Curriculum:
@@ -128,6 +129,7 @@ class NavigateVecEnv(VecEnv):
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
                  games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None):
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
+        self.frame_skip = frame_skip
         self.reward_cfg = reward or RewardConfig()
         self.curriculum = curriculum or Curriculum()
         self.rng = random.Random(seed)
@@ -231,9 +233,9 @@ class NavigateVecEnv(VecEnv):
         conn.sendall(out)
         return server
 
-    @staticmethod
-    def _pack_scenario(s: dict) -> bytes:
-        return struct.pack("<5i", s["start_x"], s["start_y"], s["target_x"], s["target_y"], max_decisions(s["path_distance"]))
+    def _pack_scenario(self, s: dict) -> bytes:
+        return struct.pack("<5i", s["start_x"], s["start_y"], s["target_x"], s["target_y"],
+                           max_decisions(s["path_distance"], self.frame_skip))
 
     def _decode_obs(self, raw: memoryview, i: int, target: dict):
         fine_n = self.fine_shape[0] * self.fine_shape[1] * self.fine_shape[2]
@@ -297,7 +299,8 @@ class NavigateVecEnv(VecEnv):
                     s.queued[b] = nxt
                     s.need_next[b] = False
                 struct.pack_into("<4B5i", out, b * 24, int(a[0]), int(a[1]), int(a[2]), has_next,
-                                 nxt["start_x"], nxt["start_y"], nxt["target_x"], nxt["target_y"], max_decisions(nxt["path_distance"]))
+                                 nxt["start_x"], nxt["start_y"], nxt["target_x"], nxt["target_y"],
+                                 max_decisions(nxt["path_distance"], self.frame_skip))
             s.sock.sendall(out)
             offset += s.bots
 

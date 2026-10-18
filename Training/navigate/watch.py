@@ -48,7 +48,8 @@ def main():
     print(f"launching a game window on {args.world} with {args.bots} bots running '{args.run}' ...", flush=True)
     env = NavigateVecEnv([args.world], bots_per_server=args.bots, port=args.port, obs=config.get("obs", "grid=fovea,visibility=exposed"),
                          curriculum=Curriculum(fixed=True), fixed_scenarios=lists, mode="client", bot_lean=False,
-                         extra_args=["-envrealtime", "-envcamera", "-1" if args.mode == "follow" else "0"])
+                         extra_args=["-envrealtime", "-envcamera", "-1" if args.mode == "follow" else "0"],
+                         frame_skip=config.get("frame_skip", 4))
     try:
         act = load_policy(run_dir, config, env, args.deterministic)
         print("running; close the game window or press Ctrl+C to stop", flush=True)
@@ -56,7 +57,8 @@ def main():
         wins = total = 0
         while True:
             env.step_async(act(obs))
-            obs, _, _, infos = env.step_wait()
+            obs, _, dones, infos = env.step_wait()
+            act.observe(dones)
             for i, info in enumerate(infos):
                 e = info.get("episode")
                 if not e or args.mode == "follow":

@@ -7,6 +7,10 @@ eps 1e-5, gradient clipping, and timeouts bootstrapped with the value of the ter
   bf16      mixed precision for the network's forward and backward passes
   overlap   collect the next rollout with the previous weights while the update runs (policy lag of one update)
 The rollout buffer lives on the GPU.
+
+Recurrent models (model.recurrent, RecurrentActorCritic) keep a memory per bot that is reset when an episode starts
+and carried over between rollouts. Their update trains on whole rollout sequences: each minibatch is batch_size /
+n_steps bots x n_steps steps, unrolled from the memory each bot had when the rollout began.
 """
 
 import copy
@@ -37,7 +41,7 @@ class PPOConfig:
 
 
 class Rollout:
-    def __init__(self, env, n_steps: int, device):
+    def __init__(self, env, n_steps: int, device, memory: int = 0):
         n = env.num_envs
         self.obs = {k: torch.zeros((n_steps, n) + sp.shape, dtype=torch.uint8 if sp.dtype == np.uint8 else torch.float32, device=device)
                     for k, sp in env.observation_space.spaces.items()}
@@ -47,6 +51,8 @@ class Rollout:
         self.rewards = torch.zeros((n_steps, n), device=device)
         self.dones = torch.zeros((n_steps, n), device=device)
         self.last_value = torch.zeros(n, device=device)
+        self.starts = torch.zeros((n_steps, n), device=device)          # recurrent: obs t starts an episode
+        self.state0 = torch.zeros((n, memory), device=device) if memory else None
         self.episodes = []
         self.seconds = 0.0
 
@@ -59,8 +65,13 @@ class PPO:
         self.device = torch.device(device)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.lr, eps=1e-5)
         self.actor = copy.deepcopy(self.model).eval() if config.overlap else self.model
-        self.buffers = [Rollout(env, config.n_steps, self.device) for _ in range(2 if config.overlap else 1)]
+        self.recurrent = getattr(model, "recurrent", False)
+        memory = model.memory if self.recurrent else 0
+        self.buffers = [Rollout(env, config.n_steps, self.device, memory) for _ in range(2 if config.overlap else 1)]
         self.obs = self._to_torch(env.reset())
+        if self.recurrent:
+            self.state = self.model.initial_state(env.num_envs, self.device)
+            self.starts = torch.ones(env.num_envs, device=self.device)
         self.num_timesteps = 0
 
     def _to_torch(self, obs: dict) -> dict:
@@ -74,9 +85,15 @@ class PPO:
         start = time.perf_counter()
         buf.episodes = []
         gamma = self.cfg.gamma
+        if self.recurrent:
+            buf.state0.copy_(self.state)
         for t in range(self.cfg.n_steps):
             with self._autocast():
-                actions, logp, value = actor.act(self.obs)
+                if self.recurrent:
+                    actions, logp, value, h = actor.act(self.obs, self.state, self.starts)
+                    buf.starts[t] = self.starts
+                else:
+                    actions, logp, value = actor.act(self.obs)
             for k in buf.obs:
                 buf.obs[k][t].copy_(self.obs[k])
             buf.actions[t] = actions
@@ -91,14 +108,24 @@ class PPO:
                 term = {k: torch.as_tensor(np.stack([infos[i]["terminal_observation"][k] for i in truncated])).to(self.device)
                         for k in next_obs}
                 with self._autocast():
-                    _, _, tvalue = actor.act(term)
+                    if self.recurrent:
+                        idx = torch.as_tensor(truncated, device=self.device)
+                        _, _, tvalue, _ = actor.act(term, h[idx], torch.zeros(len(truncated), device=self.device))
+                    else:
+                        _, _, tvalue = actor.act(term)
                 rewards[truncated] += gamma * tvalue
             buf.rewards[t] = rewards
             buf.dones[t] = torch.as_tensor(dones, device=self.device, dtype=torch.float32)
             buf.episodes.extend(info["episode"] for info in infos if "episode" in info)
             self.obs = self._to_torch(next_obs)
+            if self.recurrent:
+                self.state = h.float()
+                self.starts = buf.dones[t].clone()
         with self._autocast():
-            _, _, buf.last_value = actor.act(self.obs)
+            if self.recurrent:
+                _, _, buf.last_value, _ = actor.act(self.obs, self.state, self.starts)
+            else:
+                _, _, buf.last_value = actor.act(self.obs)
         buf.last_value = buf.last_value.float()
         buf.seconds = time.perf_counter() - start
 
@@ -124,7 +151,9 @@ class PPO:
         flat_ret = returns.reshape(-1)
         stats = {"pg_loss": [], "value_loss": [], "entropy": [], "approx_kl": [], "clip_fraction": []}
         self.model.train()
-        for _ in range(cfg.n_epochs):
+        if self.recurrent:
+            self._update_sequences(buf, adv, returns, stats)
+        for _ in range(0 if self.recurrent else cfg.n_epochs):
             perm = torch.randperm(T * N, device=self.device)
             for s in range(0, T * N, cfg.batch_size):
                 idx = perm[s:s + cfg.batch_size]
@@ -159,6 +188,48 @@ class PPO:
         out["explained_variance"] = float(1 - (flat_ret - buf.values.reshape(-1)).var() / var) if var > 0 else 0.0
         out["update_seconds"] = time.perf_counter() - start
         return out
+
+    def _update_sequences(self, buf: Rollout, adv, returns, stats):
+        """Recurrent update: minibatches of whole bot sequences (T steps each), unrolled from buf.state0."""
+        cfg = self.cfg
+        T, N = buf.rewards.shape
+        bots_per_batch = max(1, cfg.batch_size // T)
+        bots_per_micro = max(1, (cfg.micro_batch or cfg.batch_size) // T)
+
+        def take(x, bots):  # (T, N, ...) -> (T * B, ...) time-major for the chosen bots
+            sel = x[:, bots]
+            return sel.reshape((T * len(bots),) + sel.shape[2:])
+
+        for _ in range(cfg.n_epochs):
+            perm = torch.randperm(N, device=self.device)
+            for s in range(0, N, bots_per_batch):
+                bots = perm[s:s + bots_per_batch]
+                a_all = adv[:, bots]
+                a_all = (a_all - a_all.mean()) / (a_all.std() + 1e-8)
+                self.optimizer.zero_grad(set_to_none=True)
+                for m in range(0, len(bots), bots_per_micro):
+                    sub = bots[m:m + bots_per_micro]
+                    a = a_all[:, m:m + bots_per_micro].reshape(-1)
+                    mb_obs = {k: take(v, sub) for k, v in buf.obs.items()}
+                    with self._autocast():
+                        logp, entropy, value = self.model.evaluate_sequences(mb_obs, take(buf.actions, sub), buf.state0[sub],
+                                                                             buf.starts[:, sub])
+                    old_logp = take(buf.logp, sub)
+                    log_ratio = logp - old_logp
+                    ratio = log_ratio.exp()
+                    pg_loss = -torch.min(ratio * a, ratio.clamp(1 - cfg.clip, 1 + cfg.clip) * a).mean()
+                    value_loss = (take(returns, sub) - value).pow(2).mean()
+                    ent = entropy.mean()
+                    loss = pg_loss + cfg.vf_coef * value_loss - cfg.ent_coef * ent
+                    (loss * (len(sub) / len(bots))).backward()
+                nn.utils.clip_grad_norm_(self.model.parameters(), cfg.max_grad_norm)
+                self.optimizer.step()
+                with torch.no_grad():
+                    stats["pg_loss"].append(pg_loss.item())
+                    stats["value_loss"].append(value_loss.item())
+                    stats["entropy"].append(ent.item())
+                    stats["approx_kl"].append(((ratio - 1) - log_ratio).mean().item())
+                    stats["clip_fraction"].append(((ratio - 1).abs() > cfg.clip).float().mean().item())
 
     def learn(self, total_timesteps: int, on_iteration=None):
         """on_iteration(stats: dict, episodes: list) is called after every update."""

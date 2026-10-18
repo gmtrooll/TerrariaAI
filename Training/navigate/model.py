@@ -133,6 +133,74 @@ class ActorCritic(nn.Module):
         return torch.stack(logps, -1).sum(-1), torch.stack(entropies, -1).sum(-1), value.float()
 
 
+class RecurrentActorCritic(ActorCritic):
+    """ActorCritic with memory: a GRU between the encoder and the policy/value layers, so the policy can remember
+    what it tried (e.g. a failed jump) and do something else. The hidden state is reset when an episode starts.
+
+    act(obs, state, starts) works step by step during collection; evaluate_sequences(...) unrolls stored rollouts
+    (T steps x B bots) from the state the rollout started with, for the update."""
+
+    recurrent = True
+
+    def __init__(self, encoder: Encoder, hidden: int = 256, memory: int = 256):
+        self.memory = memory
+        super().__init__(encoder, hidden)
+        d = encoder.features_dim
+        self.gru = nn.GRUCell(d, memory)
+        # The policy and value layers see the encoder features and the memory.
+        self.pi = nn.Sequential(nn.Linear(d + memory, hidden), nn.ReLU())
+        self.vf = nn.Sequential(nn.Linear(d + memory, hidden), nn.ReLU())
+        self._init_weights()
+
+    def initial_state(self, n: int, device) -> torch.Tensor:
+        return torch.zeros(n, self.memory, device=device)
+
+    def _heads(self, f, h):
+        x = torch.cat([f, h.to(f.dtype)], dim=-1)
+        return self.action_head(self.pi(x)), self.value_head(self.vf(x)).squeeze(-1)
+
+    def step(self, obs: dict, state: torch.Tensor, starts: torch.Tensor):
+        """One step for B bots. starts (B,) = 1 where obs is the first of an episode. Returns logits, value, state."""
+        f = self.encoder(obs)
+        h = self.gru(f.float(), state * (1.0 - starts).unsqueeze(-1))
+        logits, value = self._heads(f, h)
+        return logits, value, h
+
+    def act(self, obs: dict, state: torch.Tensor = None, starts: torch.Tensor = None, deterministic: bool = False):
+        n = obs["vec"].shape[0]
+        if state is None:
+            state = self.initial_state(n, obs["vec"].device)
+        if starts is None:
+            starts = torch.zeros(n, device=obs["vec"].device)
+        logits, value, h = self.step(obs, state, starts)
+        actions, logps = [], []
+        for part in self.split(logits.float()):
+            dist = torch.distributions.Categorical(logits=part)
+            a = part.argmax(-1) if deterministic else dist.sample()
+            actions.append(a)
+            logps.append(dist.log_prob(a))
+        return torch.stack(actions, -1), torch.stack(logps, -1).sum(-1), value.float(), h
+
+    def evaluate_sequences(self, obs: dict, actions: torch.Tensor, state0: torch.Tensor, starts: torch.Tensor):
+        """obs: dict of (T*B, ...) in time-major order, actions (T*B, 3), state0 (B, M), starts (T, B)."""
+        T, B = starts.shape
+        f = self.encoder(obs)                      # all steps at once
+        f_t = f.view(T, B, -1)
+        h = state0
+        outs = []
+        for t in range(T):
+            h = self.gru(f_t[t].float(), h * (1.0 - starts[t]).unsqueeze(-1))
+            outs.append(h)
+        hs = torch.stack(outs).view(T * B, -1)
+        logits, value = self._heads(f, hs)
+        logps, entropies = [], []
+        for k, part in enumerate(self.split(logits.float())):
+            dist = torch.distributions.Categorical(logits=part)
+            logps.append(dist.log_prob(actions[:, k]))
+            entropies.append(dist.entropy())
+        return torch.stack(logps, -1).sum(-1), torch.stack(entropies, -1).sum(-1), value.float()
+
+
 def make_encoder(spec: dict, fine_shape, coarse_shape, vec_size, first_stride=1) -> Encoder:
     return Encoder(np.asarray(spec["classes"], dtype=np.float32), fine_shape, coarse_shape, vec_size, first_stride)
 

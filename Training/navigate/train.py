@@ -19,7 +19,7 @@ import torch
 from torch import nn
 
 from navigate.env import BANDS, Curriculum, NavigateVecEnv
-from navigate.model import ActorCritic, make_encoder
+from navigate.model import ActorCritic, RecurrentActorCritic, make_encoder
 from navigate.ppo import PPO, PPOConfig
 
 RESULTS = Path(__file__).resolve().parents[2] / "results" / "training"
@@ -87,6 +87,8 @@ def main():
     p.add_argument("--bf16", action="store_true")
     p.add_argument("--overlap", action="store_true")
     p.add_argument("--micro-batch", type=int, default=0, help="gradient accumulation chunk (0 = whole minibatch)")
+    p.add_argument("--recurrent", action="store_true", help="policy with memory (GRU); custom learner only")
+    p.add_argument("--frame-skip", type=int, default=4, help="ticks per decision (time limits scale with it)")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -99,22 +101,27 @@ def main():
     (run_dir / "config.json").write_text(json.dumps(vars(args), indent=2))
 
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=args.obs,
-                         curriculum=Curriculum(), seed=args.seed)
+                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip)
     log = ProgressLog(run_dir, env)
     try:
         coarse_shape = env.coarse_shape
         if args.algo == "custom":
             encoder = make_encoder(env.spec, env.fine_shape, coarse_shape, env.float_count, args.stride)
-            model = ActorCritic(encoder)
+            model = RecurrentActorCritic(encoder) if args.recurrent else ActorCritic(encoder)
             cfg = PPOConfig(n_steps=args.n_steps, batch_size=args.batch, n_epochs=args.epochs, lr=args.lr,
                             gamma=args.gamma, ent_coef=args.ent, bf16=args.bf16, overlap=args.overlap,
                             micro_batch=args.micro_batch)
             ppo = PPO(env, model, cfg)
 
+            milestone = [10_000_000]
+
             def on_iteration(stats, episodes):
                 log.write(ppo.num_timesteps, stats, episodes)
                 if log.iteration % args.checkpoint_every == 0:
                     ppo.save(run_dir / "model.pt")
+                if ppo.num_timesteps >= milestone[0]:  # a kept copy every 10M steps, for comparisons at equal training
+                    ppo.save(run_dir / f"model_{milestone[0] // 1_000_000}M.pt")
+                    milestone[0] += 10_000_000
 
             ppo.learn(args.steps, on_iteration)
             ppo.save(run_dir / "model.pt")
