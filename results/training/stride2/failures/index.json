@@ -1,0 +1,602 @@
+[
+ {
+  "picture": "eval_01_00.png",
+  "world": "eval_01",
+  "start": [
+   3138,
+   430
+  ],
+  "target": [
+   3121,
+   415
+  ],
+  "result": "timed out",
+  "route_length": 30,
+  "decisions": 160
+ },
+ {
+  "picture": "eval_01_01.png",
+  "world": "eval_01",
+  "start": [
+   2521,
+   295
+  ],
+  "target": [
+   2622,
+   284
+  ],
+  "result": "timed out",
+  "route_length": 112,
+  "decisions": 488
+ },
+ {
+  "picture": "eval_01_02.png",
+  "world": "eval_01",
+  "start": [
+   2451,
+   372
+  ],
+  "target": [
+   2404,
+   386
+  ],
+  "result": "died",
+  "route_length": 109,
+  "decisions": 182
+ },
+ {
+  "picture": "eval_01_03.png",
+  "world": "eval_01",
+  "start": [
+   3337,
+   297
+  ],
+  "target": [
+   3307,
+   362
+  ],
+  "result": "died",
+  "route_length": 93,
+  "decisions": 24
+ },
+ {
+  "picture": "eval_01_04.png",
+  "world": "eval_01",
+  "start": [
+   199,
+   950
+  ],
+  "target": [
+   220,
+   934
+  ],
+  "result": "timed out",
+  "route_length": 90,
+  "decisions": 400
+ },
+ {
+  "picture": "eval_01_05.png",
+  "world": "eval_01",
+  "start": [
+   1570,
+   120
+  ],
+  "target": [
+   1559,
+   112
+  ],
+  "result": "timed out",
+  "route_length": 18,
+  "decisions": 112
+ },
+ {
+  "picture": "eval_01_06.png",
+  "world": "eval_01",
+  "start": [
+   822,
+   551
+  ],
+  "target": [
+   850,
+   526
+  ],
+  "result": "timed out",
+  "route_length": 51,
+  "decisions": 244
+ },
+ {
+  "picture": "eval_01_07.png",
+  "world": "eval_01",
+  "start": [
+   3509,
+   293
+  ],
+  "target": [
+   3506,
+   284
+  ],
+  "result": "timed out",
+  "route_length": 10,
+  "decisions": 80
+ },
+ {
+  "picture": "eval_01_08.png",
+  "world": "eval_01",
+  "start": [
+   1690,
+   385
+  ],
+  "target": [
+   1679,
+   355
+  ],
+  "result": "timed out",
+  "route_length": 53,
+  "decisions": 252
+ },
+ {
+  "picture": "eval_01_09.png",
+  "world": "eval_01",
+  "start": [
+   3891,
+   513
+  ],
+  "target": [
+   3932,
+   474
+  ],
+  "result": "timed out",
+  "route_length": 88,
+  "decisions": 392
+ },
+ {
+  "picture": "eval_01_10.png",
+  "world": "eval_01",
+  "start": [
+   1698,
+   374
+  ],
+  "target": [
+   1679,
+   355
+  ],
+  "result": "timed out",
+  "route_length": 36,
+  "decisions": 184
+ },
+ {
+  "picture": "eval_01_11.png",
+  "world": "eval_01",
+  "start": [
+   782,
+   704
+  ],
+  "target": [
+   818,
+   693
+  ],
+  "result": "timed out",
+  "route_length": 102,
+  "decisions": 448
+ },
+ {
+  "picture": "eval_01_12.png",
+  "world": "eval_01",
+  "start": [
+   3498,
+   318
+  ],
+  "target": [
+   3509,
+   319
+  ],
+  "result": "timed out",
+  "route_length": 10,
+  "decisions": 80
+ },
+ {
+  "picture": "eval_01_13.png",
+  "world": "eval_01",
+  "start": [
+   3183,
+   314
+  ],
+  "target": [
+   3177,
+   306
+  ],
+  "result": "timed out",
+  "route_length": 21,
+  "decisions": 124
+ },
+ {
+  "picture": "eval_01_14.png",
+  "world": "eval_01",
+  "start": [
+   1642,
+   401
+  ],
+  "target": [
+   1637,
+   394
+  ],
+  "result": "timed out",
+  "route_length": 10,
+  "decisions": 80
+ },
+ {
+  "picture": "eval_01_15.png",
+  "world": "eval_01",
+  "start": [
+   3497,
+   316
+  ],
+  "target": [
+   3509,
+   319
+  ],
+  "result": "timed out",
+  "route_length": 13,
+  "decisions": 92
+ },
+ {
+  "picture": "eval_01_16.png",
+  "world": "eval_01",
+  "start": [
+   1050,
+   410
+  ],
+  "target": [
+   1084,
+   401
+  ],
+  "result": "timed out",
+  "route_length": 41,
+  "decisions": 204
+ },
+ {
+  "picture": "eval_01_17.png",
+  "world": "eval_01",
+  "start": [
+   3655,
+   247
+  ],
+  "target": [
+   3666,
+   220
+  ],
+  "result": "timed out",
+  "route_length": 37,
+  "decisions": 188
+ },
+ {
+  "picture": "eval_01_18.png",
+  "world": "eval_01",
+  "start": [
+   3616,
+   361
+  ],
+  "target": [
+   3666,
+   363
+  ],
+  "result": "timed out",
+  "route_length": 68,
+  "decisions": 312
+ },
+ {
+  "picture": "eval_01_19.png",
+  "world": "eval_01",
+  "start": [
+   819,
+   551
+  ],
+  "target": [
+   850,
+   526
+  ],
+  "result": "timed out",
+  "route_length": 54,
+  "decisions": 256
+ },
+ {
+  "picture": "eval_02_00.png",
+  "world": "eval_02",
+  "start": [
+   3899,
+   410
+  ],
+  "target": [
+   3847,
+   410
+  ],
+  "result": "timed out",
+  "route_length": 84,
+  "decisions": 376
+ },
+ {
+  "picture": "eval_02_01.png",
+  "world": "eval_02",
+  "start": [
+   1974,
+   621
+  ],
+  "target": [
+   1933,
+   619
+  ],
+  "result": "timed out",
+  "route_length": 118,
+  "decisions": 512
+ },
+ {
+  "picture": "eval_02_02.png",
+  "world": "eval_02",
+  "start": [
+   2369,
+   272
+  ],
+  "target": [
+   2367,
+   233
+  ],
+  "result": "timed out",
+  "route_length": 56,
+  "decisions": 264
+ },
+ {
+  "picture": "eval_02_03.png",
+  "world": "eval_02",
+  "start": [
+   2357,
+   233
+  ],
+  "target": [
+   2386,
+   234
+  ],
+  "result": "timed out",
+  "route_length": 28,
+  "decisions": 152
+ },
+ {
+  "picture": "eval_02_04.png",
+  "world": "eval_02",
+  "start": [
+   3998,
+   853
+  ],
+  "target": [
+   4019,
+   832
+  ],
+  "result": "timed out",
+  "route_length": 68,
+  "decisions": 312
+ },
+ {
+  "picture": "eval_02_05.png",
+  "world": "eval_02",
+  "start": [
+   3836,
+   417
+  ],
+  "target": [
+   3875,
+   407
+  ],
+  "result": "timed out",
+  "route_length": 73,
+  "decisions": 332
+ },
+ {
+  "picture": "eval_02_06.png",
+  "world": "eval_02",
+  "start": [
+   2420,
+   871
+  ],
+  "target": [
+   2444,
+   857
+  ],
+  "result": "timed out",
+  "route_length": 37,
+  "decisions": 188
+ },
+ {
+  "picture": "eval_02_07.png",
+  "world": "eval_02",
+  "start": [
+   707,
+   441
+  ],
+  "target": [
+   715,
+   428
+  ],
+  "result": "timed out",
+  "route_length": 32,
+  "decisions": 168
+ },
+ {
+  "picture": "eval_02_08.png",
+  "world": "eval_02",
+  "start": [
+   2877,
+   230
+  ],
+  "target": [
+   2944,
+   215
+  ],
+  "result": "timed out",
+  "route_length": 113,
+  "decisions": 492
+ },
+ {
+  "picture": "eval_02_09.png",
+  "world": "eval_02",
+  "start": [
+   783,
+   406
+  ],
+  "target": [
+   793,
+   405
+  ],
+  "result": "timed out",
+  "route_length": 17,
+  "decisions": 108
+ },
+ {
+  "picture": "eval_02_10.png",
+  "world": "eval_02",
+  "start": [
+   2455,
+   296
+  ],
+  "target": [
+   2483,
+   297
+  ],
+  "result": "timed out",
+  "route_length": 39,
+  "decisions": 196
+ },
+ {
+  "picture": "eval_02_11.png",
+  "world": "eval_02",
+  "start": [
+   2365,
+   102
+  ],
+  "target": [
+   2359,
+   102
+  ],
+  "result": "timed out",
+  "route_length": 12,
+  "decisions": 88
+ },
+ {
+  "picture": "eval_02_12.png",
+  "world": "eval_02",
+  "start": [
+   2505,
+   411
+  ],
+  "target": [
+   2441,
+   408
+  ],
+  "result": "died",
+  "route_length": 71,
+  "decisions": 135
+ },
+ {
+  "picture": "eval_02_13.png",
+  "world": "eval_02",
+  "start": [
+   221,
+   358
+  ],
+  "target": [
+   233,
+   361
+  ],
+  "result": "timed out",
+  "route_length": 42,
+  "decisions": 208
+ },
+ {
+  "picture": "eval_02_14.png",
+  "world": "eval_02",
+  "start": [
+   2359,
+   640
+  ],
+  "target": [
+   2367,
+   652
+  ],
+  "result": "timed out",
+  "route_length": 50,
+  "decisions": 240
+ },
+ {
+  "picture": "eval_02_15.png",
+  "world": "eval_02",
+  "start": [
+   3065,
+   428
+  ],
+  "target": [
+   3079,
+   428
+  ],
+  "result": "timed out",
+  "route_length": 13,
+  "decisions": 92
+ },
+ {
+  "picture": "eval_02_16.png",
+  "world": "eval_02",
+  "start": [
+   3696,
+   864
+  ],
+  "target": [
+   3672,
+   848
+  ],
+  "result": "timed out",
+  "route_length": 38,
+  "decisions": 192
+ },
+ {
+  "picture": "eval_02_17.png",
+  "world": "eval_02",
+  "start": [
+   1926,
+   612
+  ],
+  "target": [
+   1926,
+   603
+  ],
+  "result": "timed out",
+  "route_length": 25,
+  "decisions": 140
+ },
+ {
+  "picture": "eval_02_18.png",
+  "world": "eval_02",
+  "start": [
+   842,
+   283
+  ],
+  "target": [
+   835,
+   269
+  ],
+  "result": "timed out",
+  "route_length": 21,
+  "decisions": 124
+ },
+ {
+  "picture": "eval_02_19.png",
+  "world": "eval_02",
+  "start": [
+   313,
+   375
+  ],
+  "target": [
+   352,
+   404
+  ],
+  "result": "timed out",
+  "route_length": 84,
+  "decisions": 376
+ }
+]
