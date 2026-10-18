@@ -241,10 +241,52 @@ Before training, three measurements:
 2. **Bytes per second** on the wire.
 3. **Learner update speed** with the new encoder, using `bench_update_ceiling.py` with the real input shapes.
 
-## Open questions for discussion
+## Decisions (Oct 18)
 
-1. Grid: two resolutions (41×41 plus a coarse 120×68 overview), or something else?
-2. Navigate: learn routes, or local movement with a planner hint?
-3. Fairness: is the "exposed tiles plus light radius" approximation acceptable for Navigate, with real lighting checked later on a client?
-4. Entities in Navigate from the start (enemies as moving obstacles), or only once Combat starts?
-5. Should capabilities be given as numbers, or should the bot infer them from its own recent movement? The second is closer to how RMA (Kumar et al. 2021) adapts to unknown dynamics, but harder to learn.
+1. **Grid:** two resolutions is the default. The 40×40 and full 120×68 variants are also trained, for comparison.
+2. **Navigate learns local movement.** The planner sets the route, and the goal input carries the next waypoint.
+3. **Fairness:** all four options (a–d) are compared on speed and on training results.
+4. **No entities in Navigate training.** The entity slots exist in the format but stay empty. Movement during combat: see below.
+5. **Capabilities are given as numbers.** Gear-driven values change only when equipment or buffs change, so the mod computes them only then (see below).
+
+## Experiments this sets up
+
+Each one compares mod time per decision, learner update speed, and Navigate success against both training steps and wall-clock time, on held-out worlds.
+
+| Experiment | Variants |
+| --- | --- |
+| Grid | 40×40 · 41×41 + 30×17 overview · full 120×68 |
+| Fairness | a. everything in view · b. game lighting run by the mod (if it works headless) · c. exposed tiles + light radius · d. c plus memory of seen tiles |
+| Encoder first layer (learner doc) | full resolution · stride 2 |
+
+## Capabilities: computed on change
+
+Capabilities split into two kinds:
+
+- **Gear values** come from equipment and buffs: top speed, sprint cap, jump, wing time, dash type, safe fall distance, and so on. They change only when equipment or a buff changes.
+- **Effective values** are the gear values after the floor and liquid of this tick: ice cuts friction, water halves displacement. They change often, but they are a function of the gear values plus the floor and liquid flags, which are already in the self state.
+
+The policy gets the gear values; the network learns the floor and liquid effects from the flags.
+
+On cost: the gear vector is about 20 numbers, 80 bytes, next to about 8.8 KB of grid. Sending it every decision costs under 1% of the bandwidth, so skipping unchanged values saves almost nothing on the wire. The useful saving is on the mod side: reading and normalising those fields every decision for every bot. So the mod keeps a cached gear vector per bot and recomputes it only when the bot's equipment or buffs change. tModLoader updates both inside each player's update, so the mod can compare a cheap fingerprint (the equipment item types and active buff types) every decision. The vector is still sent every decision, which keeps the learner simple. If measurements later show transport matters, sending it only on change is a small protocol change.
+
+## Movement during combat: an architecture question
+
+If Navigate never sees enemies, something else has to move the bot in a fight. That belongs to the architecture plan rather than to the observation, but the options affect the observation format:
+
+| Option | How it works | For | Against |
+| --- | --- | --- | --- |
+| A. Combat moves the bot itself | The Combat skill outputs movement and attack actions together; its network starts from Navigate's weights, so it already knows how to move | Dodging and spacing react every decision; one skill per situation, as in the architecture plan | Combat must learn to move among enemies; Navigate's movement skill is reused only as a starting point |
+| B. Combat gives movement goals to Navigate | Combat decides where to stand ("keep 10 tiles from the boss, on that platform"); Navigate gets there | Navigate stays the only movement skill | Dodging a projectile needs a reaction within a few ticks, too fast for a goal handed to another skill |
+| C. Navigate learns to avoid threats | A second Navigate stage adds enemies and projectiles as obstacles; Combat adds attacking on top | Movement among enemies is learned once and reused | Enemies are in movement training after all, as a separate stage |
+
+**Recommendation: A, with B for retreat.**
+
+- **The controller** decides *whether* to fight: enemy close → Combat; low life → retreat.
+- **Combat** controls movement, aim and attacks during the fight, starting from Navigate's weights.
+- **Retreat** to a safe spot is a normal Navigate goal set by the controller.
+- **Boss fights** fine-tune from Combat, as the plan already says.
+
+For the observation, this means the entity part of the format must be present from the first Navigate network (empty, as decided), so that Combat can start from Navigate's weights without changing the input shape.
+
+**The risk:** a network that only ever saw empty entity slots may react unpredictably when they fill. Combat training starts by fine-tuning on easy fights for exactly that reason. Whether starting from Navigate helps at all is part of the reuse experiment (learner doc, decision 8).
