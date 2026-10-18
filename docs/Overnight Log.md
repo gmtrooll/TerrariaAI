@@ -115,6 +115,7 @@ Following the waypoint does not help the *scripted* policy. Routes traced along 
 | `stride2` | stride 2 | **79%** | 90% | 84% | 77% | 66% | 71% | 76% | 2,853 |
 | `vis_all` | grid=fovea,visibility=all | **75%** | 89% | 84% | 70% | 59% | 62% | 72% | 2,174 |
 | `vis_memory` | grid=fovea,visibility=exposedmemory | **79%** | 90% | 89% | 75% | 64% | 69% | 79% | 2,148 |
+| `grid_square40` | grid=square40,visibility=exposed | **78%** | 91% | 89% | 76% | 58% | 69% | 76% | 2,701 |
 
 Reference: 41×41 grid + 120×68 overview, exposed tiles, waypoint on, first convolution stride 1. "Train win" is the last iteration's success over all open bands; "Steps/s" the median.
 
@@ -123,3 +124,4 @@ Findings:
 - **First convolution stride 2 costs nothing in quality and gives +31% throughput** (79% vs 78% held-out, 2,850 vs 2,170 steps/s). The difference in success is within one seed's noise. Recommendation: stride 2 as the default from now on (not changed tonight, so that the remaining runs stay comparable with the reference).
 - **Seeing every tile (no fairness limit) does not help**: 75% vs 78% with exposed tiles only, and caverns 62% vs 68%. The difference is within the noise of one seed. If anything, the hidden tiles inside rock are clutter. The fair observation costs nothing for movement.
 - **Tile memory makes no measurable difference** (79% vs 78%). Short Navigate episodes rarely come back to places seen earlier, so memory matters little here. It may matter for longer tasks (exploration, returning home). Keep it as an option, off by default for Navigate.
+- **A single 40×40 grid without the overview does as well overall** (78%) and is 24% faster (2,700 steps/s; no overview to build or encode). It is lower on the longest band (58% vs 65%), possibly because the overview helps on long routes, but one seed can't separate that from noise. With the waypoint carrying the route, the overview matters less than it would otherwise. Worth a second seed of both before choosing.

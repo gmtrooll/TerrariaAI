@@ -22,3 +22,5 @@
 09:29 start vis_memory
 10:10 done vis_memory (exit 0)
 10:10 start grid_square40
+10:43 done grid_square40 (exit 0)
+10:43 start grid_full
