@@ -42,6 +42,8 @@ namespace FirstMod_Sp.Common.Env
         public const byte Done = 1, Win = 2, Died = 4, Timeout = 8, NewEpisode = 16;
         public const int FieldRadius = 130, MaxJumpTiles = 13, MaxAirGapTiles = 5;
         public const float GoalRadiusTiles = 1.5f, OffPathPenaltyTiles = 10f;
+        /// <summary>The observation's waypoint is this many path tiles ahead of the bot (inside the 41 x 41 grid).</summary>
+        public const int WaypointSteps = 12;
 
         public static readonly int Port = AutomationArgs.GetIntArg("-env", 0);
         public static readonly int FrameSkip = AutomationArgs.GetIntArg("-frameskip", 4);
@@ -226,6 +228,7 @@ namespace FirstMod_Sp.Common.Env
             var op = p.GetModPlayer<ObservationPlayer>();
             // Target point: body centre of a player standing on the target cell (as in PathDistanceField's goals).
             op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
+            op.Waypoint = null;
             op.SeenBits = null;
             op.CoarseCache = null;
             b.Current = s;
@@ -259,6 +262,15 @@ namespace FirstMod_Sp.Common.Env
             return Vector2.Distance(p.Center, Main.player[b.Slot].GetModPlayer<ObservationPlayer>().Target ?? p.Center) / 16f + OffPathPenaltyTiles;
         }
 
+        /// <summary>Sets the bot's observation waypoint from its route (the planner's distance field).</summary>
+        private static void UpdateWaypoint(BotEnv b) {
+            Player p = Main.player[b.Slot];
+            var op = p.GetModPlayer<ObservationPlayer>();
+            int tx = (int)(p.Center.X / 16f), ty = (int)((p.Bottom.Y - 1f) / 16f);
+            op.Waypoint = ObservationConfig.Waypoint && b.Field.Waypoint(tx, ty, WaypointSteps, out int wx, out int wy)
+                ? new Vector2((wx + 0.5f) * 16f, (wy - 0.3f) * 16f) : null;
+        }
+
         private static void Decide() {
             long start = System.Diagnostics.Stopwatch.GetTimestamp();
             decisions++;
@@ -287,6 +299,7 @@ namespace FirstMod_Sp.Common.Env
             var terminalObs = doneCount > 0 ? new byte[doneCount * obsBytes] : Array.Empty<byte>();
             for (int i = 0, k = 0; i < n; i++) {
                 if (!done[i]) continue;
+                UpdateWaypoint(bots[i]);
                 ObservationBuilder.Build(Main.player[bots[i].Slot], obsScratch);
                 Buffer.BlockCopy(obsScratch, 0, terminalObs, k * obsBytes, obsBytes);
                 k++;
@@ -316,6 +329,7 @@ namespace FirstMod_Sp.Common.Env
                 BitConverter.TryWriteBytes(sendBuffer.AsSpan(o, 4), PathDistance(b));
                 o += 4;
                 long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+                UpdateWaypoint(b);
                 ObservationBuilder.Build(Main.player[b.Slot], sendBuffer.AsSpan(o, obsBytes));
                 timeObservations += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
                 o += obsBytes;

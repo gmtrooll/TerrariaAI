@@ -56,9 +56,14 @@ namespace FirstMod_Sp.Common.Scenarios
         /// tile below supports, no liquid at the feet, and no contact-damage tile within one tile.</summary>
         public static bool Standable(int x, int y) {
             if (x < 50 || x >= Main.maxTilesX - 50 || y < 50 || y >= Main.maxTilesY - 50) return false;
-            for (int j = 0; j < 3; j++) {
-                if (GridSensors.ClassifyPathTile(x, y - j) == PathTile.Solid) return false;
+            // The body is 3 tiles tall and 2 wide (20 px): this column and one neighbour must be clear.
+            bool Clear(int cx) {
+                for (int j = 0; j < 3; j++) {
+                    if (GridSensors.ClassifyPathTile(cx, y - j) == PathTile.Solid) return false;
+                }
+                return true;
             }
+            if (!Clear(x) || (!Clear(x - 1) && !Clear(x + 1))) return false;
             if (GridSensors.ClassifyPathTile(x, y + 1) == PathTile.Air) return false;
             if (Main.tile[x, y].LiquidAmount > 0) return false;
             for (int i = -1; i <= 1; i++) {

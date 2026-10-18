@@ -1,10 +1,12 @@
 """Evaluate a Navigate policy on the held-out worlds with a fixed scenario list (the same list for every policy).
 
     python -m navigate.evaluate --run parity_custom              # trained model of a run (custom or SB3)
-    python -m navigate.evaluate --policy greedy --name greedy    # scripted baseline
+    python -m navigate.evaluate --policy greedy --name greedy    # scripted baseline: walk toward the target
+    python -m navigate.evaluate --policy greedy_wp --name greedy_wp  # scripted: walk toward the route waypoint
     python -m navigate.evaluate --policy random --name random
 
-Each scenario is run once. Writes results/training/<run or name>/eval.json: success rate overall, per world, per
+Each scenario is run once. Actions are sampled from the policy (as in training); --deterministic takes the most
+likely action instead, which gets stuck far more often (Overnight Log, results 3). Writes results/training/<run or name>/eval.json: success rate overall, per world, per
 distance band and per layer, plus mean episode length of wins.
 """
 
@@ -41,9 +43,10 @@ def fixed_lists(worlds, per_band: int, seed: int = 12345) -> dict:
     return out
 
 
-def greedy_policy(spec):
+def greedy_policy(spec, toward="target"):
     names = spec["self_names"] + spec["capability_names"] + spec["goal_names"]
-    ix, iy, ivx = names.index("dir_x"), names.index("dir_y"), names.index("vx")
+    prefix = "wp_" if toward == "waypoint" else ""
+    ix, iy, ivx = names.index(prefix + "dir_x"), names.index(prefix + "dir_y"), names.index("vx")
     rng = np.random.default_rng(0)
 
     def act(obs):
@@ -58,13 +61,14 @@ def greedy_policy(spec):
 def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--run", default=None, help="training run whose model to evaluate")
-    p.add_argument("--policy", choices=["model", "greedy", "random"], default="model")
+    p.add_argument("--policy", choices=["model", "greedy", "greedy_wp", "random"], default="model")
     p.add_argument("--name", default=None, help="output folder for baselines")
     p.add_argument("--worlds", nargs="+", default=EVAL_WORLDS)
     p.add_argument("--per-band", type=int, default=64, help="scenarios per band per world")
     p.add_argument("--bots", type=int, default=32)
-    p.add_argument("--stochastic", action="store_true", help="sample actions instead of taking the most likely")
+    p.add_argument("--deterministic", action="store_true", help="take the most likely action instead of sampling")
     p.add_argument("--port", type=int, default=5690)
+    p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
     args = p.parse_args()
 
     run_dir = RESULTS / (args.run or args.name)
@@ -80,7 +84,7 @@ def main():
             if config.get("algo") == "sb3":
                 from stable_baselines3 import PPO as SB3PPO
                 sb3 = SB3PPO.load(run_dir / "sb3_model", device=device)
-                act = lambda obs: sb3.predict(obs, deterministic=not args.stochastic)[0]  # noqa: E731
+                act = lambda obs: sb3.predict(obs, deterministic=args.deterministic)[0]  # noqa: E731
             else:
                 encoder = make_encoder(env.spec, env.fine_shape, env.coarse_shape, env.float_count, config.get("stride", 1))
                 model = ActorCritic(encoder).to(device)
@@ -90,10 +94,10 @@ def main():
                 def act(obs):
                     with torch.no_grad():
                         t = {k: torch.as_tensor(v).to(device) for k, v in obs.items()}
-                        a, _, _ = model.act(t, deterministic=not args.stochastic)
+                        a, _, _ = model.act(t, deterministic=args.deterministic)
                     return a.cpu().numpy()
-        elif args.policy == "greedy":
-            act = greedy_policy(env.spec)
+        elif args.policy in ("greedy", "greedy_wp"):
+            act = greedy_policy(env.spec, "waypoint" if args.policy == "greedy_wp" else "target")
         else:
             rng = np.random.default_rng(0)
             act = lambda obs: rng.integers(0, [3, 3, 2], size=(env.num_envs, 3))  # noqa: E731
@@ -115,7 +119,7 @@ def main():
                     "died": round(float(np.mean([e["died"] for e in group])), 4),
                     "mean_win_length": round(float(np.mean([e["l"] for e in group if e["win"]])), 1) if any(e["win"] for e in group) else None}
 
-        out = {"policy": args.policy, "run": args.run, "obs": obs_spec, "deterministic": not args.stochastic,
+        out = {"policy": args.policy, "run": args.run, "obs": obs_spec, "deterministic": args.deterministic, "worlds": args.worlds,
                "overall": summary(episodes)}
         for key in ("world", "band", "layer"):
             groups = collections.defaultdict(list)
@@ -123,7 +127,7 @@ def main():
                 groups[e[key]].append(e)
             out[f"by_{key}"] = {k: summary(v) for k, v in sorted(groups.items())}
         run_dir.mkdir(parents=True, exist_ok=True)
-        (run_dir / "eval.json").write_text(json.dumps(out, indent=2))
+        (run_dir / (f"eval_{args.tag}.json" if args.tag else "eval.json")).write_text(json.dumps(out, indent=2))
         print(json.dumps({"overall": out["overall"], "by_band": out["by_band"]}, indent=1))
     finally:
         env.close()

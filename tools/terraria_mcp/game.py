@@ -3,6 +3,7 @@
 import json
 import re
 import shutil
+import socket
 import subprocess
 import threading
 import time
@@ -131,7 +132,8 @@ class GameManager:
     def free_bridge_port(self) -> int:
         used = {inst.bridge_port for inst in self.instances.values() if inst.running}
         port = config.FIRST_BRIDGE_PORT
-        while port in used:
+        # Other processes (training runs) launch their own games on the same range, so also probe the OS.
+        while port in used or not _port_free(port) or not _port_free(port + 10000):
             port += 1
         return port
 
@@ -291,6 +293,15 @@ class GameManager:
             pattern = re.compile(grep, re.IGNORECASE)
             lines = [line for line in lines if pattern.search(line)]
         return "\n".join(lines[-tail:])
+
+
+def _port_free(port: int) -> bool:
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.bind(("127.0.0.1", port))
+            return True
+        except OSError:
+            return False
 
 
 def _copy_output(process: subprocess.Popen, log_path: Path) -> None:

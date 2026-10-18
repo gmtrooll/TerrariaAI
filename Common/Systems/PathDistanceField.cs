@@ -10,11 +10,11 @@ namespace FirstMod_Sp.Common.Systems
     /// target by a reverse BFS and then looked up per bot per decision tick.
     ///
     /// Movement model (a cell is the tile the player's feet occupy):
-    ///  - A cell is passable if it and the two cells above it are not Solid (player is 3 tiles tall;
-    ///    width is approximated as 1 tile).
+    ///  - A cell is passable if it and the two cells above it are not Solid, and the same holds for the
+    ///    column to its left or to its right: the player is 42 x 20 px (Player.width/height), so its
+    ///    body always covers 3 rows and 2 columns. One-tile-wide shafts and notches are not passable.
     ///  - Left/right: always allowed into a passable cell (walking or air control).
-    ///  - Down: allowed into a passable cell that is not a Platform (bots have no "down" key, so
-    ///    they cannot drop through platforms).
+    ///  - Down: allowed into any passable cell, also through platforms (holding down drops through them).
     ///  - Up: allowed into a passable cell only if it is at most maxJumpTiles above the first
     ///    supporting tile (Solid or Platform) below it in the same column. This stops the BFS from
     ///    finding paths straight up into the sky. Platforms can be jumped through from below.
@@ -31,13 +31,18 @@ namespace FirstMod_Sp.Common.Systems
         public readonly int OriginY;
         public readonly int Size;
         private readonly int[] _dist;
+        private readonly byte[] _next; // per cell: the BFS step toward the target (0 none, 1 right, 2 left, 3 down, 4 up)
 
-        private PathDistanceField(int originX, int originY, int size, int[] dist)
+        private static readonly int[] StepX = { 0, 1, -1, 0, 0 };
+        private static readonly int[] StepY = { 0, 0, 0, 1, -1 };
+
+        private PathDistanceField(int originX, int originY, int size, int[] dist, byte[] next)
         {
             OriginX = originX;
             OriginY = originY;
             Size = size;
             _dist = dist;
+            _next = next;
         }
 
         /// <summary>Path distance in tiles from a feet cell, or UNREACHABLE / outside the field.</summary>
@@ -47,6 +52,35 @@ namespace FirstMod_Sp.Common.Systems
             int y = worldTileY - OriginY;
             if (x < 0 || y < 0 || x >= Size || y >= Size) return UNREACHABLE;
             return _dist[y * Size + x];
+        }
+
+        /// <summary>The cell <paramref name="steps"/> moves further along the planned path from a feet cell (or the
+        /// end of the path, if nearer). When the feet cell is off the field (e.g. mid-jump), starts from the nearest
+        /// reachable cell within 2 columns and 4 rows. Returns false if there is none.</summary>
+        public bool Waypoint(int worldTileX, int worldTileY, int steps, out int waypointX, out int waypointY)
+        {
+            waypointX = waypointY = 0;
+            int bx = worldTileX - OriginX, by = worldTileY - OriginY;
+            int start = -1, best = int.MaxValue;
+            for (int r = 0; r <= 4 && start < 0; r++)
+            {
+                for (int y = by - r; y <= by + r; y++)
+                {
+                    for (int x = bx - Math.Min(r, 2); x <= bx + Math.Min(r, 2); x++)
+                    {
+                        if (x < 0 || y < 0 || x >= Size || y >= Size) continue;
+                        int d = _dist[y * Size + x];
+                        if (d != UNREACHABLE && d < best) { best = d; start = y * Size + x; }
+                    }
+                }
+            }
+            if (start < 0) return false;
+            int cell = start;
+            for (int i = 0; i < steps && _next[cell] != 0; i++)
+                cell += StepY[_next[cell]] * Size + StepX[_next[cell]];
+            waypointX = OriginX + cell % Size;
+            waypointY = OriginY + cell / Size;
+            return true;
         }
 
         /// <param name="tileAt">Classifies world tile (x, y); called once per field cell.</param>
@@ -72,7 +106,8 @@ namespace FirstMod_Sp.Common.Systems
                     tiles[y * size + x] = tileAt(originX + x, originY + y);
 
             PathTile T(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? PathTile.Solid : tiles[y * size + x];
-            bool Passable(int x, int y) => T(x, y) != PathTile.Solid && T(x, y - 1) != PathTile.Solid && T(x, y - 2) != PathTile.Solid;
+            bool Clear(int x, int y) => T(x, y) != PathTile.Solid && T(x, y - 1) != PathTile.Solid && T(x, y - 2) != PathTile.Solid;
+            bool Passable(int x, int y) => Clear(x, y) && (Clear(x - 1, y) || Clear(x + 1, y));
 
             // Height of each cell above the first supporting tile below it (same column).
             var heightAboveGround = new int[n];
@@ -113,6 +148,7 @@ namespace FirstMod_Sp.Common.Systems
             }
 
             var dist = new int[n];
+            var next = new byte[n];
             Array.Fill(dist, UNREACHABLE);
             var queue = new Queue<int>();
 
@@ -137,7 +173,7 @@ namespace FirstMod_Sp.Common.Systems
             {
                 int idx = queue.Dequeue();
                 int dx = idx % size, dy = idx / size;
-                int next = dist[idx] + 1;
+                int nextDist = dist[idx] + 1;
 
                 // p left/right of d: horizontal edge p -> d, through air only near jumpable ground.
                 if (maxAirGapTiles == int.MaxValue || nearJumpable[idx] <= maxAirGapTiles)
@@ -145,8 +181,8 @@ namespace FirstMod_Sp.Common.Systems
                     TryRelax(dx - 1, dy);
                     TryRelax(dx + 1, dy);
                 }
-                // p above d: falling into d, not allowed through a platform.
-                if (T(dx, dy) != PathTile.Platform) TryRelax(dx, dy - 1);
+                // p above d: falling into d (through a platform too, by holding down).
+                TryRelax(dx, dy - 1);
                 // p below d: jumping up into d, only within jump height of the ground.
                 if (heightAboveGround[idx] <= maxJumpTiles) TryRelax(dx, dy + 1);
 
@@ -155,12 +191,13 @@ namespace FirstMod_Sp.Common.Systems
                     if (px < 0 || py < 0 || px >= size || py >= size) return;
                     int p = py * size + px;
                     if (dist[p] != UNREACHABLE || !Passable(px, py)) return;
-                    dist[p] = next;
+                    dist[p] = nextDist;
+                    next[p] = (byte)(dx > px ? 1 : dx < px ? 2 : dy > py ? 3 : 4);
                     queue.Enqueue(p);
                 }
             }
 
-            return new PathDistanceField(originX, originY, size, dist);
+            return new PathDistanceField(originX, originY, size, dist, next);
         }
     }
 }

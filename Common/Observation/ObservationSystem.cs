@@ -33,6 +33,7 @@ namespace FirstMod_Sp.Common.Observation
             visibility = ObservationConfig.Visibility.ToString(),
             light_radius = ObservationConfig.LightRadius,
             entities = ObservationConfig.Entities,
+            waypoint = ObservationConfig.Waypoint,
             fine = new { w = ObservationConfig.FineW, h = ObservationConfig.FineH, bytes_per_cell = 4, offset = 0, bytes = ObservationBuilder.FineBytes },
             coarse = ObservationConfig.HasCoarse
                 ? new { w = ObservationConfig.CoarseW, h = ObservationConfig.CoarseH, tiles_per_cell = ObservationConfig.CoarseCell, offset = ObservationBuilder.FineBytes, bytes = ObservationBuilder.CoarseBytes }

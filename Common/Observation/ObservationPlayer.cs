@@ -24,6 +24,8 @@ namespace FirstMod_Sp.Common.Observation
 
         /// <summary>Goal position in world pixels, or null when the skill has none.</summary>
         public Vector2? Target;
+        /// <summary>Next waypoint of the planner's route (body-centre point), set by the skill each decision.</summary>
+        public Vector2? Waypoint;
 
         /// <summary>Visibility mode d: one bit per world tile, index y + x * maxTilesY.</summary>
         public ulong[] SeenBits;

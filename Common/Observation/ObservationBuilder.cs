@@ -43,7 +43,8 @@ namespace FirstMod_Sp.Common.Observation
             "slow_fall", "life_max", "defense", "no_knockback", "height", "gravity_control", "ice_skates",
         };
 
-        public static readonly string[] GoalNames = { "has_target", "dx", "dy", "dir_x", "dir_y", "log_distance" };
+        public static readonly string[] GoalNames = { "has_target", "dx", "dy", "dir_x", "dir_y", "log_distance",
+            "has_waypoint", "wp_dx", "wp_dy", "wp_dir_x", "wp_dir_y" };
 
         public static readonly string[] EntityFeatureNames = {
             "present", "npc", "projectile", "item", "dx", "dy", "vx", "vy", "width", "height",
@@ -456,7 +457,8 @@ namespace FirstMod_Sp.Common.Observation
         }
 
         private static int WriteGoal(Span<float> o, int f, Player p, ObservationPlayer op) {
-            if (op.Target is not Vector2 target) return f + GoalNames.Length;
+            int end = f + GoalNames.Length;
+            if (op.Target is not Vector2 target) return end;
             Vector2 delta = (target - p.Center) / 16f;
             float distance = delta.Length();
             o[f++] = 1;
@@ -465,7 +467,16 @@ namespace FirstMod_Sp.Common.Observation
             o[f++] = distance > 1e-4f ? delta.X / distance : 0;
             o[f++] = distance > 1e-4f ? delta.Y / distance : 0;
             o[f++] = Clip(MathF.Log(1 + distance) / GoalLogNorm, 0, 1);
-            return f;
+            if (op.Waypoint is Vector2 waypoint) {
+                Vector2 w = (waypoint - p.Center) / 16f;
+                float wl = w.Length();
+                o[f++] = 1;
+                o[f++] = Clip(w.X, -GoalClipTiles, GoalClipTiles) / GoalClipTiles;
+                o[f++] = Clip(w.Y, -GoalClipTiles, GoalClipTiles) / GoalClipTiles;
+                o[f++] = wl > 1e-4f ? w.X / wl : 0;
+                o[f++] = wl > 1e-4f ? w.Y / wl : 0;
+            }
+            return end;
         }
 
         /// <summary>Hooks are counted from projectiles (latched hooks: aiStyle 7, ai[0] == 2); Player.grapCount is

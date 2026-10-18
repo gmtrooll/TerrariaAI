@@ -27,7 +27,7 @@ namespace FirstMod_Sp.Common.Observation
     }
 
     /// <summary>
-    /// Observation settings. Launch: -obs grid=fovea,visibility=exposed,light=20,entities=0
+    /// Observation settings. Launch: -obs grid=fovea,visibility=exposed,light=20,entities=0,waypoint=1
     /// At runtime: the bridge's observation_config command.
     /// </summary>
     public static class ObservationConfig
@@ -36,6 +36,8 @@ namespace FirstMod_Sp.Common.Observation
         public static VisibilityMode Visibility = VisibilityMode.Exposed;
         public static int LightRadius = 20;
         public static bool Entities;
+        /// <summary>Whether skills fill in the route waypoint (goal inputs); off = only the final target.</summary>
+        public static bool Waypoint = true;
         /// <summary>Refresh the overview every N observations of a bot (cached in between).</summary>
         public static int CoarseEvery = 4;
         public const int EntitySlots = 16;
@@ -73,8 +75,11 @@ namespace FirstMod_Sp.Common.Observation
                 case "entities":
                     Entities = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
                     break;
+                case "waypoint":
+                    Waypoint = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                    break;
                 default:
-                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities)");
+                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint)");
             }
         }
 
@@ -83,6 +88,7 @@ namespace FirstMod_Sp.Common.Observation
             Visibility = VisibilityMode.Exposed;
             LightRadius = 20;
             Entities = false;
+            Waypoint = true;
             CoarseEvery = 4;
             if (Program.LaunchParameters.TryGetValue("-obs", out string spec) && !string.IsNullOrWhiteSpace(spec)) Apply(spec);
         }
