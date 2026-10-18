@@ -65,7 +65,7 @@ def main():
                 wins += e["win"]
                 result = "reached" if e["win"] else "died" if e["died"] else "timed out"
                 print(f"bot {i + 1}: {result:9s} {e['band']:>6s} {e['layer']:<11s} route {e['path_distance']:3d} tiles, "
-                      f"{e['l']:3d} decisions   (total {wins}/{total} = {100 * wins // total}%)", flush=True)
+                      f"{e['l']:3d} decisions   scenario {e['id']}   (total {wins}/{total} = {100 * wins // total}%)", flush=True)
     except (KeyboardInterrupt, ConnectionError, OSError):
         pass
     finally:
