@@ -16,3 +16,5 @@
 07:37 start no_waypoint
 08:18 done no_waypoint (exit 0)
 08:18 start stride2
+08:49 done stride2 (exit 0)
+08:49 start vis_all
