@@ -31,6 +31,14 @@ Oct 18–19, 2026. Decisions taken while you were away, why, and the results. Ne
   - The benchmark kept all bots near the spawn point.
   - Spread over the world, every bot reads different memory: cache misses in both the game update and the observation.
   - Inside a step, the observations take 3.4 ms (32 bots) and the distance fields almost nothing.
+- **Learner speed options in training** (custom PPO, 192 bots, per iteration of 24,576 steps):
+
+  | | Update | Collection | Steps/s |
+  | --- | --- | --- | --- |
+  | fp32, no overlap (`parity_custom`) | 11.4 s | 4.8 s | 1,525 |
+  | bf16 + overlap (`fast_fovea_exposed`) | 7.6 s | 13.1 s (in parallel with the update) | 1,900 |
+
+  bf16 gives 1.5× on the update. Overlap helps less than expected: collection runs in a thread of the same Python process as the update, and the two slow each other down (likely Python's global interpreter lock, the GIL), so it takes almost 3× longer. The fix is to collect in a separate process; not done tonight.
 - **Scripted baseline:** walk toward the target, jump when stuck or when the target is above. 71% success on the 5–15 band, enough to unlock the 15–30 band. A learned policy should beat this.
 
 ## Results
@@ -87,3 +95,25 @@ Held-out worlds `eval_01` and `eval_02`, 512 fixed scenarios (64 per band per wo
 Decision 17, implemented: the planner's distance field now stores, per cell, the next step toward the target. Each decision the environment walks 12 steps along it from the bot's feet, and the observation gets 5 more goal numbers: `has_waypoint`, the clipped offset and the direction to that waypoint. `-obs waypoint=0` turns it off. That switch is used for the `no_waypoint` run, which measures what the waypoint is worth. A matching scripted baseline walks toward the waypoint instead of the target (`--policy greedy_wp`).
 
 The old parity models cannot run on the new observation (11 goal numbers instead of 6), so their results stay on the old lists. The baselines are re-evaluated on the new lists.
+
+### 5. Baselines on the new held-out lists (corrected planner, sampled scenarios as in Results 3)
+
+| Policy | Overall | 5–15 | 15–30 | 30–60 | 60–120 |
+| --- | --- | --- | --- | --- | --- |
+| Scripted, toward the target | 54% | 79% | 67% | 41% | 27% |
+| Scripted, toward the waypoint | 50% | 79% | 63% | 34% | 23% |
+| Random | 1% | 2% | 2% | 0% | 0% |
+
+Following the waypoint does not help the *scripted* policy. Routes traced along the waypoint chain look plausible (rendered for long cavern scenarios): they follow floors, water surfaces and walls. The scripted rule is the weak part: "jump if the point is above" fails when the route goes straight up a wall or ledge, where it needs a sideways step first. The learned run with and without the waypoint (`fast_fovea_exposed` vs `no_waypoint`) is the real test.
+
+### 6. Experiments (custom PPO, bf16 + overlap, 5M steps, new scenario sets; held-out = new lists, sampled actions)
+
+| Run | What differs | Held-out overall | 5–15 | 15–30 | 30–60 | 60–120 | Cavern | Train win (last iter.) | Steps/s |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `fast_fovea_exposed` | reference | **78%** | 90% | 88% | 70% | 65% | 68% | 78% | 2,173 |
+| `no_waypoint` | grid=fovea,visibility=exposed,waypoint=0 | **64%** | 80% | 70% | 62% | 46% | 54% | 70% | 2,167 |
+
+Reference: 41×41 grid + 120×68 overview, exposed tiles, waypoint on, first convolution stride 1. "Train win" is the last iteration's success over all open bands; "Steps/s" the median.
+
+Findings:
+- **The route waypoint is worth +14 points on held-out worlds** (78% vs 64%). The gain is largest on long routes (60–120: 65% vs 46%) and in caverns (68% vs 54%). It also learns faster ([curves](../results/training/waypoint.png)). The planner-sets-the-route split works as intended.

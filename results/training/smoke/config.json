@@ -1,0 +1,22 @@
+{
+  "run": "smoke",
+  "algo": "custom",
+  "worlds": [
+    "train_01"
+  ],
+  "bots": 8,
+  "obs": "grid=fovea,visibility=exposed",
+  "stride": 1,
+  "steps": 4000,
+  "n_steps": 64,
+  "batch": 256,
+  "epochs": 4,
+  "lr": 0.00025,
+  "gamma": 0.99,
+  "ent": 0.01,
+  "bf16": false,
+  "overlap": false,
+  "port": 5600,
+  "seed": 0,
+  "checkpoint_every": 50
+}

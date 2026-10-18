@@ -1,0 +1,5 @@
+iteration,timesteps,seconds,steps_per_s,episodes,win_rate,death_rate,timeout_rate,mean_return,mean_length,win_5-15,win_15-30,win_30-60,win_60-120,open_bands,pg_loss,value_loss,entropy,approx_kl,clip_fraction,explained_variance,collect_seconds,update_seconds
+1,512,4.0,128.9,1,0.0,0.0,1.0,0.5,64.0,0.0,,,,1,,,-0.0,,,,,
+2,1024,5.6,311.7,7,0.0,0.0,1.0,-1.905,79.4,0.0,,,,1,,1.18797,2.88941,0.00245,0.0,-0.02397,,
+3,1536,6.7,486.1,8,0.0,0.0,1.0,-0.562,82.0,0.0,,,,1,,0.90047,2.88171,0.00337,0.00146,0.13672,,
+4,2048,7.7,477.3,8,0.125,0.0,0.875,1.75,67.1,0.0417,,,,1,,0.60529,2.86915,0.00138,0.0,0.15058,,

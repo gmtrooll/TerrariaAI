@@ -1,0 +1,34 @@
+{
+ "overall": {
+  "n": 512,
+  "success": 0.0078,
+  "died": 0.0195,
+  "mean_win_length": 63.8
+ },
+ "by_band": {
+  "15-30": {
+   "n": 128,
+   "success": 0.0,
+   "died": 0.0,
+   "mean_win_length": null
+  },
+  "30-60": {
+   "n": 128,
+   "success": 0.0,
+   "died": 0.0312,
+   "mean_win_length": null
+  },
+  "5-15": {
+   "n": 128,
+   "success": 0.0234,
+   "died": 0.0078,
+   "mean_win_length": 47.3
+  },
+  "60-120": {
+   "n": 128,
+   "success": 0.0078,
+   "died": 0.0391,
+   "mean_win_length": 113.0
+  }
+ }
+}
