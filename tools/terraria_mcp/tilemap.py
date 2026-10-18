@@ -24,6 +24,7 @@ COLORS = {
     "*": (0, 255, 255),       # item
 }
 ENTITY_CHARS = set("PBpEN*")
+PATH_COLORS = [(255, 0, 255), (0, 230, 255), (255, 255, 0)]  # first path magenta, then cyan, yellow
 
 
 def render(tiles: dict, scale: int = 6, paths: list = None, markers: list = None) -> bytes:
@@ -42,10 +43,11 @@ def render(tiles: dict, scale: int = 6, paths: list = None, markers: list = None
                 draw.ellipse(box, fill=COLORS[char])
             else:
                 draw.rectangle(box, fill=COLORS.get(char, (255, 0, 255)))
-    for path in paths or []:
+    for k, path in enumerate(paths or []):
+        color = PATH_COLORS[k % len(PATH_COLORS)]
         points = [((px - tiles["x0"]) * scale + scale / 2, (py - tiles["y0"]) * scale + scale / 2) for px, py in path]
         if len(points) > 1:
-            draw.line(points, fill=(255, 0, 255), width=max(2, scale // 2))
+            draw.line(points, fill=color, width=max(2, scale // 2))
     for mx, my, color in markers or []:
         x0, y0 = (mx - tiles["x0"]) * scale, (my - tiles["y0"]) * scale
         draw.rectangle((x0 - scale, y0 - scale, x0 + 2 * scale - 1, y0 + 2 * scale - 1), outline=color, width=max(2, scale // 2))

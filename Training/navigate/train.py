@@ -76,7 +76,7 @@ def main():
     p.add_argument("--worlds", nargs="+", default=TRAIN_WORLDS)
     p.add_argument("--bots", type=int, default=32, help="bots per server")
     p.add_argument("--obs", default="grid=fovea,visibility=exposed", help="observation settings (-obs)")
-    p.add_argument("--stride", type=int, default=1, help="first convolution stride")
+    p.add_argument("--stride", type=int, default=2, help="first convolution stride (2: same quality as 1, 31% faster; Overnight Log)")
     p.add_argument("--steps", type=int, default=10_000_000)
     p.add_argument("--n-steps", type=int, default=128)
     p.add_argument("--batch", type=int, default=4096)

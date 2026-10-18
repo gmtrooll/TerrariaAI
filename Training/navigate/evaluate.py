@@ -89,6 +89,7 @@ def main():
     p.add_argument("--deterministic", action="store_true", help="take the most likely action instead of sampling")
     p.add_argument("--port", type=int, default=5690)
     p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
+    p.add_argument("--record", action="store_true", help="servers write failed episodes (path + planned route) to failures_<world>.jsonl")
     args = p.parse_args()
 
     run_dir = RESULTS / (args.run or args.name)
@@ -96,8 +97,14 @@ def main():
     obs_spec = config.get("obs", "grid=fovea,visibility=exposed")
     lists = fixed_lists(args.worlds, args.per_band)
     total = sum(len(v) for v in lists.values())
+    extra = []
+    if args.record:
+        run_dir.mkdir(parents=True, exist_ok=True)
+        for old in run_dir.glob("failures_*.jsonl"):
+            old.unlink()
+        extra = ["-envrecord", str(run_dir / "failures")]
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=obs_spec,
-                         curriculum=Curriculum(fixed=True), fixed_scenarios=lists)
+                         curriculum=Curriculum(fixed=True), fixed_scenarios=lists, extra_args=extra)
     try:
         if args.policy == "model":
             act = load_policy(run_dir, config, env, args.deterministic)

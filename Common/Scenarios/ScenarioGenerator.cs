@@ -70,6 +70,8 @@ namespace FirstMod_Sp.Common.Scenarios
                 for (int j = -3; j <= 1; j++) {
                     Tile t = Main.tile[x + i, y + j];
                     if (t.HasUnactuatedTile && TileClasses.Hazard[t.TileType]) return false;
+                    // Not in a doorway: the planner treats closed doors as open, but a bot placed inside one is stuck.
+                    if (t.HasTile && (t.TileType == Terraria.ID.TileID.ClosedDoor || t.TileType == Terraria.ID.TileID.TallGateClosed)) return false;
                 }
             }
             return true;
@@ -105,7 +107,8 @@ namespace FirstMod_Sp.Common.Scenarios
                 int ty = column[rng.Next(column.Count)];
 
                 // Target point = body centre of a player standing on the target cell (as in PathDistanceField's goals).
-                var field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, radius, maxJump, 1.5f, maxAirGap);
+                var field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, radius, maxJump, 1.5f, maxAirGap,
+                    GridSensors.PathInfo, Env.NavigateEnv.MaxSafeFallTiles);
                 var byDistance = new List<(int x, int y, int d)>();
                 for (int y = ty - radius; y <= ty + radius; y++) {
                     for (int x = tx - radius; x <= tx + radius; x++) {
@@ -134,24 +137,12 @@ namespace FirstMod_Sp.Common.Scenarios
             return result;
         }
 
-        /// <summary>Follow decreasing distance from the start to a goal cell (for drawing and checking).</summary>
+        /// <summary>Follow the planned route from the start to a goal cell (for drawing and checking).</summary>
         private static List<int[]> TracePath(PathDistanceField field, int x, int y) {
             var path = new List<int[]> { new[] { x, y } };
-            int d = field.GetDistance(x, y);
-            while (d > 0 && path.Count < 2000) {
-                int bx = x, by = y, bd = d;
-                foreach (var (dx, dy) in new[] { (1, 0), (-1, 0), (0, 1), (0, -1) }) {
-                    int nd = field.GetDistance(x + dx, y + dy);
-                    if (nd >= 0 && nd < bd) {
-                        bx = x + dx;
-                        by = y + dy;
-                        bd = nd;
-                    }
-                }
-                if (bd == d) break;
-                x = bx;
-                y = by;
-                d = bd;
+            while (path.Count < 2000 && field.Waypoint(x, y, 1, out int nx, out int ny) && (nx != x || ny != y)) {
+                x = nx;
+                y = ny;
                 path.Add(new[] { x, y });
             }
             return path;

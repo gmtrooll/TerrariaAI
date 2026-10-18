@@ -6,8 +6,10 @@ namespace FirstMod_Sp.Common.Systems
     public enum PathTile : byte { Air = 0, Platform = 1, Solid = 2 }
 
     /// <summary>
-    /// World-anchored "how many tiles of walking/jumping to the target" field, built once per
-    /// target by a reverse BFS and then looked up per bot per decision tick.
+    /// World-anchored "how long is the walk/jump to the target" field, built once per target by a reverse
+    /// cheapest-path search and then looked up per bot per decision tick. Distances are in tile-equivalents:
+    /// one ordinary tile costs 1, slow cells more (see cell info), so the time limit and the progress reward follow
+    /// the real time a route takes.
     ///
     /// Movement model (a cell is the tile the player's feet occupy):
     ///  - A cell is passable if it and the two cells above it are not Solid, and the same holds for the
@@ -16,16 +18,23 @@ namespace FirstMod_Sp.Common.Systems
     ///  - Left/right: always allowed into a passable cell (walking or air control).
     ///  - Down: allowed into any passable cell, also through platforms (holding down drops through them).
     ///  - Up: allowed into a passable cell only if it is at most maxJumpTiles above the first
-    ///    supporting tile (Solid or Platform) below it in the same column. This stops the BFS from
+    ///    supporting tile (Solid or Platform) below it in the same column. This stops the search from
     ///    finding paths straight up into the sky. Platforms can be jumped through from below.
-    /// Horizontal movement in the air is not limited, so the model over-estimates reachability
-    /// across gaps rather than declaring reachable targets unreachable.
+    /// Optional cell info (docs/Movement Hazards.md) adds:
+    ///  - costs: water 2, honey 4, cobweb 8 per cell the body is in (cobwebs cap speed and cancel jumps);
+    ///  - blocked cells: the body touching a damaging tile, lava or shimmer, or within 2 tiles of a trap;
+    ///  - unsafe falls: air cells more than maxSafeFallTiles above their landing are blocked, unless the fall
+    ///    ends in liquid or on a tile that negates fall damage (falls over 25 tiles hurt: Player.cs:24324).
     ///
     /// This file has no Terraria dependency so the algorithm can be compiled and tested alone.
     /// </summary>
     public sealed class PathDistanceField
     {
         public const int UNREACHABLE = -1;
+
+        // Cell info flags (per tile, from the infoAt callback).
+        public const byte InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64;
+        public const int CostWater = 2, CostHoney = 4, CostWeb = 8, MaxCost = 8;
 
         public readonly int OriginX; // world tile of field cell (0, 0)
         public readonly int OriginY;
@@ -92,8 +101,11 @@ namespace FirstMod_Sp.Common.Systems
         /// same row) of a cell the player could jump from (height above ground at most maxJumpTiles). Without the
         /// limit the model let the player walk across the open sky, so far targets looked reachable that are not.
         /// int.MaxValue keeps the old behaviour.</param>
+        /// <param name="infoAt">Optional cell info flags of world tile (x, y) (Info* constants); null = none.</param>
+        /// <param name="maxSafeFallTiles">Longest allowed hard fall; int.MaxValue = no limit.</param>
         public static PathDistanceField Build(Func<int, int, PathTile> tileAt, float targetTileX, float targetTileY,
-            int radius, int maxJumpTiles, float goalRadiusTiles, int maxAirGapTiles = int.MaxValue)
+            int radius, int maxJumpTiles, float goalRadiusTiles, int maxAirGapTiles = int.MaxValue,
+            Func<int, int, byte> infoAt = null, int maxSafeFallTiles = int.MaxValue)
         {
             int size = radius * 2 + 1;
             int originX = (int)Math.Floor(targetTileX) - radius;
@@ -105,9 +117,67 @@ namespace FirstMod_Sp.Common.Systems
                 for (int x = 0; x < size; x++)
                     tiles[y * size + x] = tileAt(originX + x, originY + y);
 
+            var info = new byte[n];
+            if (infoAt != null)
+                for (int y = 0; y < size; y++)
+                    for (int x = 0; x < size; x++)
+                        info[y * size + x] = infoAt(originX + x, originY + y);
+
             PathTile T(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? PathTile.Solid : tiles[y * size + x];
+            byte I(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? (byte)0 : info[y * size + x];
             bool Clear(int x, int y) => T(x, y) != PathTile.Solid && T(x, y - 1) != PathTile.Solid && T(x, y - 2) != PathTile.Solid;
-            bool Passable(int x, int y) => Clear(x, y) && (Clear(x - 1, y) || Clear(x + 1, y));
+
+            // Per feet cell: traversal cost and whether the body may be there at all.
+            var cost = new byte[n];
+            var blocked = new bool[n];
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    int c = 1;
+                    bool block = false;
+                    if (infoAt != null)
+                    {
+                        for (int j = 0; j < 3; j++)
+                        {
+                            byte b = I(x, y - j);
+                            if ((b & InfoWeb) != 0) c = Math.Max(c, CostWeb);
+                            if ((b & InfoHoney) != 0) c = Math.Max(c, CostHoney);
+                            if ((b & InfoWater) != 0) c = Math.Max(c, CostWater);
+                            if ((b & InfoLethal) != 0) block = true;
+                        }
+                        // Touching: the body box (3 columns, as it covers 2 of them at any offset) plus the floor row.
+                        for (int i = -1; i <= 1 && !block; i++)
+                            for (int j = -2; j <= 1 && !block; j++)
+                                if ((I(x + i, y + j) & InfoHurts) != 0) block = true;
+                        for (int i = -2; i <= 2 && !block; i++)
+                            for (int j = -4; j <= 2 && !block; j++)
+                                if ((I(x + i, y + j) & InfoTrap) != 0) block = true;
+                    }
+                    cost[y * size + x] = (byte)c;
+                    blocked[y * size + x] = block;
+                }
+            }
+
+            // Unsafe falls: distance down to where a fall ends (a supporting tile below, or liquid in the cell).
+            if (maxSafeFallTiles != int.MaxValue)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    int h = int.MaxValue;
+                    bool soft = false;
+                    for (int y = size - 1; y >= 0; y--)
+                    {
+                        PathTile below = T(x, y + 1);
+                        if ((I(x, y) & (InfoWater | InfoHoney)) != 0) { h = 0; soft = true; }
+                        else if (y + 1 < size && (below == PathTile.Solid || below == PathTile.Platform)) { h = 0; soft = (I(x, y + 1) & InfoSoftLanding) != 0; }
+                        else if (h != int.MaxValue) h++;
+                        if (h != int.MaxValue && h > maxSafeFallTiles && !soft) blocked[y * size + x] = true;
+                    }
+                }
+            }
+
+            bool Passable(int x, int y) => Clear(x, y) && (Clear(x - 1, y) || Clear(x + 1, y)) && !blocked[y * size + x];
 
             // Height of each cell above the first supporting tile below it (same column).
             var heightAboveGround = new int[n];
@@ -150,7 +220,10 @@ namespace FirstMod_Sp.Common.Systems
             var dist = new int[n];
             var next = new byte[n];
             Array.Fill(dist, UNREACHABLE);
-            var queue = new Queue<int>();
+            // Dial's algorithm: costs are small integers, so a ring of MaxCost + 1 buckets is a priority queue.
+            var buckets = new Queue<int>[MaxCost + 1];
+            for (int i = 0; i < buckets.Length; i++) buckets[i] = new Queue<int>();
+            int pending = 0;
 
             // Seeds: passable feet cells whose body centre (about 1.3 tiles above the feet) is near the target.
             float goalSq = goalRadiusTiles * goalRadiusTiles;
@@ -164,36 +237,46 @@ namespace FirstMod_Sp.Common.Systems
                     float cy = originY + y + 1f - 1.3f - targetTileY;
                     if (cx * cx + cy * cy > goalSq) continue;
                     dist[y * size + x] = 0;
-                    queue.Enqueue(y * size + x);
+                    buckets[0].Enqueue(y * size + x);
+                    pending++;
                 }
             }
 
-            // Reverse BFS: pop d, relax every p with a forward edge p -> d.
-            while (queue.Count > 0)
+            // Reverse search: pop d in order of distance, relax every p with a forward edge p -> d
+            // (dist[p] = dist[d] + the cost of traversing p).
+            for (int current = 0; pending > 0; current++)
             {
-                int idx = queue.Dequeue();
-                int dx = idx % size, dy = idx / size;
-                int nextDist = dist[idx] + 1;
-
-                // p left/right of d: horizontal edge p -> d, through air only near jumpable ground.
-                if (maxAirGapTiles == int.MaxValue || nearJumpable[idx] <= maxAirGapTiles)
+                Queue<int> bucket = buckets[current % buckets.Length];
+                while (bucket.Count > 0)
                 {
-                    TryRelax(dx - 1, dy);
-                    TryRelax(dx + 1, dy);
-                }
-                // p above d: falling into d (through a platform too, by holding down).
-                TryRelax(dx, dy - 1);
-                // p below d: jumping up into d, only within jump height of the ground.
-                if (heightAboveGround[idx] <= maxJumpTiles) TryRelax(dx, dy + 1);
+                    int idx = bucket.Dequeue();
+                    pending--;
+                    if (dist[idx] != current) continue;  // stale entry: a cheaper one was processed already
+                    int dx = idx % size, dy = idx / size;
 
-                void TryRelax(int px, int py)
-                {
-                    if (px < 0 || py < 0 || px >= size || py >= size) return;
-                    int p = py * size + px;
-                    if (dist[p] != UNREACHABLE || !Passable(px, py)) return;
-                    dist[p] = nextDist;
-                    next[p] = (byte)(dx > px ? 1 : dx < px ? 2 : dy > py ? 3 : 4);
-                    queue.Enqueue(p);
+                    // p left/right of d: horizontal edge p -> d, through air only near jumpable ground.
+                    if (maxAirGapTiles == int.MaxValue || nearJumpable[idx] <= maxAirGapTiles)
+                    {
+                        TryRelax(dx - 1, dy);
+                        TryRelax(dx + 1, dy);
+                    }
+                    // p above d: falling into d (through a platform too, by holding down).
+                    TryRelax(dx, dy - 1);
+                    // p below d: jumping up into d, only within jump height of the ground.
+                    if (heightAboveGround[idx] <= maxJumpTiles) TryRelax(dx, dy + 1);
+
+                    void TryRelax(int px, int py)
+                    {
+                        if (px < 0 || py < 0 || px >= size || py >= size) return;
+                        int p = py * size + px;
+                        if (!Passable(px, py)) return;
+                        int nd = current + cost[p];
+                        if (dist[p] != UNREACHABLE && dist[p] <= nd) return;
+                        dist[p] = nd;
+                        next[p] = (byte)(dx > px ? 1 : dx < px ? 2 : dy > py ? 3 : 4);
+                        buckets[nd % buckets.Length].Enqueue(p);
+                        pending++;
+                    }
                 }
             }
 

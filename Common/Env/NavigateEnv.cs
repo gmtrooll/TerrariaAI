@@ -45,7 +45,7 @@ namespace FirstMod_Sp.Common.Env
         public const int ScenarioInts = 5;
         public const int CommandBytes = 4 + ScenarioInts * 4;
         public const byte Done = 1, Win = 2, Died = 4, Timeout = 8, NewEpisode = 16;
-        public const int FieldRadius = 130, MaxJumpTiles = 13, MaxAirGapTiles = 5;
+        public const int FieldRadius = 130, MaxJumpTiles = 13, MaxAirGapTiles = 5, MaxSafeFallTiles = 25;
         public const float GoalRadiusTiles = 1.5f, OffPathPenaltyTiles = 10f;
         /// <summary>The observation's waypoint is this many path tiles ahead of the bot (inside the 41 x 41 grid).</summary>
         public const int WaypointSteps = 12;
@@ -53,6 +53,9 @@ namespace FirstMod_Sp.Common.Env
         public static readonly int Port = AutomationArgs.GetIntArg("-env", 0);
         public static readonly int FrameSkip = AutomationArgs.GetIntArg("-frameskip", 4);
         public static readonly bool RealTime = Program.LaunchParameters.ContainsKey("-envrealtime");
+        /// <summary>-envrecord PREFIX: append every failed episode (bot path + planned route) as a JSON line to PREFIX_world.jsonl.</summary>
+        public static readonly string RecordPath = Program.LaunchParameters.TryGetValue("-envrecord", out string rp) ? rp : null;
+        private static StreamWriter recordWriter;
         public static bool Active;
 
         private sealed class Scenario
@@ -70,6 +73,7 @@ namespace FirstMod_Sp.Common.Env
             public int FollowX = int.MinValue, FollowY;
             public int Wins, Deaths, Timeouts;
             public string LastResult = "";
+            public List<int[]> Trajectory = new List<int[]>();
         }
 
         private static BotEnv[] bots = Array.Empty<BotEnv>();
@@ -197,6 +201,7 @@ namespace FirstMod_Sp.Common.Env
             // Navigate scenarios run without enemies (a scenario choice, not a fidelity switch): clear them once;
             // the learner launches servers with npc_spawns off.
             BenchIsolation.ClearWorld();
+            WorldIntegrity.Snapshot();
             foreach (BotEnv b in bots) StartEpisode(b, b.Current);
 
             int obsBytes = ObservationBuilder.TotalBytes;
@@ -244,6 +249,7 @@ namespace FirstMod_Sp.Common.Env
             op.SeenBits = null;
             op.CoarseCache = null;
             b.Current = s;
+            b.Trajectory.Clear();
             if (s.TargetX >= 0) {
                 op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
                 b.Field = GetField(s.TargetX, s.TargetY);
@@ -270,13 +276,30 @@ namespace FirstMod_Sp.Common.Env
             Main.player[b.Slot].GetModPlayer<ObservationPlayer>().Target = new Vector2((tx + 0.5f) * 16f, (ty - 0.3f) * 16f);
         }
 
+        private static void Record(BotEnv b, string result) {
+            recordWriter ??= new StreamWriter($"{RecordPath}_{Main.worldName}.jsonl", append: true) { AutoFlush = true };
+            var route = new List<int[]> { new[] { b.Current.StartX, b.Current.StartY } };
+            int x = b.Current.StartX, y = b.Current.StartY;
+            while (route.Count < 2000 && b.Field.Waypoint(x, y, 1, out int nx, out int ny) && (nx != x || ny != y)) {
+                x = nx;
+                y = ny;
+                route.Add(new[] { x, y });
+            }
+            recordWriter.WriteLine(JsonConvert.SerializeObject(new {
+                world = Main.worldName, result, steps = b.Steps, start = new[] { b.Current.StartX, b.Current.StartY },
+                target = new[] { b.Current.TargetX, b.Current.TargetY }, start_distance = b.Field.GetDistance(b.Current.StartX, b.Current.StartY),
+                trajectory = b.Trajectory, route,
+            }));
+        }
+
         private static PathDistanceField GetField(int tx, int ty) {
             long key = ((long)tx << 32) | (uint)ty;
             if (fields.TryGetValue(key, out PathDistanceField field)) return field;
             if (fields.Count > 512) fields.Clear();
             long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
             fieldBuilds++;
-            field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, FieldRadius, MaxJumpTiles, GoalRadiusTiles, MaxAirGapTiles);
+            field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, FieldRadius, MaxJumpTiles, GoalRadiusTiles, MaxAirGapTiles,
+                GridSensors.PathInfo, MaxSafeFallTiles);
             fields[key] = field;
             timeFields += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
             return field;
@@ -316,6 +339,8 @@ namespace FirstMod_Sp.Common.Env
                 b.Steps++;
                 if (b.Current.TargetX < 0) UpdateFollowTarget(b);
                 Player p = Main.player[b.Slot];
+                WorldIntegrity.MarkAround(p);
+                if (RecordPath != null) b.Trajectory.Add(new[] { (int)(p.Center.X / 16f), (int)((p.Bottom.Y - 1f) / 16f) });
                 float dist = PathDistance(b);
                 byte f = 0;
                 if (p.dead) f |= Died;
@@ -326,6 +351,7 @@ namespace FirstMod_Sp.Common.Env
                 else if ((f & Died) != 0) b.Deaths++;
                 else b.Timeouts++;
                 b.LastResult = (f & Win) != 0 ? "reached" : (f & Died) != 0 ? "died" : "timed out";
+                if (RecordPath != null && (f & Win) == 0) Record(b, b.LastResult);
                 done[i] = true;
                 flags[i] = (byte)(f | Done | NewEpisode);
                 terminalDistance[i] = dist;
