@@ -26,9 +26,10 @@ COLORS = {
 ENTITY_CHARS = set("PBpEN*")
 
 
-def render(tiles: dict, scale: int = 6, paths: list = None) -> bytes:
-    """tiles: result of the `tiles` command. paths: optional lists of (x, y) tile positions drawn as lines,
-    e.g. bot trajectories. Returns PNG bytes."""
+def render(tiles: dict, scale: int = 6, paths: list = None, markers: list = None) -> bytes:
+    """tiles: result of the `tiles` command. paths: optional lists of (x, y) tile positions drawn as magenta lines,
+    e.g. planned paths or bot trajectories. markers: optional (x, y, (r, g, b)) tiles drawn as outlined squares,
+    e.g. start and target. Returns PNG bytes."""
     rows = tiles["rows"]
     h, w = len(rows), len(rows[0]) if rows else 0
     image = Image.new("RGB", (w * scale, h * scale))
@@ -44,7 +45,10 @@ def render(tiles: dict, scale: int = 6, paths: list = None) -> bytes:
     for path in paths or []:
         points = [((px - tiles["x0"]) * scale + scale / 2, (py - tiles["y0"]) * scale + scale / 2) for px, py in path]
         if len(points) > 1:
-            draw.line(points, fill=(255, 0, 0), width=max(1, scale // 3))
+            draw.line(points, fill=(255, 0, 255), width=max(2, scale // 2))
+    for mx, my, color in markers or []:
+        x0, y0 = (mx - tiles["x0"]) * scale, (my - tiles["y0"]) * scale
+        draw.rectangle((x0 - scale, y0 - scale, x0 + 2 * scale - 1, y0 + 2 * scale - 1), outline=color, width=max(2, scale // 2))
     buffer = io.BytesIO()
     image.save(buffer, format="PNG")
     return buffer.getvalue()

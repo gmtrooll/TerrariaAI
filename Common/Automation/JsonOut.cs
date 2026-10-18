@@ -13,6 +13,11 @@ namespace FirstMod_Sp.Common.Automation
     /// is expanded; any other object becomes its ToString(). Snippets project what they need, e.g.
     /// <c>return new { p.Center, p.statLife };</c>
     /// </summary>
+    /// <summary>Marks a result type whose public fields and properties JsonOut should expand.</summary>
+    public interface IPlainData
+    {
+    }
+
     public static class JsonOut
     {
         private const int MaxDepth = 6;
@@ -80,6 +85,7 @@ namespace FirstMod_Sp.Common.Automation
 
         private static bool IsPlainData(Type type) {
             return type.IsDefined(typeof(CompilerGeneratedAttribute), false) // anonymous types
+                || typeof(IPlainData).IsAssignableFrom(type)
                 || type.FullName?.StartsWith("System.ValueTuple") == true
                 || type.Namespace == typeof(JsonOut).Namespace
                 || type.Assembly.GetName().Name?.StartsWith(CSharpRunner.AssemblyPrefix) == true;
