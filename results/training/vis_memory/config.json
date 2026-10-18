@@ -1,0 +1,27 @@
+{
+  "run": "vis_memory",
+  "algo": "custom",
+  "worlds": [
+    "train_01",
+    "train_02",
+    "train_03",
+    "train_04",
+    "train_05",
+    "train_06"
+  ],
+  "bots": 32,
+  "obs": "grid=fovea,visibility=exposedmemory",
+  "stride": 1,
+  "steps": 5000000,
+  "n_steps": 128,
+  "batch": 4096,
+  "epochs": 4,
+  "lr": 0.00025,
+  "gamma": 0.99,
+  "ent": 0.01,
+  "bf16": true,
+  "overlap": true,
+  "port": 5633,
+  "seed": 0,
+  "checkpoint_every": 50
+}
