@@ -76,3 +76,10 @@ Findings:
 - **Longer training helps a lot, then levels off.** Training success rises from 75% at 5M to 91% at 10M and about 97% from 25M on; the last 25M steps add little. Held-out 92%: a gap of about 5 points to the training worlds is opening (more training worlds would close it).
 - **Memory helps on unseen worlds at equal training:** 91% vs 88% overall, and 89% vs 81% on the longest routes, with fewer timeouts (8.6% vs 11.1%). The training curves are the same, so memory doesn't speed learning on known worlds; it generalizes better. With 10M steps it nearly matches the 50M-step run without memory. One seed each, so the overall +3 points is suggestive; the +8 on long routes is the clearer signal. Cost: 29% slower per step (the update replays sequences).
 - The PC ran faster tonight (4,500–4,700 steps/s against 2,850 before) with the other programs closed.
+
+### What the 50M-step model still fails
+
+24 of its 62 recorded failures were rendered (`results/training/long_v3/failures/`). Two clear patterns:
+- **Detours hidden by the waypoint distance.** Example `eval_02_01` (route of 7): the bot starts on a small ledge next to a wall; the route steps 1 tile right, drops 5, and goes 1 tile left under the ledge to the target. The bot stands at the ledge edge pushing down-left into the wall for the whole episode. The waypoint is 12 route tiles ahead, already past the turn, so it points down-left too: the first move (right) is invisible to the policy. This matches your observation that small detours work and bigger ones don't. **Next experiment: a near waypoint (3 tiles ahead) next to the far one**, so the immediate next move is always visible. Cheap: 5 more numbers in the goal input.
+- **Flat jumps under a low ceiling** (`eval_02_05`): the route crosses a 5-tile gap from a ledge with a ceiling just above. The planner lets the body move sideways through the air there, but with no room to jump the bot only falls. This is planner optimism (it doesn't model head room for jumps); it matters only in a few scenarios.
+- Also still seen: tight pockets (`eval_01_09`, failed by both models), overhang approach angles (`eval_01_11`).
