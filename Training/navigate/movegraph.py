@@ -102,6 +102,41 @@ def main():
         for t in threads:
             t.join()
         edges = np.concatenate([done[c] for c in chunks if c in done] or [np.zeros((0, 7), np.int32)]).astype(np.int32)
+
+        # Frontier rounds: moves also land on spots that are not "standable" in the strict scenario sense (slopes,
+        # shallow water, next to a hazard); sample from those too, until no new spots appear.
+        sampled = set(map(tuple, edges[:, 0:2]))
+        for round_ in range(6):
+            ok = (edges[:, 2] >= 0) & (edges[:, 5] == 0)
+            frontier = sorted({tuple(p) for p in edges[ok][:, 2:4]} - sampled)
+            if not frontier:
+                break
+            print(f"  frontier round {round_ + 1}: {len(frontier)} new spots", flush=True)
+            batches = queue.Queue()
+            for i in range(0, len(frontier), 150):
+                batches.put(frontier[i:i + 150])
+            new_edges = []
+
+            def frontier_worker(name):
+                while True:
+                    try:
+                        batch = batches.get_nowait()
+                    except queue.Empty:
+                        return
+                    r = games.call(name, "sample_points", timeout=1800, loadout=args.loadout,
+                                   points=[int(v) for p in batch for v in p])
+                    got = decode(r["edges_b64"])
+                    with lock:
+                        new_edges.append(got)
+
+            threads = [threading.Thread(target=frontier_worker, args=(n,)) for n in names]
+            for t in threads:
+                t.start()
+            for t in threads:
+                t.join()
+            sampled.update(frontier)
+            if new_edges:
+                edges = np.concatenate([edges] + new_edges).astype(np.int32)
         np.save(out, edges)
         edges.tofile(out.with_suffix(".bin"))  # raw int32 rows for the mod (-envgraph)
         partial.unlink(missing_ok=True)

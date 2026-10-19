@@ -47,13 +47,14 @@ namespace FirstMod_Sp.Common.Planning
             public int Hold;     // ticks to hold the first jump
             public int Double;   // extra jump: 0 none, 1 early (right after the first jump ends), 2 at the apex
             public bool Drop;    // hold down (drop through a platform)
+            public bool Steer;   // jump straight up and hold the direction only from the apex on (onto ledges above)
             public int Id;
         }
 
         public struct Result
         {
             public int ToX, ToY, Ticks;
-            public bool Hurt, Landed;
+            public bool Hurt, Landed, Skipped;
             public float ApexTiles;  // highest point above the start, in tiles (feet)
             public List<float[]> Trace;
         }
@@ -62,6 +63,7 @@ namespace FirstMod_Sp.Common.Planning
             if (!AutomationArgs.Enabled) return;
             BridgeCommands.Register("sample_moves", SampleMoves);
             BridgeCommands.Register("sim_move", SimMove);
+            BridgeCommands.Register("sample_points", SamplePoints);
         }
 
         public override void OnWorldUnload() {
@@ -82,6 +84,13 @@ namespace FirstMod_Sp.Common.Planning
                         if (hasDouble && hold == holds[holds.Length - 1])
                             list.Add(new Program { Dir = dir, RunUp = runup, Hold = hold, Double = 2, Id = id++ });
                     }
+                }
+            }
+            if (holds.Length > 0) {
+                int full = holds[holds.Length - 1];
+                foreach (int dir in new[] { -1, 1 }) {
+                    list.Add(new Program { Dir = dir, RunUp = 0, Hold = full, Steer = true, Id = id++ });
+                    if (hasDouble) list.Add(new Program { Dir = dir, RunUp = 0, Hold = full, Steer = true, Double = 2, Id = id++ });
                 }
             }
             list.Add(new Program { Dir = 0, RunUp = -1, Drop = true, Id = id++ });  // drop through a platform
@@ -148,14 +157,21 @@ namespace FirstMod_Sp.Common.Planning
             float startFeet = p.position.Y + p.height;
             int minX = x, maxX = x, minY = y, maxY = y;
             int life = p.statLifeMax2;
-            bool airborne = false, jumped = false, released = false, doubled = false;
+            bool airborne = false, jumped = false, released = false, doubled = false, steering = false;
             int jumpTick = -1;
             for (int t = -2; t < MaxTicks; t++) {
                 data.Reset();
                 if (t >= 0) {
                     float moved = (p.Center.X - (x * 16 + 8)) * Math.Sign(prog.Dir == 0 ? 1 : prog.Dir);
-                    if (prog.Dir < 0) data.ControlLeft = true;
-                    if (prog.Dir > 0) data.ControlRight = true;
+                    bool steerNow = !prog.Steer || (jumped && t - jumpTick >= 2 && p.velocity.Y >= 0f) || steering;
+                    if (prog.Steer && steerNow) steering = true;
+                    if (steerNow && prog.Dir < 0) data.ControlLeft = true;
+                    if (steerNow && prog.Dir > 0) data.ControlRight = true;
+                    // A run-up blocked by a wall never reaches its length: stop instead of pushing for 240 ticks.
+                    if (prog.RunUp > 0 && !jumped && !airborne && t > 10 && Math.Abs(p.velocity.X) < 0.3f) {
+                        result.Skipped = true;
+                        break;
+                    }
                     if (prog.Drop) data.ControlDown = true;
                     if (prog.RunUp >= 0 && !jumped && moved >= prog.RunUp * 16f - 0.01f && !airborne) {
                         jumped = true;
@@ -232,18 +248,45 @@ namespace FirstMod_Sp.Common.Planning
                     foreach (Program prog in programs) {
                         if (prog.Drop && GridSensors.ClassifyPathTile(x, y + 1) != PathTile.Platform) continue;
                         Result res = Run(p, x, y, prog);
-                        if (res.Landed && res.ToX == x && res.ToY == y) continue;  // went nowhere
+                        if (res.Skipped || res.Landed && res.ToX == x && res.ToY == y) continue;  // blocked, or went nowhere
                         edges.Add(new[] { x, y, res.ToX, res.ToY, res.Ticks, res.Hurt ? 1 : 0, prog.Id });
                     }
                 }
             }
             p.position = new Vector2(Main.spawnTileX * 16f, Main.spawnTileY * 16f - 48f);
-            // Edges as one base64 block of int32 rows: the bridge's JSON output truncates lists over 2,000 items.
+            r.Reply(new { nodes, programs = programs.Count, edge_count = edges.Count, edges_b64 = Encode(edges), ms = watch.ElapsedMilliseconds });
+        }
+
+        /// <summary>Edges as one base64 block of int32 rows: the bridge's JSON output truncates lists over 2,000 items.</summary>
+        private static string Encode(List<int[]> edges) {
             var raw = new int[edges.Count * 7];
             for (int i = 0; i < edges.Count; i++) Array.Copy(edges[i], 0, raw, i * 7, 7);
             var bytes = new byte[raw.Length * 4];
             Buffer.BlockCopy(raw, 0, bytes, 0, bytes.Length);
-            r.Reply(new { nodes, programs = programs.Count, edge_count = edges.Count, edges_b64 = Convert.ToBase64String(bytes), ms = watch.ElapsedMilliseconds });
+            return Convert.ToBase64String(bytes);
+        }
+
+        /// <summary>sample_points {points: [x0, y0, x1, y1, ...], loadout}: the same programs from explicit spots
+        /// (landing spots that are not "standable" in the strict scenario sense: slopes, shallow water, near hazards).</summary>
+        private static void SamplePoints(BridgeRequest r) {
+            int[] flat = r.Args["points"] is JArray pa ? pa.ToObject<int[]>() : Array.Empty<int>();
+            int loadout = Int(r, "loadout", 1);
+            Player p = SimBot(loadout);
+            var programs = Programs(loadout == 1, new[] { 0, 2, 4 }, new[] { 4, 15 });
+            var edges = new List<int[]>();
+            var watch = System.Diagnostics.Stopwatch.StartNew();
+            for (int k = 0; k + 1 < flat.Length; k += 2) {
+                int x = flat[k], y = flat[k + 1];
+                if (x < 50 || y < 50 || x >= Main.maxTilesX - 50 || y >= Main.maxTilesY - 50) continue;
+                foreach (Program prog in programs) {
+                    if (prog.Drop && GridSensors.ClassifyPathTile(x, y + 1) != PathTile.Platform) continue;
+                    Result res = Run(p, x, y, prog);
+                    if (res.Skipped || res.Landed && res.ToX == x && res.ToY == y) continue;
+                    edges.Add(new[] { x, y, res.ToX, res.ToY, res.Ticks, res.Hurt ? 1 : 0, prog.Id });
+                }
+            }
+            p.position = new Vector2(Main.spawnTileX * 16f, Main.spawnTileY * 16f - 48f);
+            r.Reply(new { points = flat.Length / 2, programs = programs.Count, edge_count = edges.Count, edges_b64 = Encode(edges), ms = watch.ElapsedMilliseconds });
         }
     }
 }

@@ -51,3 +51,22 @@ The RL model has to discover run-ups and jump angles itself at test time, and no
 2. Graph on one world rendered: nodes and jump edges, and routes for the failure cases (run-up from the screenshot, low ceiling).
 3. Compare reachability with the grid planner on the existing scenario sets: how many grid-reachable scenarios are physically impossible, and the reverse.
 4. Train with the physics reward (option C) and compare with `best_30m` on the 1,024 set, including the run-up cases.
+
+## First results (Oct 19, `train_01`, Tsunami)
+
+Check: the scenarios the trained bot (`best_30m`) solved must be physically reachable in the graph.
+
+| Sampler version | Standing spots | Safe moves | Scenarios reachable | Of the bot's solved scenarios, reachable |
+| --- | --- | --- | --- | --- |
+| v1: strict standing spots only | 119,747 (61k sampled) | 862k | 895 / 1,200 | 75% |
+| v2: + frontier rounds, blocked run-ups stop, steering at the apex | 184,310 | 2.39M | 1,151 / 1,200 | **95.9%** |
+
+What v1 missed:
+- 39% of the safe moves landed on spots that were never sampled (slopes, shallow water, next to hazards): dead ends. Frontier rounds now sample every landing spot.
+- Run-ups blocked by a wall pushed against it for 240 ticks without jumping: 18% of the programs, wasted. They now stop early.
+
+The frontier was still finding new spots in round 6 (7,272), so some moves (probably in water) remain under-covered. The 49 remaining "unreachable" scenarios were all solved by the bot. So scenarios are **not** filtered by the graph, and episodes whose start is off the graph use the grid distance.
+
+Validation of the physics itself (sim_move on flat ground, game's own Player.Update): single jump apex 5.84 tiles, Tsunami double jump at the apex 12.82, run-up + double jump 20 tiles.
+
+Cost: about 11 minutes per world with 6 servers (main pass 4 min + 6 frontier rounds).

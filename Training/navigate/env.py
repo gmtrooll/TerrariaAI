@@ -111,8 +111,9 @@ class ScenarioSource:
             for i, s in enumerate(rows):
                 s["id"] = f"{world}{suffix}:{i}"
                 s["loadout"] = code
-            if physics:  # only scenarios the movement graph says are physically reachable
-                rows = [s for s in rows if s.get("physics_ticks", 0) >= 0]
+            # Scenarios the movement graph cannot reach are kept: the graph still misses some moves (95.9% of the
+            # scenarios bots solve are reachable in it, train_01, Oct 19), and the mod falls back to the grid distance
+            # for an episode whose start is off the graph.
             self.sets.append({b: [s for s in rows if s["band"] == b] for b in BANDS})
         self.by_band = self.sets[0]
         self.fixed = list(fixed_list) if fixed_list is not None else None
