@@ -184,6 +184,10 @@ namespace FirstMod_Sp.Common.Systems
             if (LocalPlayerOverride != null) LocalPlayerOverride.Reset();
         }
 
+        /// <summary>Bots whose update threw (e.g. a position outside the world); the environment ends their episode.</summary>
+        public static readonly HashSet<int> Faulted = new HashSet<int>();
+        private static int faultsLogged;
+
         private void UpdateBots() {
             int realPlayerID = Main.myPlayer;
             int count = ActiveBots.Count; 
@@ -215,8 +219,20 @@ namespace FirstMod_Sp.Common.Systems
                     Main.mouseY = (int)defaultAim.Y;
                 }
 
-                bot.Update(botIndex);
-                data.Reset(); 
+                // One faulty bot must not abort the tick: an exception here used to skip the rest of the update
+                // (including the environment's decision step) and left Main.myPlayer pointing at the bot.
+                try {
+                    bot.Update(botIndex);
+                }
+                catch (Exception e) {
+                    Faulted.Add(botIndex);
+                    if (faultsLogged++ < 20)
+                        Mod.Logger.Warn($"[Bots] update of bot {botIndex} threw at position {bot.position} velocity {bot.velocity}: {e.GetType().Name}: {e.Message}");
+                }
+                finally {
+                    Main.myPlayer = realPlayerID;
+                }
+                data.Reset();
             }
 
             Main.myPlayer = realPlayerID;

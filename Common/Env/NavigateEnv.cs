@@ -296,6 +296,14 @@ namespace FirstMod_Sp.Common.Env
             }));
         }
 
+        private static int faultsLogged;
+
+        /// <summary>The player's position is a number and inside the world (with a margin for the world edge).</summary>
+        private static bool InsideWorld(Player p) {
+            return float.IsFinite(p.position.X) && float.IsFinite(p.position.Y) && float.IsFinite(p.velocity.X) && float.IsFinite(p.velocity.Y)
+                && p.position.X > 16f * 2 && p.position.X < (Main.maxTilesX - 3) * 16f && p.position.Y > 16f * 2 && p.position.Y < (Main.maxTilesY - 4) * 16f;
+        }
+
         private static PathDistanceField GetField(int tx, int ty) {
             long key = ((long)tx << 32) | (uint)ty;
             if (fields.TryGetValue(key, out PathDistanceField field)) return field;
@@ -345,11 +353,22 @@ namespace FirstMod_Sp.Common.Env
                 b.Steps++;
                 if (b.Current.TargetX < 0) UpdateFollowTarget(b);
                 Player p = Main.player[b.Slot];
+                bool faulted = BotManagerSystem.Faulted.Remove(b.Slot) || !InsideWorld(p);
+                if (faulted) {
+                    if (faultsLogged++ < 20)
+                        ModContent.GetInstance<NavigateEnv>().Mod.Logger.Warn($"[Env] bot {b.Slot} faulted (position {p.position}, velocity {p.velocity}) in scenario " +
+                            $"({b.Current.StartX},{b.Current.StartY}) -> ({b.Current.TargetX},{b.Current.TargetY}) after {b.Steps} decisions; episode ended as a death");
+                    // Back to a valid place before anything reads the position (the terminal observation indexes tiles).
+                    p.position = b.Current.StartX >= 0
+                        ? new Vector2(b.Current.StartX * 16 + 8 - p.width / 2f, (b.Current.StartY + 1) * 16 - p.height)
+                        : new Vector2(Main.spawnTileX * 16f, (Main.spawnTileY - 3) * 16f);
+                    p.velocity = Vector2.Zero;
+                }
                 WorldIntegrity.MarkAround(p);
                 if (RecordPath != null) b.Trajectory.Add(new[] { (int)(p.Center.X / 16f), (int)((p.Bottom.Y - 1f) / 16f) });
                 float dist = PathDistance(b);
                 byte f = 0;
-                if (p.dead) f |= Died;
+                if (p.dead || faulted) f |= Died;
                 else if (dist == 0) f |= Win;
                 else if (b.Steps >= b.Current.MaxSteps) f |= Timeout;
                 if (f == 0) continue;
