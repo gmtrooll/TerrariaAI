@@ -62,6 +62,12 @@ namespace FirstMod_Sp.Common.Env
         public static readonly bool RealTime = Program.LaunchParameters.ContainsKey("-envrealtime");
         /// <summary>-envrecord PREFIX: append every failed episode (bot path + planned route) as a JSON line to PREFIX_world.jsonl.</summary>
         public static readonly string RecordPath = Program.LaunchParameters.TryGetValue("-envrecord", out string rp) ? rp : null;
+        /// <summary>-envgraph DIR: physics movement graphs (DIR/&lt;world&gt;_l&lt;loadout&gt;.bin). When present, the progress
+        /// distance sent to the learner is the physics route distance (option C, docs/Physics Planner Design.md); the
+        /// waypoints and the win test stay on the grid planner.</summary>
+        public static readonly string GraphDir = Program.LaunchParameters.TryGetValue("-envgraph", out string gd) ? gd : null;
+        private static readonly Dictionary<int, Planning.MoveGraph> graphs = new Dictionary<int, Planning.MoveGraph>();
+        private static readonly Dictionary<long, Planning.PhysicsField> physicsFields = new Dictionary<long, Planning.PhysicsField>();
         private static StreamWriter recordWriter;
         public static bool Active;
 
@@ -75,6 +81,8 @@ namespace FirstMod_Sp.Common.Env
             public int Slot;
             public Scenario Current, Next;
             public PathDistanceField Field;
+            public Planning.PhysicsField Physics;  // null without -envgraph (or no graph for this loadout)
+            public float LastPhysics;
             public int Steps;
             public byte Horizontal = 1, Vertical = 1, Jump;
             public int FollowX = int.MinValue, FollowY;
@@ -269,6 +277,9 @@ namespace FirstMod_Sp.Common.Env
             if (s.TargetX >= 0) {
                 op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
                 b.Field = GetField(s.TargetX, s.TargetY, JumpTilesFor(s.Loadout));
+                b.Physics = GetPhysicsField(s.TargetX, s.TargetY, s.Loadout);
+                b.LastPhysics = b.Physics?.Distance(s.StartX, s.StartY) ?? -1f;
+                if (b.LastPhysics < 0) b.Physics = null;  // start off the graph: grid distance for this episode
             }
             else {
                 b.FollowX = int.MinValue;
@@ -331,6 +342,40 @@ namespace FirstMod_Sp.Common.Env
 
         /// <summary>Path distance in tiles from the bot's feet (as RLNetworkSystem.PathDistanceTiles), or the straight
         /// distance plus a penalty when the bot is outside the field or cut off.</summary>
+        private static Planning.PhysicsField GetPhysicsField(int tx, int ty, int loadout) {
+            if (GraphDir == null) return null;
+            if (!graphs.TryGetValue(loadout, out Planning.MoveGraph graph)) {
+                string path = System.IO.Path.Combine(GraphDir, $"{Main.worldName}_l{loadout}.bin");
+                graph = File.Exists(path) ? Planning.MoveGraph.Load(path) : null;
+                graphs[loadout] = graph;
+                ModContent.GetInstance<NavigateEnv>().Mod.Logger.Info(graph == null ? $"[Env] no movement graph at {path}"
+                    : $"[Env] movement graph {path}: {graph.NodeCount} nodes, {graph.EdgeCount} moves");
+            }
+            if (graph == null) return null;
+            long key = ((long)tx << 34) | ((long)(uint)ty << 4) | (uint)(loadout & 15);
+            if (physicsFields.TryGetValue(key, out Planning.PhysicsField field)) return field;
+            if (physicsFields.Count > 512) physicsFields.Clear();
+            long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
+            field = new Planning.PhysicsField(graph, tx + 0.5f, ty - 0.3f, GoalRadiusTiles);
+            physicsFields[key] = field;
+            timeFields += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
+            return field;
+        }
+
+        /// <summary>Progress distance sent to the learner: the physics route distance from the bot's standing spot,
+        /// held at its last value while the bot is in the air or off the graph; the grid distance without a graph.</summary>
+        private static float RewardDistance(BotEnv b) {
+            if (b.Physics == null) return PathDistance(b);
+            Player p = Main.player[b.Slot];
+            if (p.velocity.Y == 0f) {
+                int tx = (int)(p.Center.X / 16f), ty = (int)((p.Bottom.Y - 1f) / 16f);
+                float d = b.Physics.Distance(tx, ty);
+                if (d < 0) d = b.Physics.Distance(tx, ty - 1);
+                if (d >= 0) b.LastPhysics = d;
+            }
+            return PathDistance(b) == 0 ? 0f : b.LastPhysics;
+        }
+
         private static float PathDistance(BotEnv b) {
             Player p = Main.player[b.Slot];
             int tx = (int)(p.Center.X / 16f), ty = (int)((p.Bottom.Y - 1f) / 16f);
@@ -391,7 +436,7 @@ namespace FirstMod_Sp.Common.Env
                 if (RecordPath != null && (f & Win) == 0) Record(b, b.LastResult);
                 done[i] = true;
                 flags[i] = (byte)(f | Done | NewEpisode);
-                terminalDistance[i] = dist;
+                terminalDistance[i] = RewardDistance(b);
                 doneCount++;
             }
             // Terminal observations before the resets.
@@ -425,7 +470,7 @@ namespace FirstMod_Sp.Common.Env
             for (int i = 0; i < bots.Length; i++) {
                 BotEnv b = bots[i];
                 sendBuffer[o++] = flags[i];
-                BitConverter.TryWriteBytes(sendBuffer.AsSpan(o, 4), PathDistance(b));
+                BitConverter.TryWriteBytes(sendBuffer.AsSpan(o, 4), RewardDistance(b));
                 o += 4;
                 long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                 UpdateWaypoint(b);

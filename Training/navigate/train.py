@@ -93,6 +93,7 @@ def main():
     p.add_argument("--damage-penalty", type=float, default=5.0, help="reward per full life lost (0 = off)")
     p.add_argument("--loadouts", default="tsunami", help="equipment variants, comma-separated: tsunami, none")
     p.add_argument("--target-kl", type=float, default=0.0, help="stop an update early when the policy moves too far (0 = off)")
+    p.add_argument("--physics-reward", action="store_true", help="progress reward from the physics movement graphs (option C)")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -106,7 +107,11 @@ def main():
 
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=args.obs,
                          curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay,
-                         reward=RewardConfig(damage=args.damage_penalty), loadouts=args.loadouts.split(","))
+                         reward=RewardConfig(damage=args.damage_penalty,
+                                             # physics distances drop in one step when a jump lands: no 3-tile cap
+                                             max_progress_per_step=60.0 if args.physics_reward else 3.0),
+                         loadouts=args.loadouts.split(","),
+                         graph_dir=str(Path(__file__).resolve().parents[1] / "movegraphs") if args.physics_reward else None)
     log = ProgressLog(run_dir, env)
     try:
         coarse_shape = env.coarse_shape

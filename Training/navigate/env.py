@@ -48,9 +48,12 @@ class RewardConfig:
     damage: float = 5.0  # per full life lost (life fraction); 0 = off. Not on the decision a bot dies (death covers it)
 
 
-def max_decisions(path_distance: int, frame_skip: int = 4) -> int:
+def max_decisions(path_distance: int, frame_skip: int = 4, physics_ticks: int = None) -> int:
     """Episode time limit: generous for the distance (a bot covers ~0.75 tiles per 4-tick decision at run speed).
-    Scaled with the decision interval, so every interval gets the same game time."""
+    Scaled with the decision interval, so every interval gets the same game time. With a physics route time
+    (annotate_physics), twice that time plus 40 decisions."""
+    if physics_ticks is not None and physics_ticks >= 0:
+        return 40 * 4 // frame_skip + 2 * int(physics_ticks) // frame_skip
     return (40 + 4 * int(path_distance)) * 4 // frame_skip
 
 
@@ -94,7 +97,7 @@ class ScenarioSource:
     (wins + 1) / (attempts + 2) from `stats`; the rest stay uniform, so new scenarios are still seen."""
 
     def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
-                 replay: float = 0.0, stats: dict = None, loadouts: list = None):
+                 replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False):
         self.world = world
         self.curriculum = curriculum
         self.rng = rng
@@ -108,6 +111,8 @@ class ScenarioSource:
             for i, s in enumerate(rows):
                 s["id"] = f"{world}{suffix}:{i}"
                 s["loadout"] = code
+            if physics:  # only scenarios the movement graph says are physically reachable
+                rows = [s for s in rows if s.get("physics_ticks", 0) >= 0]
             self.sets.append({b: [s for s in rows if s["band"] == b] for b in BANDS})
         self.by_band = self.sets[0]
         self.fixed = list(fixed_list) if fixed_list is not None else None
@@ -159,11 +164,14 @@ class NavigateVecEnv(VecEnv):
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
                  games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None,
-                 replay: float = 0.0, loadouts: list = None):
+                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None):
+        """graph_dir: physics movement graphs (navigate.movegraph); the progress reward then uses physics route
+        distances (option C), only physically reachable scenarios are used, and time limits follow physics times."""
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
         self.frame_skip = frame_skip
         self.replay = replay
         self.loadouts = loadouts or ["tsunami"]
+        self.physics = graph_dir is not None
         self.reward_cfg = reward or RewardConfig()
         self.curriculum = curriculum or Curriculum()
         self.rng = random.Random(seed)
@@ -182,6 +190,8 @@ class NavigateVecEnv(VecEnv):
         if bot_lean:
             args.append("-botlean")
         args += list(extra_args or [])
+        if graph_dir:
+            args += ["-envgraph", str(graph_dir)]
         errors = []
 
         def launch(i, world):
@@ -258,7 +268,7 @@ class NavigateVecEnv(VecEnv):
         world = spec["world"]
         fixed = fixed_scenarios.get(world) if fixed_scenarios else None
         source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats,
-                                loadouts=self.loadouts)
+                                loadouts=self.loadouts, physics=self.physics)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.version = version
         if version < 2 and any(LOADOUTS[n][1] != 1 for n in self.loadouts):
@@ -277,7 +287,8 @@ class NavigateVecEnv(VecEnv):
         return server
 
     def _scenario_ints(self, s: dict, version: int = 2) -> tuple:
-        ints = (s["start_x"], s["start_y"], s["target_x"], s["target_y"], max_decisions(s["path_distance"], self.frame_skip))
+        ints = (s["start_x"], s["start_y"], s["target_x"], s["target_y"],
+                max_decisions(s["path_distance"], self.frame_skip, s.get("physics_ticks") if self.physics else None))
         return ints + (s.get("loadout", 1),) if version >= 2 else ints
 
     def _pack_scenario(self, s: dict, version: int = 2) -> bytes:
