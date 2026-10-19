@@ -68,6 +68,7 @@ All runs use the new worlds and scenario sets, custom PPO, stride 2, bf16 + over
 | `stride2` (before) | 5M steps, trained on the old sets | 85% | 93% | 91% | 79% | 77% | 79% | – | – | 2,850 | 30 min |
 | `base_10m` | 10M steps | 88% | 96% | 90% | 86% | 81% | 82% | 11.1% | 91% | 4,570 | 37 min |
 | `rec_10m` | 10M steps, **memory (GRU)** | **91%** | 92% | 94% | 88% | **89%** | 84% | 8.6% | 91% | 3,250 | 51 min |
+| `fs2_20m` | 20M decisions **every 2 ticks** (same game time as 10M at 4 ticks), γ 0.995 | 87% | 95% | 89% | 82% | 80% | 78% | 11.7% | 92% | 4,815 | 70 min |
 | `long_v3` | **50M steps** | **92%** | 98% | 92% | 89% | 88% | 84% | 7.8% | 97% | 4,690 | 3 h |
 
 Curves: [memory.png](../results/training/memory.png).
@@ -75,6 +76,7 @@ Curves: [memory.png](../results/training/memory.png).
 Findings:
 - **Longer training helps a lot, then levels off.** Training success rises from 75% at 5M to 91% at 10M and about 97% from 25M on; the last 25M steps add little. Held-out 92%: a gap of about 5 points to the training worlds is opening (more training worlds would close it).
 - **Memory helps on unseen worlds at equal training:** 91% vs 88% overall, and 89% vs 81% on the longest routes, with fewer timeouts (8.6% vs 11.1%). The training curves are the same, so memory doesn't speed learning on known worlds; it generalizes better. With 10M steps it nearly matches the 50M-step run without memory. One seed each, so the overall +3 points is suggestive; the +8 on long routes is the clearer signal. Cost: 29% slower per step (the update replays sequences).
+- **Deciding every 2 ticks instead of 4 does not help** (87% vs 88% at the same game time) and takes twice the wall-clock time. The mistimed jumps are not about reaction time. Decisions stay at every 4 ticks.
 - The PC ran faster tonight (4,500–4,700 steps/s against 2,850 before) with the other programs closed.
 
 ### What the 50M-step model still fails
