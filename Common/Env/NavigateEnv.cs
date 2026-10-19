@@ -10,6 +10,7 @@ using FirstMod_Sp.Common.Systems;
 using Microsoft.Xna.Framework;
 using Newtonsoft.Json;
 using Terraria;
+using Terraria.ID;
 using Terraria.DataStructures;
 using Terraria.ModLoader;
 
@@ -22,14 +23,16 @@ namespace FirstMod_Sp.Common.Env
     ///
     /// Handshake, server to learner: magic u32, version i32, bots i32, frame_skip i32, obs_bytes i32,
     ///   spec_len i32 + spec UTF-8 JSON (observation layout, names, class table, world name).
-    /// Learner to server: per bot, the current and the next scenario (each 5 x i32: start x, start y, target x,
-    ///   target y, max decisions). Then the first step packet follows.
+    /// Learner to server: per bot, the current and the next scenario (each 6 x i32: start x, start y, target x,
+    ///   target y, max decisions, loadout). Then the first step packet follows. Loadout: 0 = no extra jump,
+    ///   1 = Tsunami in a Bottle; the bot wears it for the episode and the route is planned for its jump height.
+    ///   (Version 1 had no loadout field; the learner reads the version from the handshake.)
     /// Step packet, server to learner: tick u32; per bot: flags u8, path_distance f32, observation bytes; then for
     ///   every bot whose episode ended (flags & DONE), in bot order: terminal path_distance f32 + terminal
     ///   observation bytes. Flags: 1 done, 2 win, 4 died, 8 timeout, 16 new episode started (this observation is
     ///   the first one of it).
     /// Learner to server: per bot: horizontal u8 (0 left, 1 none, 2 right), vertical u8 (0 up, 1 none, 2 down),
-    ///   jump u8 (0/1), has_next u8, next scenario 5 x i32 (read always, used when has_next = 1).
+    ///   jump u8 (0/1), has_next u8, next scenario 6 x i32 (read always, used when has_next = 1).
     /// When an episode ends the bot is moved to its queued next scenario in the same tick, so the learner must
     /// always keep one queued per bot.
     ///
@@ -41,11 +44,15 @@ namespace FirstMod_Sp.Common.Env
     public class NavigateEnv : ModSystem
     {
         public const uint Magic = 0x31564E54;  // "TNV1"
-        public const int Version = 1;
-        public const int ScenarioInts = 5;
+        public const int Version = 2;
+        public const int ScenarioInts = 6;
         public const int CommandBytes = 4 + ScenarioInts * 4;
         public const byte Done = 1, Win = 2, Died = 4, Timeout = 8, NewEpisode = 16;
         public const int FieldRadius = 130, MaxJumpTiles = 13, MaxAirGapTiles = 5, MaxSafeFallTiles = 25;
+        public const int LoadoutNone = 0, LoadoutTsunami = 1;
+
+        /// <summary>Planner jump height per loadout: measured apex 6.13 tiles for one jump, 13.12 with Tsunami.</summary>
+        public static int JumpTilesFor(int loadout) => loadout == LoadoutTsunami ? MaxJumpTiles : 6;
         public const float GoalRadiusTiles = 1.5f, OffPathPenaltyTiles = 10f;
         /// <summary>The observation's waypoint is this many path tiles ahead of the bot (inside the 41 x 41 grid).</summary>
         public const int WaypointSteps = 12, NearWaypointSteps = 3;
@@ -60,7 +67,7 @@ namespace FirstMod_Sp.Common.Env
 
         private sealed class Scenario
         {
-            public int StartX, StartY, TargetX, TargetY, MaxSteps;
+            public int StartX, StartY, TargetX, TargetY, MaxSteps, Loadout = LoadoutTsunami;
         }
 
         private sealed class BotEnv
@@ -226,6 +233,7 @@ namespace FirstMod_Sp.Common.Env
             return new Scenario {
                 StartX = reader.ReadInt32(), StartY = reader.ReadInt32(),
                 TargetX = reader.ReadInt32(), TargetY = reader.ReadInt32(), MaxSteps = reader.ReadInt32(),
+                Loadout = reader.ReadInt32(),
             };
         }
 
@@ -254,10 +262,13 @@ namespace FirstMod_Sp.Common.Env
             op.CoarseCache = null;
             b.Current = s;
             b.Trajectory.Clear();
+            // Equipment for this episode (accessory slot 3, as BotManagerSystem gives it at spawn).
+            int accessory = s.Loadout == LoadoutTsunami ? ItemID.TsunamiInABottle : ItemID.None;
+            if (p.armor[3].type != accessory) p.armor[3].SetDefaults(accessory);
             WorldIntegrity.Episode[b.Slot]++;  // changes this bot made in its last episode may now be restored
             if (s.TargetX >= 0) {
                 op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
-                b.Field = GetField(s.TargetX, s.TargetY);
+                b.Field = GetField(s.TargetX, s.TargetY, JumpTilesFor(s.Loadout));
             }
             else {
                 b.FollowX = int.MinValue;
@@ -277,7 +288,7 @@ namespace FirstMod_Sp.Common.Env
             if (tx == b.FollowX && ty == b.FollowY && b.Field != null) return;
             b.FollowX = tx;
             b.FollowY = ty;
-            b.Field = GetField(tx, ty);
+            b.Field = GetField(tx, ty, JumpTilesFor(b.Current?.Loadout ?? LoadoutTsunami));
             Main.player[b.Slot].GetModPlayer<ObservationPlayer>().Target = new Vector2((tx + 0.5f) * 16f, (ty - 0.3f) * 16f);
         }
 
@@ -305,13 +316,13 @@ namespace FirstMod_Sp.Common.Env
                 && p.position.X > 16f * 2 && p.position.X < (Main.maxTilesX - 3) * 16f && p.position.Y > 16f * 2 && p.position.Y < (Main.maxTilesY - 4) * 16f;
         }
 
-        private static PathDistanceField GetField(int tx, int ty) {
-            long key = ((long)tx << 32) | (uint)ty;
+        private static PathDistanceField GetField(int tx, int ty, int jumpTiles) {
+            long key = ((long)tx << 34) | ((long)(uint)ty << 6) | (uint)(jumpTiles & 63);
             if (fields.TryGetValue(key, out PathDistanceField field)) return field;
             if (fields.Count > 512) fields.Clear();
             long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
             fieldBuilds++;
-            field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, FieldRadius, MaxJumpTiles, GoalRadiusTiles, MaxAirGapTiles,
+            field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, FieldRadius, jumpTiles, GoalRadiusTiles, MaxAirGapTiles,
                 GridSensors.PathInfo, MaxSafeFallTiles);
             fields[key] = field;
             timeFields += System.Diagnostics.Stopwatch.GetTimestamp() - t0;

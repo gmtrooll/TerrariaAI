@@ -27,8 +27,13 @@ from terraria_mcp import scenarios as scenario_files  # noqa: E402
 from terraria_mcp.game import GameManager  # noqa: E402
 
 MAGIC = 0x31564E54
-# Per-bot command: horizontal, vertical, jump, has_next (u8 each), next scenario (5 x i32), packed = 24 bytes.
-COMMAND_DTYPE = np.dtype([("a", np.uint8, (4,)), ("s", "<i4", (5,))])
+# Per-bot command: horizontal, vertical, jump, has_next (u8 each), next scenario (5 x i32 in protocol version 1,
+# 6 x i32 from version 2: + loadout), packed = 24 / 28 bytes.
+def command_dtype(scenario_ints: int) -> np.dtype:
+    return np.dtype([("a", np.uint8, (4,)), ("s", "<i4", (scenario_ints,))])
+
+# Equipment variants: name -> (scenario set file suffix, loadout code sent to the server).
+LOADOUTS = {"tsunami": ("", 1), "none": ("_j6", 0)}
 DONE, WIN, DIED, TIMEOUT, NEW_EPISODE = 1, 2, 4, 8, 16
 BANDS = ["5-15", "15-30", "30-60", "60-120"]
 
@@ -89,16 +94,22 @@ class ScenarioSource:
     (wins + 1) / (attempts + 2) from `stats`; the rest stay uniform, so new scenarios are still seen."""
 
     def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
-                 replay: float = 0.0, stats: dict = None):
+                 replay: float = 0.0, stats: dict = None, loadouts: list = None):
         self.world = world
         self.curriculum = curriculum
         self.rng = rng
         self.replay = replay
         self.stats = stats if stats is not None else {}
-        all_rows = scenario_files.load(world)
-        for i, s in enumerate(all_rows):
-            s["id"] = f"{world}:{i}"
-        self.by_band = {b: [s for s in all_rows if s["band"] == b] for b in BANDS}
+        # One scenario set per equipment variant; an episode first picks a variant uniformly, then a band.
+        self.sets = []
+        for name in loadouts or ["tsunami"]:
+            suffix, code = LOADOUTS[name]
+            rows = scenario_files.load(world, suffix) if fixed_list is None else []
+            for i, s in enumerate(rows):
+                s["id"] = f"{world}{suffix}:{i}"
+                s["loadout"] = code
+            self.sets.append({b: [s for s in rows if s["band"] == b] for b in BANDS})
+        self.by_band = self.sets[0]
         self.fixed = list(fixed_list) if fixed_list is not None else None
         self.fixed_pos = 0
 
@@ -107,7 +118,8 @@ class ScenarioSource:
             s = self.fixed[self.fixed_pos % len(self.fixed)]
             self.fixed_pos += 1
             return s
-        pool = self.by_band[self.curriculum.pick_band(self.rng)]
+        by_band = self.sets[self.rng.randrange(len(self.sets))] if len(self.sets) > 1 else self.by_band
+        pool = by_band[self.curriculum.pick_band(self.rng)]
         if self.replay > 0 and self.rng.random() < self.replay:
             weights = []
             for s in pool:
@@ -129,7 +141,8 @@ class Server:
     queued: list = field(default_factory=list)    # next scenario per bot (already sent)
     need_next: list = field(default_factory=list)  # bot consumed its queued scenario; send a new one
     buffer: bytearray = None
-    queued_ints: np.ndarray = None                 # (bots, 5) int32: the queued scenarios as sent
+    queued_ints: np.ndarray = None                 # (bots, 5 or 6) int32: the queued scenarios as sent
+    version: int = 1                               # protocol version the server speaks
 
 
 def _recv_exact(sock: socket.socket, view: memoryview, n: int):
@@ -146,10 +159,11 @@ class NavigateVecEnv(VecEnv):
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
                  games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None,
-                 replay: float = 0.0):
+                 replay: float = 0.0, loadouts: list = None):
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
         self.frame_skip = frame_skip
         self.replay = replay
+        self.loadouts = loadouts or ["tsunami"]
         self.reward_cfg = reward or RewardConfig()
         self.curriculum = curriculum or Curriculum()
         self.rng = random.Random(seed)
@@ -243,26 +257,32 @@ class NavigateVecEnv(VecEnv):
         spec = json.loads(spec_buf.decode("utf-8"))
         world = spec["world"]
         fixed = fixed_scenarios.get(world) if fixed_scenarios else None
-        source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats)
+        source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats,
+                                loadouts=self.loadouts)
         server = Server(world, conn, bots, obs_bytes, spec, source)
+        server.version = version
+        if version < 2 and any(LOADOUTS[n][1] != 1 for n in self.loadouts):
+            raise ConnectionError(f"server speaks protocol {version}, which has no loadouts; rebuild the mod")
         server.buffer = bytearray(4 + bots * (5 + obs_bytes) * 2 + bots * 4)
-        server.queued_ints = np.zeros((bots, 5), np.int32)
+        server.queued_ints = np.zeros((bots, 6 if version >= 2 else 5), np.int32)
         out = bytearray()
         for b in range(bots):
             cur, nxt = source.next(), source.next()
             server.current.append(cur)
             server.queued.append(nxt)
             server.need_next.append(False)
-            server.queued_ints[b] = self._scenario_ints(nxt)
-            out += self._pack_scenario(cur) + self._pack_scenario(nxt)
+            server.queued_ints[b] = self._scenario_ints(nxt, version)
+            out += self._pack_scenario(cur, version) + self._pack_scenario(nxt, version)
         conn.sendall(out)
         return server
 
-    def _scenario_ints(self, s: dict) -> tuple:
-        return (s["start_x"], s["start_y"], s["target_x"], s["target_y"], max_decisions(s["path_distance"], self.frame_skip))
+    def _scenario_ints(self, s: dict, version: int = 2) -> tuple:
+        ints = (s["start_x"], s["start_y"], s["target_x"], s["target_y"], max_decisions(s["path_distance"], self.frame_skip))
+        return ints + (s.get("loadout", 1),) if version >= 2 else ints
 
-    def _pack_scenario(self, s: dict) -> bytes:
-        return struct.pack("<5i", *self._scenario_ints(s))
+    def _pack_scenario(self, s: dict, version: int = 2) -> bytes:
+        ints = self._scenario_ints(s, version)
+        return struct.pack(f"<{len(ints)}i", *ints)
 
     def _decode_block(self, rows: np.ndarray, start: int, target: dict):
         """rows: (n, obs_bytes) uint8, one observation per row -> target[...][start:start + n] (whole arrays at once)."""
@@ -328,12 +348,12 @@ class NavigateVecEnv(VecEnv):
         self._actions = np.asarray(actions, dtype=np.int64).reshape(self.num_envs, 3)
         offset = 0
         for s in self.servers:
-            out = np.zeros(s.bots, COMMAND_DTYPE)
+            out = np.zeros(s.bots, command_dtype(s.queued_ints.shape[1]))
             out["a"][:, :3] = self._actions[offset:offset + s.bots]
             for b in [b for b in range(s.bots) if s.need_next[b]]:  # only bots whose episode just ended
                 nxt = s.source.next()
                 s.queued[b] = nxt
-                s.queued_ints[b] = self._scenario_ints(nxt)
+                s.queued_ints[b] = self._scenario_ints(nxt, s.version)
                 s.need_next[b] = False
                 out["a"][b, 3] = 1
             out["s"] = s.queued_ints
@@ -375,7 +395,8 @@ class NavigateVecEnv(VecEnv):
                     self._ep_len[i] += 1
                     episode = {"r": float(self._ep_return[i]), "l": int(self._ep_len[i]), "win": win,
                                "died": bool(f & DIED), "timeout": bool(f & TIMEOUT), "band": sc["band"],
-                               "layer": sc["layer"], "world": s.world, "id": sc["id"], "path_distance": sc["path_distance"]}
+                               "layer": sc["layer"], "world": s.world, "id": sc["id"], "path_distance": sc["path_distance"],
+                               "loadout": sc.get("loadout", 1)}
                     infos[i]["episode"] = episode
                     self.episode_log.append(episode)
                     st = self.scenario_stats.setdefault(sc["id"], [0, 0])

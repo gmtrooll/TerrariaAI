@@ -19,7 +19,9 @@ LAYERS = ["surface", "underground", "cavern"]
 
 
 def generate_world_set(world: str, seed: int, per_layer: int = 400, max_jump: int = 13, size: str = "small",
-                       games: GameManager = None) -> dict:
+                       games: GameManager = None, suffix: str = "") -> dict:
+    """suffix names a variant set in the same world, e.g. "_j6" for scenarios planned with a 6-tile jump (no extra
+    jump): Training/scenarios/<world><suffix>.jsonl."""
     games = games or GameManager()
     games.create_world(world, size=size, seed=str(seed))
     name = f"scen_{world}"
@@ -38,7 +40,7 @@ def generate_world_set(world: str, seed: int, per_layer: int = 400, max_jump: in
     finally:
         games.stop(name)
     SCENARIO_DIR.mkdir(parents=True, exist_ok=True)
-    path = SCENARIO_DIR / f"{world}.jsonl"
+    path = SCENARIO_DIR / f"{world}{suffix}.jsonl"
     path.write_text("".join(json.dumps(r) + "\n" for r in rows), encoding="utf-8")
     counts = {}
     for r in rows:
@@ -47,8 +49,8 @@ def generate_world_set(world: str, seed: int, per_layer: int = 400, max_jump: in
             "by_layer_band": {f"{k[0]} {k[1]}": v for k, v in sorted(counts.items())}}
 
 
-def load(world: str) -> list:
-    path = SCENARIO_DIR / f"{world}.jsonl"
+def load(world: str, suffix: str = "") -> list:
+    path = SCENARIO_DIR / f"{world}{suffix}.jsonl"
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
 
 
@@ -58,11 +60,12 @@ def main():
     parser.add_argument("--seeds", nargs="+", type=int, required=True)
     parser.add_argument("--per-layer", type=int, default=400)
     parser.add_argument("--max-jump", type=int, default=13)
+    parser.add_argument("--suffix", default="", help="variant set file suffix, e.g. _j6")
     args = parser.parse_args()
     games = GameManager()
     try:
         for world, seed in zip(args.worlds, args.seeds):
-            print(json.dumps(generate_world_set(world, seed, args.per_layer, args.max_jump, games=games)), flush=True)
+            print(json.dumps(generate_world_set(world, seed, args.per_layer, args.max_jump, games=games, suffix=args.suffix)), flush=True)
     finally:
         games.stop_all()
 

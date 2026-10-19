@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from navigate.env import BANDS, Curriculum, NavigateVecEnv
+from navigate.env import BANDS, LOADOUTS, Curriculum, NavigateVecEnv
 from navigate.model import ActorCritic, RecurrentActorCritic, make_encoder
 from terraria_mcp import scenarios as scenario_files
 
@@ -27,13 +27,15 @@ RESULTS = Path(__file__).resolve().parents[2] / "results" / "training"
 EVAL_WORLDS = ["eval_01", "eval_02"]
 
 
-def fixed_lists(worlds, per_band: int, seed: int = 12345) -> dict:
+def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunami") -> dict:
     rng = random.Random(seed)
+    suffix, code = LOADOUTS[loadout]
     out = {}
     for w in worlds:
-        rows = scenario_files.load(w)
+        rows = scenario_files.load(w, suffix)
         for i, s in enumerate(rows):
-            s["id"] = f"{w}:{i}"
+            s["id"] = f"{w}{suffix}:{i}"
+            s["loadout"] = code
         chosen = []
         for band in BANDS:
             pool = [s for s in rows if s["band"] == band]
@@ -111,13 +113,16 @@ def main():
     p.add_argument("--deterministic", action="store_true", help="take the most likely action instead of sampling")
     p.add_argument("--port", type=int, default=5690)
     p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
+    p.add_argument("--loadout", choices=sorted(LOADOUTS), default="tsunami", help="equipment variant to evaluate")
     p.add_argument("--record", action="store_true", help="servers write failed episodes (path + planned route) to failures_<world>.jsonl")
     args = p.parse_args()
 
     run_dir = RESULTS / (args.run or args.name)
     config = json.loads((run_dir / "config.json").read_text()) if args.run else {}
     obs_spec = config.get("obs", "grid=fovea,visibility=exposed")
-    lists = fixed_lists(args.worlds, args.per_band)
+    if args.loadout != "tsunami" and not args.tag:
+        args.tag = args.loadout
+    lists = fixed_lists(args.worlds, args.per_band, loadout=args.loadout)
     total = sum(len(v) for v in lists.values())
     extra = []
     if args.record:
@@ -127,7 +132,7 @@ def main():
         extra = ["-envrecord", str(run_dir / "failures")]
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=obs_spec,
                          curriculum=Curriculum(fixed=True), fixed_scenarios=lists, extra_args=extra,
-                         frame_skip=config.get("frame_skip", 4))
+                         frame_skip=config.get("frame_skip", 4), loadouts=[args.loadout])
     try:
         if args.policy == "model":
             act = load_policy(run_dir, config, env, args.deterministic)

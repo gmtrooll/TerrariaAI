@@ -91,6 +91,7 @@ def main():
     p.add_argument("--frame-skip", type=int, default=4, help="ticks per decision (time limits scale with it)")
     p.add_argument("--replay", type=float, default=0.0, help="share of episodes replaying hard scenarios (0 = off)")
     p.add_argument("--damage-penalty", type=float, default=5.0, help="reward per full life lost (0 = off)")
+    p.add_argument("--loadouts", default="tsunami", help="equipment variants, comma-separated: tsunami, none")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -104,7 +105,7 @@ def main():
 
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=args.obs,
                          curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay,
-                         reward=RewardConfig(damage=args.damage_penalty))
+                         reward=RewardConfig(damage=args.damage_penalty), loadouts=args.loadouts.split(","))
     log = ProgressLog(run_dir, env)
     try:
         coarse_shape = env.coarse_shape
