@@ -46,12 +46,13 @@ def main():
     games = GameManager()
     names = []
     try:
+        # One at a time: servers opening the same world file at the same moment fail ("being used by another
+        # process"); a server only reads it while loading.
         for i in range(args.servers):
             name = f"graph_{args.world}_{i}"
-            games.launch("server", world=args.world, name=name, bridge_port=args.first_port + i, extra_args=["-botlean"], wait=False)
+            games.launch("server", world=args.world, name=name, bridge_port=args.first_port + i, extra_args=["-botlean"], wait=True,
+                         timeout=600)
             names.append(name)
-        for name in names:
-            games.wait_ready(name, timeout=600)
         size = games.call(names[0], "execute", code="return new[] { Main.maxTilesX, Main.maxTilesY };")["result"]
         if args.region:
             x0, y0, w, h = args.region

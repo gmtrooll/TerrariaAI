@@ -31,6 +31,7 @@ def main():
     p.add_argument("--bots", type=int, default=4)
     p.add_argument("--deterministic", action="store_true", help="most likely action instead of sampling")
     p.add_argument("--port", type=int, default=5790)
+    p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. ckpt_30M.pt")
     args = p.parse_args()
 
     run_dir = RESULTS / args.run
@@ -51,7 +52,7 @@ def main():
                          extra_args=["-envrealtime", "-envcamera", "-1" if args.mode == "follow" else "0"],
                          frame_skip=config.get("frame_skip", 4))
     try:
-        act = load_policy(run_dir, config, env, args.deterministic)
+        act = load_policy(run_dir, config, env, args.deterministic, args.checkpoint)
         print("running; close the game window or press Ctrl+C to stop", flush=True)
         obs = env.reset()
         wins = total = 0

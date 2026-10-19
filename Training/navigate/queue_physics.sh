@@ -7,21 +7,14 @@ set -u
 cd "$(dirname "$0")/.."
 OUT=../results/training
 log() { echo "$(date +%H:%M) $*" >> $OUT/queue.log; }
-while true; do
-    [ -f $OUT/final12_50m/eval_big.json ] && break
-    grep -q Traceback $OUT/final12_50m.log 2>/dev/null && break
-    grep -q Traceback $OUT/final12_50m_evalbig.log 2>/dev/null && break
-    sleep 60
-done
-sleep 30
 log "physics queue: install the new build"
 PYTHONPATH=../tools python -c "
 from terraria_mcp.game import GameManager
 r = GameManager().build(); print(r); assert r['ok'] and 'not yet' not in str(r.get('installed'))" >> $OUT/queue.log 2>&1 || { log "build/install failed"; exit 1; }
 for w in train_01 train_02 train_03 train_04 train_05 train_06 eval_01 eval_02; do
     log "movement graph $w"
-    python -m navigate.movegraph --world $w --loadout 1 --servers 6 >> $OUT/movegraphs.log 2>&1 || log "movegraph $w failed"
-    python -m navigate.annotate_physics --world $w --loadout 1 >> $OUT/movegraphs.log 2>&1 || log "annotate $w failed"
+    python -m navigate.movegraph --world $w --loadout 1 --servers 6 >> $OUT/movegraphs.log 2>&1 || { log "movegraph $w failed: stopping"; exit 1; }
+    python -m navigate.annotate_physics --world $w --loadout 1 >> $OUT/movegraphs.log 2>&1 || { log "annotate $w failed: stopping"; exit 1; }
 done
 log "start phys_10m"
 python -m navigate.train --run phys_10m --steps 10000000 --bf16 --overlap --micro-batch 2048 --target-kl 0.03 --port 5673 \
