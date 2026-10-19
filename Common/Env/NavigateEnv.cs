@@ -144,6 +144,9 @@ namespace FirstMod_Sp.Common.Env
             catch (IOException e) {
                 ModContent.GetInstance<NavigateEnv>().Mod.Logger.Warn("[Env] learner connection lost: " + e.Message);
                 Disconnect();
+                // A training server without its learner has nothing to do; left running it holds memory and the mod
+                // file (orphans after a learner crash). Worlds are never saved in environment mode, so exit at once.
+                if (Main.dedServ) Environment.Exit(0);
                 BridgeSystem.Paused = false;
                 BridgeSystem.StepsLeft = 0;
             }

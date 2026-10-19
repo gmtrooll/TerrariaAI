@@ -33,3 +33,6 @@
 07:31 done base_10m (exit 0)
 07:31 start fs2_20m
 08:42 done fs2_20m (exit 0)
+{'ok': True, 'seconds': 3.6, 'errors': [], 'warnings': ['Common\\Observation\\ObservationBuilder.cs(498,56): warning ChangeMagicNumberToID: The number 7 should be changed to ProjAIStyleID.Hook for readability (https://github.com/tModLoader/tModLoader/wiki/tModCodeAssist#changemagicnumbertoid) [FirstMod_Sp.csproj]'], 'installed': 'not yet: a running instance holds the old build; relaunch to install'}
+08:43 start near_10m
+08:45 start near_10m (restart on the new build)
