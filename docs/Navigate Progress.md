@@ -172,3 +172,16 @@ Diagnostic `diag_pen5`: the same new code (damage penalty, webs per episode) on 
 **Cause found: oversized policy updates.** Seed 1 collapsed in the same place. In both collapsed runs the KL per update (how far one update moves the policy) rose to 0.4–0.5 just before the collapse; healthy runs stay at 0.002–0.08. The policy got thrown off course by a few oversized updates, then wandered randomly (entropy up, timeouts up). Why the 12-world setup provokes them is not clear yet.
 
 Fix: **target KL** (`--target-kl`, as in SB3). A minibatch whose KL exceeds 1.5 × the target is skipped, and the update's remaining epochs are cancelled. With 0.03, `final12_50m` (seed 1) stepped in once, at iteration 13, and then trained normally through 1M steps (band win rates 92 / 77 / 63 / 48%, KL 0.006–0.011 per update). It is now running to 50M steps (about 5 hours).
+
+### The final run's checkpoints (1,024-scenario held-out set)
+
+`final12_50m`: near waypoint + memory, 12 worlds, damage penalty, target KL 0.03, seed 1.
+
+| Model | Held-out | 5–15 | 15–30 | 30–60 | 60–120 | Cavern | Timeouts |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `best_30m` (6 worlds, 30M) | 94.4% ± 0.7 | 99% | 94% | 95% | 89% | 93% | 5.2% |
+| `final12_50m` at 10M | 94.1% ± 0.7 | 99% | 95% | 93% | 90% | 92% | 5.7% |
+| `final12_50m` at **20M** | **95.6% ± 0.6** | 99% | 96% | 96% | 91% | 94% | 3.9% |
+
+- **12 worlds pay off with longer training.** At 10M the run matches `best_30m` (at 30M), and from 10M to 20M it gains another 1.5 points held-out. At 10M steps alone (Oct 19 afternoon) 12 worlds showed no gain; the extra variety needs longer training to show.
+- The 20M copy is the new best model. The run continues to 50M; the 30M and 40M copies are evaluated as they come, and the best copy becomes the final Navigate model.

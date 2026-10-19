@@ -49,7 +49,7 @@ class Policy:
     """A trained run's policy: policy(obs) -> actions; policy.observe(dones) after every step (resets the memory
     of recurrent policies when an episode ended)."""
 
-    def __init__(self, run_dir: Path, config: dict, env, deterministic: bool, device: str = "cuda"):
+    def __init__(self, run_dir: Path, config: dict, env, deterministic: bool, device: str = "cuda", checkpoint: str = "model.pt"):
         self.deterministic = deterministic
         self.device = device
         self.sb3 = None
@@ -59,7 +59,7 @@ class Policy:
             return
         encoder = make_encoder(env.spec, env.fine_shape, env.coarse_shape, env.float_count, config.get("stride", 1))
         self.model = (RecurrentActorCritic(encoder) if config.get("recurrent") else ActorCritic(encoder)).to(device)
-        self.model.load_state_dict(torch.load(run_dir / "model.pt", map_location=device, weights_only=False)["model"])
+        self.model.load_state_dict(torch.load(run_dir / checkpoint, map_location=device, weights_only=False)["model"])
         self.model.eval()
         self.recurrent = getattr(self.model, "recurrent", False)
         if self.recurrent:
@@ -83,8 +83,8 @@ class Policy:
             self.starts = torch.as_tensor(np.asarray(dones, dtype=np.float32), device=self.device)
 
 
-def load_policy(run_dir: Path, config: dict, env, deterministic: bool) -> Policy:
-    return Policy(run_dir, config, env, deterministic)
+def load_policy(run_dir: Path, config: dict, env, deterministic: bool, checkpoint: str = "model.pt") -> Policy:
+    return Policy(run_dir, config, env, deterministic, checkpoint=checkpoint)
 
 
 def greedy_policy(spec, toward="target"):
@@ -114,6 +114,7 @@ def main():
     p.add_argument("--port", type=int, default=5690)
     p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
     p.add_argument("--loadout", choices=sorted(LOADOUTS), default="tsunami", help="equipment variant to evaluate")
+    p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. model_20M.pt")
     p.add_argument("--record", action="store_true", help="servers write failed episodes (path + planned route) to failures_<world>.jsonl")
     args = p.parse_args()
 
@@ -135,7 +136,7 @@ def main():
                          frame_skip=config.get("frame_skip", 4), loadouts=[args.loadout])
     try:
         if args.policy == "model":
-            act = load_policy(run_dir, config, env, args.deterministic)
+            act = load_policy(run_dir, config, env, args.deterministic, args.checkpoint)
         elif args.policy in ("greedy", "greedy_wp"):
             act = greedy_policy(env.spec, "waypoint" if args.policy == "greedy_wp" else "target")
         else:
