@@ -7,7 +7,8 @@ set -u
 cd "$(dirname "$0")/.."
 OUT=../results/training
 log() { echo "$(date +%H:%M) $*" >> $OUT/queue.log; }
-until grep -q "graphs done for 12 worlds\|failed: stopping" $OUT/queue.log; do sleep 60; done
+START=$(wc -l < $OUT/queue.log)  # only look at lines written after this queue started
+until tail -n +$((START + 1)) $OUT/queue.log | grep -q "graphs done for 12 worlds\|failed: stopping"; do sleep 60; done
 sleep 20
 COMMON="--steps 10000000 --bf16 --overlap --micro-batch 2048 --target-kl 0.03 --obs grid=fovea,visibility=exposed,near=1 --recurrent"
 log "start none_10m"
