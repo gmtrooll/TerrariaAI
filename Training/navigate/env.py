@@ -27,6 +27,8 @@ from terraria_mcp import scenarios as scenario_files  # noqa: E402
 from terraria_mcp.game import GameManager  # noqa: E402
 
 MAGIC = 0x31564E54
+# Per-bot command: horizontal, vertical, jump, has_next (u8 each), next scenario (5 x i32), packed = 24 bytes.
+COMMAND_DTYPE = np.dtype([("a", np.uint8, (4,)), ("s", "<i4", (5,))])
 DONE, WIN, DIED, TIMEOUT, NEW_EPISODE = 1, 2, 4, 8, 16
 BANDS = ["5-15", "15-30", "30-60", "60-120"]
 
@@ -112,6 +114,7 @@ class Server:
     queued: list = field(default_factory=list)    # next scenario per bot (already sent)
     need_next: list = field(default_factory=list)  # bot consumed its queued scenario; send a new one
     buffer: bytearray = None
+    queued_ints: np.ndarray = None                 # (bots, 5) int32: the queued scenarios as sent
 
 
 def _recv_exact(sock: socket.socket, view: memoryview, n: int):
@@ -223,19 +226,35 @@ class NavigateVecEnv(VecEnv):
         source = ScenarioSource(world, self.curriculum, self.rng, fixed)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.buffer = bytearray(4 + bots * (5 + obs_bytes) * 2 + bots * 4)
+        server.queued_ints = np.zeros((bots, 5), np.int32)
         out = bytearray()
-        for _ in range(bots):
+        for b in range(bots):
             cur, nxt = source.next(), source.next()
             server.current.append(cur)
             server.queued.append(nxt)
             server.need_next.append(False)
+            server.queued_ints[b] = self._scenario_ints(nxt)
             out += self._pack_scenario(cur) + self._pack_scenario(nxt)
         conn.sendall(out)
         return server
 
+    def _scenario_ints(self, s: dict) -> tuple:
+        return (s["start_x"], s["start_y"], s["target_x"], s["target_y"], max_decisions(s["path_distance"], self.frame_skip))
+
     def _pack_scenario(self, s: dict) -> bytes:
-        return struct.pack("<5i", s["start_x"], s["start_y"], s["target_x"], s["target_y"],
-                           max_decisions(s["path_distance"], self.frame_skip))
+        return struct.pack("<5i", *self._scenario_ints(s))
+
+    def _decode_block(self, rows: np.ndarray, start: int, target: dict):
+        """rows: (n, obs_bytes) uint8, one observation per row -> target[...][start:start + n] (whole arrays at once)."""
+        n = rows.shape[0]
+        fine_n = self.fine_shape[0] * self.fine_shape[1] * self.fine_shape[2]
+        target["fine"][start:start + n] = rows[:, :fine_n].reshape(n, self.fine_shape[1], self.fine_shape[2], 4).transpose(0, 3, 1, 2)
+        o = fine_n
+        if self.coarse_shape:
+            coarse_n = self.coarse_shape[0] * self.coarse_shape[1] * self.coarse_shape[2]
+            target["coarse"][start:start + n] = rows[:, o:o + coarse_n].reshape(n, self.coarse_shape[1], self.coarse_shape[2], 4).transpose(0, 3, 1, 2)
+            o += coarse_n
+        target["vec"][start:start + n] = np.ascontiguousarray(rows[:, o:o + 4 * self.float_count]).view(np.float32)
 
     def _decode_obs(self, raw: memoryview, i: int, target: dict):
         fine_n = self.fine_shape[0] * self.fine_shape[1] * self.fine_shape[2]
@@ -260,23 +279,22 @@ class NavigateVecEnv(VecEnv):
         fixed = 4 + n * (5 + ob)
         view = memoryview(s.buffer)
         _recv_exact(s.sock, view, fixed)
-        flags = np.zeros(n, np.uint8)
-        dist = np.zeros(n, np.float32)
-        for b in range(n):
-            base = 4 + b * (5 + ob)
-            flags[b] = view[base]
-            dist[b] = struct.unpack_from("<f", view, base + 1)[0]
-            self._decode_obs(view[base + 5: base + 5 + ob], offset + b, self._obs)
-        ended = [b for b in range(n) if flags[b] & DONE]
+        rows = np.frombuffer(s.buffer, np.uint8, n * (5 + ob), 4).reshape(n, 5 + ob)
+        flags = rows[:, 0].copy()
+        dist = np.ascontiguousarray(rows[:, 1:5]).view(np.float32).reshape(n).copy()
+        self._decode_block(rows[:, 5:], offset, self._obs)
+        ended = np.flatnonzero(flags & DONE).tolist()
         terminal = {}
         if ended:
             extra = len(ended) * (4 + ob)
             tail = bytearray(extra)
             _recv_exact(s.sock, memoryview(tail), extra)
+            trows = np.frombuffer(tail, np.uint8).reshape(len(ended), 4 + ob)
+            tdist = np.ascontiguousarray(trows[:, :4]).view(np.float32).reshape(-1)
+            tobs = {k: np.zeros((len(ended),) + v.shape[1:], v.dtype) for k, v in self._obs.items()}
+            self._decode_block(trows[:, 4:], 0, tobs)
             for k, b in enumerate(ended):
-                base = k * (4 + ob)
-                tdist = struct.unpack_from("<f", tail, base)[0]
-                terminal[b] = (tdist, self._single_obs(memoryview(tail)[base + 4: base + 4 + ob]))
+                terminal[b] = (float(tdist[k]), {key: v[k] for key, v in tobs.items()})
         return flags, dist, terminal
 
     # ---------- VecEnv ----------
@@ -290,18 +308,16 @@ class NavigateVecEnv(VecEnv):
         self._actions = np.asarray(actions, dtype=np.int64).reshape(self.num_envs, 3)
         offset = 0
         for s in self.servers:
-            out = bytearray(s.bots * 24)
-            for b in range(s.bots):
-                a = self._actions[offset + b]
-                has_next = 1 if s.need_next[b] else 0
-                nxt = s.source.next() if has_next else s.queued[b]
-                if has_next:
-                    s.queued[b] = nxt
-                    s.need_next[b] = False
-                struct.pack_into("<4B5i", out, b * 24, int(a[0]), int(a[1]), int(a[2]), has_next,
-                                 nxt["start_x"], nxt["start_y"], nxt["target_x"], nxt["target_y"],
-                                 max_decisions(nxt["path_distance"], self.frame_skip))
-            s.sock.sendall(out)
+            out = np.zeros(s.bots, COMMAND_DTYPE)
+            out["a"][:, :3] = self._actions[offset:offset + s.bots]
+            for b in [b for b in range(s.bots) if s.need_next[b]]:  # only bots whose episode just ended
+                nxt = s.source.next()
+                s.queued[b] = nxt
+                s.queued_ints[b] = self._scenario_ints(nxt)
+                s.need_next[b] = False
+                out["a"][b, 3] = 1
+            out["s"] = s.queued_ints
+            s.sock.sendall(out.tobytes())
             offset += s.bots
 
     def step_wait(self):
