@@ -26,6 +26,7 @@ namespace FirstMod_Sp.Common.Automation
             On_Player.UpdateBiomes += SkipBotBiomes;
             On_Player.ForceUpdateBiomes += SkipBotForceBiomes;
             On_Lighting.Clear += SkipLightingClear;
+            Terraria.GameContent.Achievements.On_AchievementsHelper.HandleSpecialEvent += SkipAchievementEvent;
         }
 
         public override void Unload() {
@@ -33,6 +34,14 @@ namespace FirstMod_Sp.Common.Automation
             On_Player.UpdateBiomes -= SkipBotBiomes;
             On_Player.ForceUpdateBiomes -= SkipBotForceBiomes;
             On_Lighting.Clear -= SkipLightingClear;
+            Terraria.GameContent.Achievements.On_AchievementsHelper.HandleSpecialEvent -= SkipAchievementEvent;
+        }
+
+        // AchievementsHelper.HandleSpecialEvent only checks that the player is the local one, then uses
+        // Main.Achievements, which a server does not have. Bots are updated as the local player, so special events
+        // (e.g. reaching the world edge, Player.BordersMovement) threw a NullReferenceException in their update.
+        private static void SkipAchievementEvent(Terraria.GameContent.Achievements.On_AchievementsHelper.orig_HandleSpecialEvent orig, Player player, int eventID) {
+            if (Main.Achievements != null) orig(player, eventID);
         }
 
         // Player.Spawn's local-player branch handles a far respawn as a camera jump: Lighting.Clear(), then
