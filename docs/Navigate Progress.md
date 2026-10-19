@@ -70,6 +70,7 @@ All runs use the new worlds and scenario sets, custom PPO, stride 2, bf16 + over
 | `rec_10m` | 10M steps, **memory (GRU)** | **91%** | 92% | 94% | 88% | **89%** | 84% | 8.6% | 91% | 3,250 | 51 min |
 | `fs2_20m` | 20M decisions **every 2 ticks** (same game time as 10M at 4 ticks), γ 0.995 | 87% | 95% | 89% | 82% | 80% | 78% | 11.7% | 92% | 4,815 | 70 min |
 | `near_10m` | 10M steps, **near waypoint** (3 route tiles ahead) next to the 12-tile one | 88% | 95% | 89% | 85% | 84% | 83% | 10.0% | 94% | 4,513 | 39 min |
+| `near_rec_10m` | 10M steps, **near waypoint + memory** | **93%** | 97% | 94% | 90% | 90% | **88%** | 6.8% | 93% | 3,267 | 51 min |
 | `long_v3` | **50M steps** | **92%** | 98% | 92% | 89% | 88% | 84% | 7.8% | 97% | 4,690 | 3 h |
 
 Curves: [memory.png](../results/training/memory.png).
@@ -105,3 +106,6 @@ Findings:
 The cabin cluster is the clearest lead. Routes there drop through platforms (only possible by holding down while standing on one) or go through doors (they open only when walked into at floor level). Both are rare in training scenarios. Two possible fixes:
 - sample hard scenarios more often (Prioritized Level Replay: replay scenarios with low success);
 - add scenarios that must pass a platform or a door.
+
+
+**Near waypoint + memory together: 92.6% held-out at 10M steps**, the best result so far, above the 50M-step run without them (91.8%) in a fifth of the training. Caverns 88% (the hardest layer; 82–84% for every other run), fewest timeouts (6.8%). Neither addition alone did this well (memory 90.6%, near 88.5%): the two seem to work together. The memory may let the policy use the near point's short-term direction (go right first, then down) over several decisions. Still one seed: the next decisive comparison uses the 1,024-scenario evaluation. `best_30m` (near + memory, 30M steps) started automatically.
