@@ -185,3 +185,7 @@ Fix: **target KL** (`--target-kl`, as in SB3). A minibatch whose KL exceeds 1.5 
 
 - **12 worlds pay off with longer training.** At 10M the run matches `best_30m` (at 30M), and from 10M to 20M it gains another 1.5 points held-out. At 10M steps alone (Oct 19 afternoon) 12 worlds showed no gain; the extra variety needs longer training to show.
 - The 20M copy is the new best model. The run continues to 50M; the 30M and 40M copies are evaluated as they come, and the best copy becomes the final Navigate model.
+
+**Held-out levels off at about 30M steps:** 10M 94.1%, 20M 95.6%, **30M 96.2% ± 0.6**, 39M 96.1%. The run stopped at 39.8M: saving the 40M copy failed partway (a write error, not a full disk; probably the file was briefly locked), and the last good model file was kept.
+
+**Final Navigate model v1 = `navigate_v1`** (the 30M copy of `final12_50m`): near waypoint + memory, 12 training worlds, damage penalty, target KL, Tsunami in a Bottle. **96.2% on unseen worlds** (1,024 scenarios): 99.2% / 97.3% / 95.7% / 92.6% by band, caverns 95.5%, timeouts 3.6%. Watch it: `python -m navigate.watch --run navigate_v1`.

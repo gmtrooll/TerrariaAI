@@ -55,3 +55,8 @@
 17:23 diagnostics: damage penalty 5 vs 0 (near + memory, 6 worlds, 3M)
 17:33 start final12_50m (seed 1; seed 0 collapsed at 0.5M)
 17:39 start final12_50m (seed 1, target KL 0.03)
+21:01 evaluated final12_50m at 30M
+21:59 done final12_50m
+22:01 physics queue: install the new build
+{'ok': True, 'seconds': 6.7, 'errors': [], 'warnings': ['Common\\Observation\\ObservationBuilder.cs(498,56): warning ChangeMagicNumberToID: The number 7 should be changed to ProjAIStyleID.Hook for readability (https://github.com/tModLoader/tModLoader/wiki/tModCodeAssist#changemagicnumbertoid) [FirstMod_Sp.csproj]'], 'installed': 'C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader-Train\\Mods\\FirstMod_Sp.tmod'}
+22:01 movement graph train_01
