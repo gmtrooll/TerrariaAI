@@ -9,6 +9,7 @@ Writes Training/movegraphs/<world>_l<loadout>.npy: int32 rows [from_x, from_y, t
 """
 
 import argparse
+import base64
 import json
 import queue
 import sys
@@ -23,6 +24,11 @@ from terraria_mcp.game import GameManager  # noqa: E402
 
 OUT = Path(__file__).resolve().parents[1] / "movegraphs"
 CHUNK = 64
+
+
+def decode(b64: str) -> np.ndarray:
+    """sample_moves returns its edges as base64 int32 rows (the bridge's JSON truncates long lists)."""
+    return np.frombuffer(base64.b64decode(b64), np.int32).reshape(-1, 7)
 
 
 def main():
@@ -41,7 +47,7 @@ def main():
     if partial.exists():
         for line in partial.read_text().splitlines():
             d = json.loads(line)
-            done[tuple(d["chunk"])] = d["edges"]
+            done[tuple(d["chunk"])] = decode(d["edges_b64"])
 
     games = GameManager()
     names = []
@@ -76,12 +82,14 @@ def main():
                 except queue.Empty:
                     return
                 r = games.call(name, "sample_moves", timeout=1800, x=c[0], y=c[1], w=c[2], h=c[3], loadout=args.loadout)
+                edges = decode(r["edges_b64"])
+                assert len(edges) == r["edge_count"], (c, len(edges), r["edge_count"])
                 with lock:
-                    done[c] = r["edges"]
+                    done[c] = edges
                     stats["nodes"] += r["nodes"]
                     stats["ms"] += r["ms"]
                     with open(partial, "a") as f:
-                        f.write(json.dumps({"chunk": list(c), "edges": r["edges"]}) + "\n")
+                        f.write(json.dumps({"chunk": list(c), "edges_b64": r["edges_b64"]}) + "\n")
                     n = len(done)
                     if n % 10 == 0 or n == len(chunks):
                         rate = (time.time() - started) / max(1, n - (len(chunks) - todo.qsize() - n))
@@ -93,7 +101,7 @@ def main():
             t.start()
         for t in threads:
             t.join()
-        edges = np.array([e for c in chunks for e in done.get(c, [])], np.int32).reshape(-1, 7)
+        edges = np.concatenate([done[c] for c in chunks if c in done] or [np.zeros((0, 7), np.int32)]).astype(np.int32)
         np.save(out, edges)
         edges.tofile(out.with_suffix(".bin"))  # raw int32 rows for the mod (-envgraph)
         partial.unlink(missing_ok=True)

@@ -23,7 +23,8 @@ namespace FirstMod_Sp.Common.Planning
     ///
     /// Bridge commands:
     ///   sample_moves {x, y, w, h, loadout (0 none, 1 Tsunami), runups?, holds?} -> edges for every standing spot
-    ///     in the rectangle: [from_x, from_y, to_x, to_y, ticks, hurt, program], to = -1 when it never landed.
+    ///     in the rectangle as edges_b64: base64 int32 rows [from_x, from_y, to_x, to_y, ticks, hurt, program],
+    ///     to = -1 when it never landed.
     ///   sim_move {x, y, dir, runup, hold, double, loadout, trace?} -> one program's result (and tick-by-tick
     ///     positions with trace), for validation against real bots.
     /// </summary>
@@ -237,7 +238,12 @@ namespace FirstMod_Sp.Common.Planning
                 }
             }
             p.position = new Vector2(Main.spawnTileX * 16f, Main.spawnTileY * 16f - 48f);
-            r.Reply(new { nodes, programs = programs.Count, edges, ms = watch.ElapsedMilliseconds });
+            // Edges as one base64 block of int32 rows: the bridge's JSON output truncates lists over 2,000 items.
+            var raw = new int[edges.Count * 7];
+            for (int i = 0; i < edges.Count; i++) Array.Copy(edges[i], 0, raw, i * 7, 7);
+            var bytes = new byte[raw.Length * 4];
+            Buffer.BlockCopy(raw, 0, bytes, 0, bytes.Length);
+            r.Reply(new { nodes, programs = programs.Count, edge_count = edges.Count, edges_b64 = Convert.ToBase64String(bytes), ms = watch.ElapsedMilliseconds });
         }
     }
 }
