@@ -60,3 +60,25 @@
 22:01 physics queue: install the new build
 {'ok': True, 'seconds': 6.7, 'errors': [], 'warnings': ['Common\\Observation\\ObservationBuilder.cs(498,56): warning ChangeMagicNumberToID: The number 7 should be changed to ProjAIStyleID.Hook for readability (https://github.com/tModLoader/tModLoader/wiki/tModCodeAssist#changemagicnumbertoid) [FirstMod_Sp.csproj]'], 'installed': 'C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader-Train\\Mods\\FirstMod_Sp.tmod'}
 22:01 movement graph train_01
+22:11 movegraph train_01 failed
+22:11 annotate train_01 failed
+22:11 movement graph train_02
+22:12 physics queue: install the new build
+{'ok': True, 'seconds': 6.7, 'errors': [], 'warnings': ['Common\\Observation\\ObservationBuilder.cs(498,56): warning ChangeMagicNumberToID: The number 7 should be changed to ProjAIStyleID.Hook for readability (https://github.com/tModLoader/tModLoader/wiki/tModCodeAssist#changemagicnumbertoid) [FirstMod_Sp.csproj]'], 'installed': 'C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader-Train\\Mods\\FirstMod_Sp.tmod'}
+22:12 movement graph train_01
+22:19 movegraph train_01 failed: stopping
+22:21 physics queue: install the new build
+{'ok': True, 'seconds': 4.3, 'errors': [], 'warnings': ['Common\\Observation\\ObservationBuilder.cs(498,56): warning ChangeMagicNumberToID: The number 7 should be changed to ProjAIStyleID.Hook for readability (https://github.com/tModLoader/tModLoader/wiki/tModCodeAssist#changemagicnumbertoid) [FirstMod_Sp.csproj]'], 'installed': 'C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader-Train\\Mods\\FirstMod_Sp.tmod'}
+22:21 movement graph train_01
+22:27 movement graph train_02
+22:45 physics queue: install the new build
+{'ok': True, 'seconds': 5.8, 'errors': [], 'warnings': ['Common\\Observation\\ObservationBuilder.cs(498,56): warning ChangeMagicNumberToID: The number 7 should be changed to ProjAIStyleID.Hook for readability (https://github.com/tModLoader/tModLoader/wiki/tModCodeAssist#changemagicnumbertoid) [FirstMod_Sp.csproj]'], 'installed': 'C:\\Users\\User\\Documents\\My Games\\Terraria\\tModLoader-Train\\Mods\\FirstMod_Sp.tmod'}
+22:45 movement graph train_02
+22:57 movement graph train_03
+23:08 movement graph train_04
+23:20 movement graph train_05
+23:32 movement graph train_06
+23:44 movement graph eval_01
+23:58 movement graph eval_02
+00:13 start phys_10m
+01:12 done phys_10m

@@ -189,3 +189,17 @@ Fix: **target KL** (`--target-kl`, as in SB3). A minibatch whose KL exceeds 1.5 
 **Held-out levels off at about 30M steps:** 10M 94.1%, 20M 95.6%, **30M 96.2% ± 0.6**, 39M 96.1%. The run stopped at 39.8M: saving the 40M copy failed partway (a write error, not a full disk; probably the file was briefly locked), and the last good model file was kept.
 
 **Final Navigate model v1 = `navigate_v1`** (the 30M copy of `final12_50m`): near waypoint + memory, 12 training worlds, damage penalty, target KL, Tsunami in a Bottle. **96.2% on unseen worlds** (1,024 scenarios): 99.2% / 97.3% / 95.7% / 92.6% by band, caverns 95.5%, timeouts 3.6%. Watch it: `python -m navigate.watch --run navigate_v1`.
+
+## Oct 20 night: the physics progress reward (option C)
+
+Movement graphs (sampler v2) for 6 training and 2 held-out worlds: 174k–191k standing spots and 2.2–2.5M safe moves per world; **92–96% of each world's scenarios are physically reachable** (the rest keep the grid distance). About 12 minutes per world with 6 servers.
+
+`phys_10m` = near waypoint + memory, 6 worlds, 10M steps, **progress reward from the physics route distance** (held in the air); waypoints and the win test still from the grid planner. 1,024-scenario held-out set:
+
+| Model | Held-out | 5–15 | 15–30 | 30–60 | 60–120 | Cavern | Timeouts |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `near_rec_10m` (grid reward) | 91.5% ± 0.9 | 99% | 92% | 91% | 85% | 89% | 8.0% |
+| **`phys_10m`** (physics reward) | **93.3% ± 0.8** | 98% | 93% | 93% | **88%** | **93%** | 6.3% |
+
+- **+1.8 points overall, largest on long routes (+3.5) and in caverns (+3.8)**, where the grid reward misled the bot most, and fewer timeouts.
+- **Not yet a clean comparison:** `phys_10m` also has the damage penalty, the target KL and webs-per-episode, which `near_rec_10m` did not. The control `grid_ctrl_10m` (identical settings, grid reward) runs next.

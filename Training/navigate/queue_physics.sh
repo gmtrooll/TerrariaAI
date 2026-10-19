@@ -11,7 +11,7 @@ log "physics queue: install the new build"
 PYTHONPATH=../tools python -c "
 from terraria_mcp.game import GameManager
 r = GameManager().build(); print(r); assert r['ok'] and 'not yet' not in str(r.get('installed'))" >> $OUT/queue.log 2>&1 || { log "build/install failed"; exit 1; }
-for w in train_01 train_02 train_03 train_04 train_05 train_06 eval_01 eval_02; do
+for w in train_02 train_03 train_04 train_05 train_06 eval_01 eval_02; do  # train_01: sampled and annotated (graph v2)
     log "movement graph $w"
     python -m navigate.movegraph --world $w --loadout 1 --servers 6 >> $OUT/movegraphs.log 2>&1 || { log "movegraph $w failed: stopping"; exit 1; }
     python -m navigate.annotate_physics --world $w --loadout 1 >> $OUT/movegraphs.log 2>&1 || { log "annotate $w failed: stopping"; exit 1; }
