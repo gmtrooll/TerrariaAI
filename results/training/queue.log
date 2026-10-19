@@ -27,3 +27,8 @@
 10:45 done grid_full (exit 0)
 10:46 start grid_full (micro-batch 1024)
 12:54 done grid_full (exit 0)
+06:01 start rec_10m
+06:53 done rec_10m (exit 0)
+06:53 start base_10m
+07:31 done base_10m (exit 0)
+07:31 start fs2_20m

@@ -1,0 +1,76 @@
+{
+  "policy": "model",
+  "run": "rec_10m",
+  "obs": "grid=fovea,visibility=exposed",
+  "deterministic": false,
+  "worlds": [
+    "eval_01",
+    "eval_02"
+  ],
+  "overall": {
+    "n": 512,
+    "success": 0.9062,
+    "died": 0.0078,
+    "mean_win_length": 61.8
+  },
+  "by_world": {
+    "eval_01": {
+      "n": 256,
+      "success": 0.9141,
+      "died": 0.0078,
+      "mean_win_length": 59.7
+    },
+    "eval_02": {
+      "n": 256,
+      "success": 0.8984,
+      "died": 0.0078,
+      "mean_win_length": 64.0
+    }
+  },
+  "by_band": {
+    "15-30": {
+      "n": 128,
+      "success": 0.9375,
+      "died": 0.0,
+      "mean_win_length": 31.9
+    },
+    "30-60": {
+      "n": 128,
+      "success": 0.875,
+      "died": 0.0078,
+      "mean_win_length": 67.9
+    },
+    "5-15": {
+      "n": 128,
+      "success": 0.9219,
+      "died": 0.0078,
+      "mean_win_length": 16.5
+    },
+    "60-120": {
+      "n": 128,
+      "success": 0.8906,
+      "died": 0.0156,
+      "mean_win_length": 134.2
+    }
+  },
+  "by_layer": {
+    "cavern": {
+      "n": 167,
+      "success": 0.8443,
+      "died": 0.018,
+      "mean_win_length": 67.4
+    },
+    "surface": {
+      "n": 189,
+      "success": 0.9735,
+      "died": 0.0,
+      "mean_win_length": 56.7
+    },
+    "underground": {
+      "n": 156,
+      "success": 0.891,
+      "died": 0.0064,
+      "mean_win_length": 62.9
+    }
+  }
+}
