@@ -14,8 +14,9 @@ namespace FirstMod_Sp.Common.Env
     /// game would save it on exit.
     ///  - The world is never saved while the environment is active.
     ///  - The tile data is copied when the learner connects (Snapshot). Every RestoreEvery ticks, the chunks bots
-    ///    have been near are compared with the copy, and changed tiles are put back unless a bot is within
-    ///    KeepClearTiles of them (they are retried later).
+    ///    have been near are compared with the copy, and changed tiles are put back once every bot that was near
+    ///    the chunk has finished the episode it was in (in the real game a broken web stays broken, so it must not
+    ///    come back while the bot that broke it is still on its way), and no bot is within KeepClearTiles.
     ///  - Tiles drop no items, and hostile projectiles (trap darts, boulders) are cleared in the same pass.
     /// </summary>
     public class WorldIntegrity : ModSystem
@@ -29,7 +30,10 @@ namespace FirstMod_Sp.Common.Env
         private static LiquidData[] liquids;
         private static TileWallWireStateData[] states;
         private static TileWallBrightnessInvisibilityData[] brightness;
-        private static readonly HashSet<int> dirtyChunks = new HashSet<int>();
+        // Dirty chunk -> (bot slot -> that bot's episode number when it was last near the chunk).
+        private static readonly Dictionary<int, Dictionary<int, int>> dirtyChunks = new Dictionary<int, Dictionary<int, int>>();
+        /// <summary>Episode number per player slot; NavigateEnv increments it when a bot starts an episode.</summary>
+        public static readonly int[] Episode = new int[Main.maxPlayers + 1];
         private static int chunksX, chunksY, ticks;
         public static long Restored, Passes;
 
@@ -76,7 +80,10 @@ namespace FirstMod_Sp.Common.Env
             for (int dx = -1; dx <= 1; dx++) {
                 for (int dy = -1; dy <= 1; dy++) {
                     int x = cx + dx, y = cy + dy;
-                    if (x >= 0 && y >= 0 && x < chunksX && y < chunksY) dirtyChunks.Add(y * chunksX + x);
+                    if (x < 0 || y < 0 || x >= chunksX || y >= chunksY) continue;
+                    int chunk = y * chunksX + x;
+                    if (!dirtyChunks.TryGetValue(chunk, out var visitors)) dirtyChunks[chunk] = visitors = new Dictionary<int, int>();
+                    visitors[p.whoAmI] = Episode[p.whoAmI];
                 }
             }
         }
@@ -99,7 +106,15 @@ namespace FirstMod_Sp.Common.Env
             TileWallBrightnessInvisibilityData[] curBrightness = Main.tile.GetData<TileWallBrightnessInvisibilityData>();
             int height = Main.tile.Height, worldH = Main.maxTilesY;  // arrays are column-major over the allocated height
             var done = new List<int>();
-            foreach (int chunk in dirtyChunks) {
+            foreach (var (chunk, visitors) in dirtyChunks) {
+                bool episodeRunning = false;
+                foreach (var (slot, episode) in visitors) {
+                    if (Episode[slot] == episode) {
+                        episodeRunning = true;
+                        break;
+                    }
+                }
+                if (episodeRunning) continue;  // a bot that was here is still in the same episode: keep its changes
                 int x0 = chunk % chunksX * ChunkSize, y0 = chunk / chunksX * ChunkSize;
                 bool pending = false;
                 for (int x = x0; x < Math.Min(x0 + ChunkSize, Main.maxTilesX); x++) {

@@ -40,6 +40,7 @@ class RewardConfig:
     timeout: float = -1.0
     progress_per_tile: float = 0.5
     max_progress_per_step: float = 3.0
+    damage: float = 5.0  # per full life lost (life fraction); 0 = off. Not on the decision a bot dies (death covers it)
 
 
 def max_decisions(path_distance: int, frame_skip: int = 4) -> int:
@@ -216,6 +217,8 @@ class NavigateVecEnv(VecEnv):
 
         self._obs = {k: np.zeros((n_envs,) + sp.shape, sp.dtype) for k, sp in spaces.items()}
         self._dist = np.zeros(n_envs, np.float32)
+        names = spec["self_names"] + spec["capability_names"] + spec["goal_names"]
+        self._life_ix = names.index("life")
         self._ep_return = np.zeros(n_envs, np.float32)
         self._ep_len = np.zeros(n_envs, np.int32)
         self._actions = None
@@ -225,6 +228,7 @@ class NavigateVecEnv(VecEnv):
             _, dist, _ = self._read_step(s, offset, initial=True)
             self._dist[offset:offset + s.bots] = dist
             offset += s.bots
+        self._life = self._obs["vec"][:, self._life_ix].copy()
 
     # ---------- protocol ----------
 
@@ -342,6 +346,7 @@ class NavigateVecEnv(VecEnv):
         dones = np.zeros(n, bool)
         infos = [{} for _ in range(n)]
         prev = self._dist.copy()
+        prev_life = self._life.copy()
         offset = 0
         cfg = self.reward_cfg
         for s in self.servers:
@@ -359,6 +364,8 @@ class NavigateVecEnv(VecEnv):
                         r += cfg.death
                     elif f & TIMEOUT:
                         r += cfg.timeout
+                    if not f & DIED:
+                        r -= cfg.damage * max(0.0, float(prev_life[i] - tobs["vec"][self._life_ix]))
                     rewards[i] = r
                     dones[i] = True
                     infos[i]["terminal_observation"] = tobs
@@ -383,10 +390,12 @@ class NavigateVecEnv(VecEnv):
                     self._ep_len[i] = 0
                 else:
                     r = float(np.clip(prev[i] - dist[b], -cfg.max_progress_per_step, cfg.max_progress_per_step)) * cfg.progress_per_tile
+                    r -= cfg.damage * max(0.0, float(prev_life[i] - self._obs["vec"][i, self._life_ix]))
                     rewards[i] = r
                     self._ep_return[i] += r
                     self._ep_len[i] += 1
                 self._dist[i] = dist[b]
+                self._life[i] = self._obs["vec"][i, self._life_ix]  # after a reset: the new episode's first life
             offset += s.bots
         return {k: v.copy() for k, v in self._obs.items()}, rewards, dones, infos
 

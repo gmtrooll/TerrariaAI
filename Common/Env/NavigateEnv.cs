@@ -254,6 +254,7 @@ namespace FirstMod_Sp.Common.Env
             op.CoarseCache = null;
             b.Current = s;
             b.Trajectory.Clear();
+            WorldIntegrity.Episode[b.Slot]++;  // changes this bot made in its last episode may now be restored
             if (s.TargetX >= 0) {
                 op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
                 b.Field = GetField(s.TargetX, s.TargetY);

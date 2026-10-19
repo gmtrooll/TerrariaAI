@@ -18,7 +18,7 @@ import numpy as np
 import torch
 from torch import nn
 
-from navigate.env import BANDS, Curriculum, NavigateVecEnv
+from navigate.env import BANDS, Curriculum, NavigateVecEnv, RewardConfig
 from navigate.model import ActorCritic, RecurrentActorCritic, make_encoder
 from navigate.ppo import PPO, PPOConfig
 
@@ -90,6 +90,7 @@ def main():
     p.add_argument("--recurrent", action="store_true", help="policy with memory (GRU); custom learner only")
     p.add_argument("--frame-skip", type=int, default=4, help="ticks per decision (time limits scale with it)")
     p.add_argument("--replay", type=float, default=0.0, help="share of episodes replaying hard scenarios (0 = off)")
+    p.add_argument("--damage-penalty", type=float, default=5.0, help="reward per full life lost (0 = off)")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -102,7 +103,8 @@ def main():
     (run_dir / "config.json").write_text(json.dumps(vars(args), indent=2))
 
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=args.obs,
-                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay)
+                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay,
+                         reward=RewardConfig(damage=args.damage_penalty))
     log = ProgressLog(run_dir, env)
     try:
         coarse_shape = env.coarse_shape
