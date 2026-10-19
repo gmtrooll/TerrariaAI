@@ -145,3 +145,15 @@ The cabin cluster is the clearest lead. Routes there drop through platforms (onl
 - **One faulty bot stopped a whole server:** in `worlds12_10m` a bot on `train_10` ended up outside the world; its update then threw every tick, which aborted the rest of the tick (including the environment's decision step), so the learner waited forever. Bot updates now catch exceptions per bot, and a faulted or out-of-world bot's episode ends as a death and is logged (position, velocity, scenario) to find the cause.
 - **Duplicate runs:** stopping a queue script did not always stop its shell, so a stale copy started a second `replay_10m` on the same port. Both were stopped, and `replay_10m` was rerun once.
 - **12 worlds fit in memory** (each server uses about 0.93 GB). Launching 12 servers at once takes a while; training then runs at the usual speed (3,200 steps/s with memory).
+
+## Oct 19 afternoon: 12 training worlds
+
+`worlds12_10m` = near waypoint + memory, 12 training worlds × 16 bots (same 192 bots as 6 × 32), 10M steps. 1,024-scenario held-out set:
+
+| Model | Held-out | 5–15 | 15–30 | 30–60 | 60–120 | Surface | Underground | Cavern | Training win (end) |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `near_rec_10m` (6 worlds) | 91.5% ± 0.9 | 99% | 92% | 91% | 85% | 96% | 89% | 89% | 93% |
+| `worlds12_10m` (12 worlds) | 91.4% ± 0.9 | 97% | 94% | 90% | 85% | 98% | 90% | 86% | 88% |
+
+- **No difference at 10M steps.** With 12 worlds the training success is lower (more variety, less practice per world) but held-out is the same: at this length the model is not yet overfitting 6 worlds.
+- The train/held-out gap only appears with longer training (`best_30m`: 96% training, 94% held-out), so 12 worlds may pay off in a long run. That needs a 30M-step run on 12 worlds to tell.

@@ -49,3 +49,5 @@
 12:55 restart replay_10m (one copy, near + memory + replay 0.5)
 13:50 done replay_10m and big evaluations
 13:51 start worlds12_10m
+15:05 restart worlds12_10m (fault fix)
+15:59 done worlds12_10m
