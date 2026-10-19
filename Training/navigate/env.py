@@ -81,12 +81,19 @@ class Curriculum:
 
 class ScenarioSource:
     """Per world: scenarios grouped by band. Training samples through the curriculum; evaluation walks a fixed
-    list in order."""
+    list in order.
 
-    def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None):
+    replay > 0 (prioritized replay of hard scenarios, after Prioritized Level Replay): that share of the episodes
+    picks, within the chosen band, a scenario with probability proportional to its estimated failure rate
+    (wins + 1) / (attempts + 2) from `stats`; the rest stay uniform, so new scenarios are still seen."""
+
+    def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
+                 replay: float = 0.0, stats: dict = None):
         self.world = world
         self.curriculum = curriculum
         self.rng = rng
+        self.replay = replay
+        self.stats = stats if stats is not None else {}
         all_rows = scenario_files.load(world)
         for i, s in enumerate(all_rows):
             s["id"] = f"{world}:{i}"
@@ -99,7 +106,14 @@ class ScenarioSource:
             s = self.fixed[self.fixed_pos % len(self.fixed)]
             self.fixed_pos += 1
             return s
-        return self.rng.choice(self.by_band[self.curriculum.pick_band(self.rng)])
+        pool = self.by_band[self.curriculum.pick_band(self.rng)]
+        if self.replay > 0 and self.rng.random() < self.replay:
+            weights = []
+            for s in pool:
+                attempts, wins = self.stats.get(s["id"], (0, 0))
+                weights.append(1.0 - (wins + 1) / (attempts + 2))
+            return self.rng.choices(pool, weights=weights)[0]
+        return self.rng.choice(pool)
 
 
 @dataclass
@@ -130,9 +144,11 @@ class NavigateVecEnv(VecEnv):
     def __init__(self, worlds: list, bots_per_server: int = 32, port: int = 5600, obs: str = "grid=fovea,visibility=exposed",
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
-                 games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None):
+                 games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None,
+                 replay: float = 0.0):
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
         self.frame_skip = frame_skip
+        self.replay = replay
         self.reward_cfg = reward or RewardConfig()
         self.curriculum = curriculum or Curriculum()
         self.rng = random.Random(seed)
@@ -223,7 +239,7 @@ class NavigateVecEnv(VecEnv):
         spec = json.loads(spec_buf.decode("utf-8"))
         world = spec["world"]
         fixed = fixed_scenarios.get(world) if fixed_scenarios else None
-        source = ScenarioSource(world, self.curriculum, self.rng, fixed)
+        source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.buffer = bytearray(4 + bots * (5 + obs_bytes) * 2 + bots * 4)
         server.queued_ints = np.zeros((bots, 5), np.int32)

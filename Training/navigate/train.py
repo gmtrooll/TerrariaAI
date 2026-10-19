@@ -89,6 +89,7 @@ def main():
     p.add_argument("--micro-batch", type=int, default=0, help="gradient accumulation chunk (0 = whole minibatch)")
     p.add_argument("--recurrent", action="store_true", help="policy with memory (GRU); custom learner only")
     p.add_argument("--frame-skip", type=int, default=4, help="ticks per decision (time limits scale with it)")
+    p.add_argument("--replay", type=float, default=0.0, help="share of episodes replaying hard scenarios (0 = off)")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -101,7 +102,7 @@ def main():
     (run_dir / "config.json").write_text(json.dumps(vars(args), indent=2))
 
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=args.obs,
-                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip)
+                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay)
     log = ProgressLog(run_dir, env)
     try:
         coarse_shape = env.coarse_shape
