@@ -46,3 +46,5 @@
 12:51 big evaluations
 12:53 start replay_10m
 12:53 start replay_10m
+12:55 restart replay_10m (one copy, near + memory + replay 0.5)
+13:50 done replay_10m and big evaluations

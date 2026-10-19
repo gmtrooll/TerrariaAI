@@ -124,3 +124,17 @@ The cabin cluster is the clearest lead. Routes there drop through platforms (onl
 - `best_30m` is the best model: +1.5 points with 40% less training, largest on long routes (+3) and in caverns.
 - On the 512 set it scores 93.2%, barely above `near_rec_10m` (92.6% at 10M). Its training success is 96%, so more steps on the same 6 worlds now mostly improve the training worlds. **More training worlds** is the next lever for unseen terrain.
 - Watch it: `python -m navigate.watch --run best_30m` (from `Training`).
+
+## Oct 19 afternoon: prioritized replay, and the larger evaluation
+
+1,024-scenario held-out set (± one standard error):
+
+| Model | Held-out | 5–15 | 15–30 | 30–60 | 60–120 | Cavern | Timeouts |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `near_rec_10m` (near + memory, 10M) | 91.5% ± 0.9 | 99% | 92% | 91% | 85% | 89% | 8.0% |
+| `replay_10m` (near + memory + **replay of hard scenarios**, 10M) | 91.6% ± 0.9 | 97% | 92% | 92% | 86% | 89% | 7.9% |
+| `best_30m` (near + memory, **30M**) | **94.4% ± 0.7** | 99% | 94% | 95% | 89% | 93% | 5.2% |
+
+- **Prioritized replay brings no gain** (91.6% vs 91.5%). Half the episodes went to the scenarios the bot was failing, but the held-out result is unchanged. The hard cases (cabins, tight passages) seem to need something other than repetition, e.g. scenarios that teach dropping through platforms and passing doors.
+- **The larger evaluation corrects the 512-set number for `near_rec_10m`** (91.5% instead of 92.6%): the smaller set was lucky by about one standard error. Decisions from here on use the 1,024 set.
+- With near + memory, 30M steps instead of 10M gives +3 points held-out.
