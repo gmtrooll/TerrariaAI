@@ -203,3 +203,20 @@ Movement graphs (sampler v2) for 6 training and 2 held-out worlds: 174k–191k s
 
 - **+1.8 points overall, largest on long routes (+3.5) and in caverns (+3.8)**, where the grid reward misled the bot most, and fewer timeouts.
 - **Not yet a clean comparison:** `phys_10m` also has the damage penalty, the target KL and webs-per-episode, which `near_rec_10m` did not. The control `grid_ctrl_10m` (identical settings, grid reward) runs next.
+
+**The clean control says the physics reward itself makes no measurable difference.** `grid_ctrl_10m` has exactly `phys_10m`'s settings with the grid reward:
+
+| Model (10M steps, 1,024 set) | Held-out | 5–15 | 15–30 | 30–60 | 60–120 | Cavern | Timeouts |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| `near_rec_10m` (old settings, grid reward) | 91.5% ± 0.9 | 99% | 92% | 91% | 85% | 89% | 8.0% |
+| `grid_ctrl_10m` (new settings, grid reward) | **93.4% ± 0.8** | 98% | 94% | 95% | 86% | 92% | 5.9% |
+| `phys_10m` (new settings, physics reward) | 93.3% ± 0.8 | 98% | 93% | 93% | 88% | 93% | 6.3% |
+
+- The +1.8 over `near_rec_10m` came from the target KL, the damage penalty and webs-per-episode, not from the physics reward.
+- The physics reward is about 2 points better on the longest band and in caverns. With 256 scenarios per band that is within the noise, so it is not shown.
+- Possible reasons:
+  1. With the near waypoint and memory, the bot already copes with most routes where the grid reward was misleading.
+  2. The physics graph still misses some moves (4–8% of scenarios fall back to the grid distance).
+  3. The cases it targets (run-ups, approach angles) are a small share of all failures.
+
+  A targeted test on those cases specifically (scenarios whose physics route differs most from the grid route) would separate these.
