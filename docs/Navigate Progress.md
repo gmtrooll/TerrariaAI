@@ -220,3 +220,18 @@ Movement graphs (sampler v2) for 6 training and 2 held-out worlds: 174k–191k s
   3. The cases it targets (run-ups, approach angles) are a small share of all failures.
 
   A targeted test on those cases specifically (scenarios whose physics route differs most from the grid route) would separate these.
+
+**Targeted check: no difference even where the planners disagree.** Both models re-evaluated on the 1,024 set with per-scenario outcomes (both 93.1% overall), grouped by how much longer the physics route is than the grid route (route time ÷ grid distance):
+
+| Physics route vs grid route | Scenarios | Grid reward | Physics reward | Solved only by grid / only by physics |
+| --- | --- | --- | --- | --- |
+| Off the physics graph | 49 | 77.6% | 75.5% | 5 / 4 |
+| Similar (< 1.3×) | 747 | 94.4% | 94.4% | 14 / 14 |
+| Longer (1.3–2×) | 196 | 92.3% | 92.3% | 8 / 8 |
+| Much longer (≥ 2×, where run-ups and detours are) | 32 | 90.6% | 93.8% | 1 / 2 |
+
+**Conclusion: option C (physics route distance as the progress reward) brings no measurable gain** at 10M steps, not even on the routes it targets. The accuracy of the progress reward is not what limits the bot. A useful negative result for the thesis: the coarse grid reward is good enough when the bot has the route waypoints and memory.
+
+What remains open:
+- Option B (physics waypoints in the observation) as an upper bound: does *telling* the bot about run-ups help, when a better reward does not?
+- Using the physics graph for what it measured well: scenario reachability (92–96% of scenarios physically reachable, the rest flagged).

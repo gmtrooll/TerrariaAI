@@ -164,6 +164,8 @@ def main():
 
         out = {"policy": args.policy, "run": args.run, "obs": obs_spec, "deterministic": args.deterministic, "worlds": args.worlds,
                "overall": summary(episodes)}
+        # Per-scenario outcomes, for comparisons on subsets (e.g. routes where the planners disagree).
+        out["episodes"] = [{"id": e["id"], "win": e["win"], "died": e["died"], "l": e["l"]} for e in episodes]
         for key in ("world", "band", "layer"):
             groups = collections.defaultdict(list)
             for e in episodes:
