@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using Microsoft.Xna.Framework;
@@ -43,8 +44,10 @@ namespace FirstMod_Sp.Common.Observation
             "slow_fall", "life_max", "defense", "no_knockback", "height", "gravity_control", "ice_skates",
         };
 
-        public static readonly string[] GoalNames = { "has_target", "dx", "dy", "dir_x", "dir_y", "log_distance",
+        private static readonly string[] BaseGoalNames = { "has_target", "dx", "dy", "dir_x", "dir_y", "log_distance",
             "has_waypoint", "wp_dx", "wp_dy", "wp_dir_x", "wp_dir_y" };
+        private static readonly string[] NearGoalNames = BaseGoalNames.Concat(new[] { "has_near", "near_dx", "near_dy", "near_dir_x", "near_dir_y" }).ToArray();
+        public static string[] GoalNames => ObservationConfig.NearWaypoint ? NearGoalNames : BaseGoalNames;
 
         public static readonly string[] EntityFeatureNames = {
             "present", "npc", "projectile", "item", "dx", "dy", "vx", "vy", "width", "height",
@@ -456,6 +459,19 @@ namespace FirstMod_Sp.Common.Observation
             return f;
         }
 
+        /// <summary>has, clipped offset (2), direction (2) of a route point; zeros when there is none.</summary>
+        private static int WritePoint(Span<float> o, int f, Player p, Vector2? point) {
+            if (point is not Vector2 pt) return f + 5;
+            Vector2 w = (pt - p.Center) / 16f;
+            float wl = w.Length();
+            o[f++] = 1;
+            o[f++] = Clip(w.X, -GoalClipTiles, GoalClipTiles) / GoalClipTiles;
+            o[f++] = Clip(w.Y, -GoalClipTiles, GoalClipTiles) / GoalClipTiles;
+            o[f++] = wl > 1e-4f ? w.X / wl : 0;
+            o[f++] = wl > 1e-4f ? w.Y / wl : 0;
+            return f;
+        }
+
         private static int WriteGoal(Span<float> o, int f, Player p, ObservationPlayer op) {
             int end = f + GoalNames.Length;
             if (op.Target is not Vector2 target) return end;
@@ -467,15 +483,8 @@ namespace FirstMod_Sp.Common.Observation
             o[f++] = distance > 1e-4f ? delta.X / distance : 0;
             o[f++] = distance > 1e-4f ? delta.Y / distance : 0;
             o[f++] = Clip(MathF.Log(1 + distance) / GoalLogNorm, 0, 1);
-            if (op.Waypoint is Vector2 waypoint) {
-                Vector2 w = (waypoint - p.Center) / 16f;
-                float wl = w.Length();
-                o[f++] = 1;
-                o[f++] = Clip(w.X, -GoalClipTiles, GoalClipTiles) / GoalClipTiles;
-                o[f++] = Clip(w.Y, -GoalClipTiles, GoalClipTiles) / GoalClipTiles;
-                o[f++] = wl > 1e-4f ? w.X / wl : 0;
-                o[f++] = wl > 1e-4f ? w.Y / wl : 0;
-            }
+            f = WritePoint(o, f, p, op.Waypoint);
+            if (ObservationConfig.NearWaypoint) WritePoint(o, f, p, op.NearWaypoint);
             return end;
         }
 

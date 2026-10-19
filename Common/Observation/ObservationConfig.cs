@@ -38,6 +38,9 @@ namespace FirstMod_Sp.Common.Observation
         public static bool Entities;
         /// <summary>Whether skills fill in the route waypoint (goal inputs); off = only the final target.</summary>
         public static bool Waypoint = true;
+        /// <summary>Also a near waypoint (NearWaypointSteps ahead): the route's immediate direction, which the far
+        /// waypoint hides when the route first turns away from the target. Off by default (older models).</summary>
+        public static bool NearWaypoint;
         /// <summary>Refresh the overview every N observations of a bot (cached in between).</summary>
         public static int CoarseEvery = 4;
         public const int EntitySlots = 16;
@@ -78,8 +81,11 @@ namespace FirstMod_Sp.Common.Observation
                 case "waypoint":
                     Waypoint = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
                     break;
+                case "near":
+                    NearWaypoint = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                    break;
                 default:
-                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint)");
+                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint, near)");
             }
         }
 
@@ -89,6 +95,7 @@ namespace FirstMod_Sp.Common.Observation
             LightRadius = 20;
             Entities = false;
             Waypoint = true;
+            NearWaypoint = false;
             CoarseEvery = 4;
             if (Program.LaunchParameters.TryGetValue("-obs", out string spec) && !string.IsNullOrWhiteSpace(spec)) Apply(spec);
         }

@@ -48,7 +48,7 @@ namespace FirstMod_Sp.Common.Env
         public const int FieldRadius = 130, MaxJumpTiles = 13, MaxAirGapTiles = 5, MaxSafeFallTiles = 25;
         public const float GoalRadiusTiles = 1.5f, OffPathPenaltyTiles = 10f;
         /// <summary>The observation's waypoint is this many path tiles ahead of the bot (inside the 41 x 41 grid).</summary>
-        public const int WaypointSteps = 12;
+        public const int WaypointSteps = 12, NearWaypointSteps = 3;
 
         public static readonly int Port = AutomationArgs.GetIntArg("-env", 0);
         public static readonly int FrameSkip = AutomationArgs.GetIntArg("-frameskip", 4);
@@ -246,6 +246,7 @@ namespace FirstMod_Sp.Common.Env
             var op = p.GetModPlayer<ObservationPlayer>();
             // Target point: body centre of a player standing on the target cell (as in PathDistanceField's goals).
             op.Waypoint = null;
+            op.NearWaypoint = null;
             op.SeenBits = null;
             op.CoarseCache = null;
             b.Current = s;
@@ -323,6 +324,8 @@ namespace FirstMod_Sp.Common.Env
             int tx = (int)(p.Center.X / 16f), ty = (int)((p.Bottom.Y - 1f) / 16f);
             op.Waypoint = ObservationConfig.Waypoint && b.Field.Waypoint(tx, ty, WaypointSteps, out int wx, out int wy)
                 ? new Vector2((wx + 0.5f) * 16f, (wy - 0.3f) * 16f) : null;
+            op.NearWaypoint = ObservationConfig.NearWaypoint && b.Field.Waypoint(tx, ty, NearWaypointSteps, out int nx, out int ny)
+                ? new Vector2((nx + 0.5f) * 16f, (ny - 0.3f) * 16f) : null;
         }
 
         private static void Decide() {
@@ -451,6 +454,7 @@ namespace FirstMod_Sp.Common.Env
                 var op = Main.player[b.Slot].GetModPlayer<ObservationPlayer>();
                 if (op.Target is Vector2 t && b.Current != null && b.Current.TargetX >= 0) Marker(t, Terraria.ID.DustID.GemTopaz, 1.4f);
                 if (op.Waypoint is Vector2 w) Marker(w, Terraria.ID.DustID.GemSapphire, 1.0f);
+                if (op.NearWaypoint is Vector2 nw) Marker(nw, Terraria.ID.DustID.GemEmerald, 0.8f);
             }
         }
 

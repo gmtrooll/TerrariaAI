@@ -26,6 +26,8 @@ namespace FirstMod_Sp.Common.Observation
         public Vector2? Target;
         /// <summary>Next waypoint of the planner's route (body-centre point), set by the skill each decision.</summary>
         public Vector2? Waypoint;
+        /// <summary>Near waypoint (a few route tiles ahead), when ObservationConfig.NearWaypoint is on.</summary>
+        public Vector2? NearWaypoint;
 
         /// <summary>Visibility mode d: one bit per world tile, index y + x * maxTilesY.</summary>
         public ulong[] SeenBits;
