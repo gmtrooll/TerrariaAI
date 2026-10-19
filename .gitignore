@@ -24,3 +24,6 @@ results/bench/physics_*.json
 # Training runs (progress.csv is small and kept; checkpoints are not)
 results/training/**/*.pt
 results/training/**/sb3_model*
+
+# Physics movement graphs (1.2 GB; regenerated from the worlds with navigate.movegraph)
+Training/movegraphs/
