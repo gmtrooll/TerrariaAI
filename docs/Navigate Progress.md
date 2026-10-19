@@ -138,3 +138,10 @@ The cabin cluster is the clearest lead. Routes there drop through platforms (onl
 - **Prioritized replay brings no gain** (91.6% vs 91.5%). Half the episodes went to the scenarios the bot was failing, but the held-out result is unchanged. The hard cases (cabins, tight passages) seem to need something other than repetition, e.g. scenarios that teach dropping through platforms and passing doors.
 - **The larger evaluation corrects the 512-set number for `near_rec_10m`** (91.5% instead of 92.6%): the smaller set was lucky by about one standard error. Decisions from here on use the 1,024 set.
 - With near + memory, 30M steps instead of 10M gives +3 points held-out.
+
+### Robustness fixes found on the way
+
+- **Orphan servers:** an evaluation whose Python process died left its two servers running, holding memory and the mod file (which blocked installing a new build). Training servers now exit when their learner disconnects.
+- **One faulty bot stopped a whole server:** in `worlds12_10m` a bot on `train_10` ended up outside the world; its update then threw every tick, which aborted the rest of the tick (including the environment's decision step), so the learner waited forever. Bot updates now catch exceptions per bot, and a faulted or out-of-world bot's episode ends as a death and is logged (position, velocity, scenario) to find the cause.
+- **Duplicate runs:** stopping a queue script did not always stop its shell, so a stale copy started a second `replay_10m` on the same port. Both were stopped, and `replay_10m` was rerun once.
+- **12 worlds fit in memory** (each server uses about 0.93 GB). Launching 12 servers at once takes a while; training then runs at the usual speed (3,200 steps/s with memory).
