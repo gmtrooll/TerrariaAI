@@ -54,3 +54,4 @@
 17:18 start final12_50m (near + memory, 12 worlds, 50M, damage penalty)
 17:23 diagnostics: damage penalty 5 vs 0 (near + memory, 6 worlds, 3M)
 17:33 start final12_50m (seed 1; seed 0 collapsed at 0.5M)
+17:39 start final12_50m (seed 1, target KL 0.03)

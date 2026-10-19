@@ -168,3 +168,7 @@ Your decisions:
 `final12_50m` (near + memory, 12 worlds, damage penalty, seed 0) **collapsed** after the curriculum opened all bands. At 0.54M steps it won 13%, against 43% for the 12-world run without the penalty, and its policy entropy was rising. Stopped.
 
 Diagnostic `diag_pen5`: the same new code (damage penalty, webs per episode) on 6 worlds is healthy through 1.5M steps (band win rates 93 / 80 / 69 / 60%, on the usual curve). So the new code does not break learning. The collapse was either bad luck (PPO occasionally takes a bad update) or specific to 12 worlds. `final12_50m` was restarted with seed 1. If it collapses too, the final run falls back to 6 worlds.
+
+**Cause found: oversized policy updates.** Seed 1 collapsed in the same place. In both collapsed runs the KL per update (how far one update moves the policy) rose to 0.4–0.5 just before the collapse; healthy runs stay at 0.002–0.08. The policy got thrown off course by a few oversized updates, then wandered randomly (entropy up, timeouts up). Why the 12-world setup provokes them is not clear yet.
+
+Fix: **target KL** (`--target-kl`, as in SB3). A minibatch whose KL exceeds 1.5 × the target is skipped, and the update's remaining epochs are cancelled. With 0.03, `final12_50m` (seed 1) stepped in once, at iteration 13, and then trained normally through 1M steps (band win rates 92 / 77 / 63 / 48%, KL 0.006–0.011 per update). It is now running to 50M steps (about 5 hours).
