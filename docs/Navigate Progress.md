@@ -157,3 +157,14 @@ The cabin cluster is the clearest lead. Routes there drop through platforms (onl
 
 - **No difference at 10M steps.** With 12 worlds the training success is lower (more variety, less practice per world) but held-out is the same: at this length the model is not yet overfitting 6 worlds.
 - The train/held-out gap only appears with longer training (`best_30m`: 96% training, 94% held-out), so 12 worlds may pay off in a long run. That needs a 30M-step run on 12 worlds to tell.
+
+## Oct 19 evening: damage penalty, webs per episode, a collapsed run
+
+Your decisions:
+- Damage avoidance belongs to Navigate itself; the full hazard stage comes later together with random equipment and entities.
+- Now only a small reward penalty for HP lost: −5 per full life (losing all life costs as much as dying; not counted on the decision a bot dies).
+- Cobwebs a bot breaks stay broken until its episode ends (you saw them come back while a bot was still crossing).
+
+`final12_50m` (near + memory, 12 worlds, damage penalty, seed 0) **collapsed** after the curriculum opened all bands. At 0.54M steps it won 13%, against 43% for the 12-world run without the penalty, and its policy entropy was rising. Stopped.
+
+Diagnostic `diag_pen5`: the same new code (damage penalty, webs per episode) on 6 worlds is healthy through 1.5M steps (band win rates 93 / 80 / 69 / 60%, on the usual curve). So the new code does not break learning. The collapse was either bad luck (PPO occasionally takes a bad update) or specific to 12 worlds. `final12_50m` was restarted with seed 1. If it collapses too, the final run falls back to 6 worlds.
