@@ -41,3 +41,8 @@
 10:17 done near_rec_10m
 10:17 near=0.8848 near+memory=0.9258: best_30m with memory
 10:17 start best_30m --steps 30000000 --obs grid=fovea,visibility=exposed,near=1 --recurrent
+12:51 done best_30m
+12:51 big evaluations
+12:51 big evaluations
+12:53 start replay_10m
+12:53 start replay_10m

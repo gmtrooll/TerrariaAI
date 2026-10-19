@@ -71,6 +71,7 @@ All runs use the new worlds and scenario sets, custom PPO, stride 2, bf16 + over
 | `fs2_20m` | 20M decisions **every 2 ticks** (same game time as 10M at 4 ticks), γ 0.995 | 87% | 95% | 89% | 82% | 80% | 78% | 11.7% | 92% | 4,815 | 70 min |
 | `near_10m` | 10M steps, **near waypoint** (3 route tiles ahead) next to the 12-tile one | 88% | 95% | 89% | 85% | 84% | 83% | 10.0% | 94% | 4,513 | 39 min |
 | `near_rec_10m` | 10M steps, **near waypoint + memory** | **93%** | 97% | 94% | 90% | 90% | **88%** | 6.8% | 93% | 3,267 | 51 min |
+| `best_30m` | 30M steps, near waypoint + memory | **93%** | 100% | 94% | 91% | 88% | 89% | 6.1% | 96% | 3,285 | 2 h 34 min |
 | `long_v3` | **50M steps** | **92%** | 98% | 92% | 89% | 88% | 84% | 7.8% | 97% | 4,690 | 3 h |
 
 Curves: [memory.png](../results/training/memory.png).
@@ -109,3 +110,17 @@ The cabin cluster is the clearest lead. Routes there drop through platforms (onl
 
 
 **Near waypoint + memory together: 92.6% held-out at 10M steps**, the best result so far, above the 50M-step run without them (91.8%) in a fifth of the training. Caverns 88% (the hardest layer; 82–84% for every other run), fewest timeouts (6.8%). Neither addition alone did this well (memory 90.6%, near 88.5%): the two seem to work together. The memory may let the policy use the near point's short-term direction (go right first, then down) over several decisions. Still one seed: the next decisive comparison uses the 1,024-scenario evaluation. `best_30m` (near + memory, 30M steps) started automatically.
+
+
+## Oct 19 midday: the best model so far
+
+`best_30m` = near waypoint + memory, 30M steps (2.5 hours). Larger held-out evaluation (1,024 scenarios, 128 per band per world; ± is one standard error):
+
+| Model | Held-out | 5–15 | 15–30 | 30–60 | 60–120 | Surface | Underground | Cavern |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| **`best_30m`** | **94.4% ± 0.7** | 99% | 94% | 95% | 89% | 98% | 92% | 93% |
+| `long_v3` (50M, neither) | 92.9% ± 0.8 | 98% | 93% | 94% | 86% | 97% | 90% | 91% |
+
+- `best_30m` is the best model: +1.5 points with 40% less training, largest on long routes (+3) and in caverns.
+- On the 512 set it scores 93.2%, barely above `near_rec_10m` (92.6% at 10M). Its training success is 96%, so more steps on the same 6 worlds now mostly improve the training worlds. **More training worlds** is the next lever for unseen terrain.
+- Watch it: `python -m navigate.watch --run best_30m` (from `Training`).
