@@ -1,0 +1,236 @@
+[
+ {
+  "picture": "eval_01_00.png",
+  "start": [
+   199,
+   950
+  ],
+  "target": [
+   220,
+   934
+  ],
+  "route_length": 90,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_01.png",
+  "start": [
+   1868,
+   746
+  ],
+  "target": [
+   1855,
+   731
+  ],
+  "route_length": 27,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_02.png",
+  "start": [
+   2121,
+   586
+  ],
+  "target": [
+   2133,
+   588
+  ],
+  "route_length": 82,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_03.png",
+  "start": [
+   2468,
+   461
+  ],
+  "target": [
+   2427,
+   444
+  ],
+  "route_length": 57,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_04.png",
+  "start": [
+   2868,
+   866
+  ],
+  "target": [
+   2854,
+   875
+  ],
+  "route_length": 29,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_05.png",
+  "start": [
+   3115,
+   502
+  ],
+  "target": [
+   3141,
+   486
+  ],
+  "route_length": 50,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_06.png",
+  "start": [
+   3183,
+   314
+  ],
+  "target": [
+   3177,
+   306
+  ],
+  "route_length": 21,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_01_07.png",
+  "start": [
+   3926,
+   992
+  ],
+  "target": [
+   3939,
+   976
+  ],
+  "route_length": 57,
+  "result": "died"
+ },
+ {
+  "picture": "eval_02_00.png",
+  "start": [
+   783,
+   406
+  ],
+  "target": [
+   793,
+   405
+  ],
+  "route_length": 17,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_01.png",
+  "start": [
+   1205,
+   903
+  ],
+  "target": [
+   1221,
+   911
+  ],
+  "route_length": 60,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_02.png",
+  "start": [
+   1781,
+   604
+  ],
+  "target": [
+   1817,
+   635
+  ],
+  "route_length": 65,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_03.png",
+  "start": [
+   1888,
+   849
+  ],
+  "target": [
+   1876,
+   827
+  ],
+  "route_length": 97,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_04.png",
+  "start": [
+   1926,
+   612
+  ],
+  "target": [
+   1926,
+   603
+  ],
+  "route_length": 25,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_05.png",
+  "start": [
+   1974,
+   621
+  ],
+  "target": [
+   1933,
+   619
+  ],
+  "route_length": 118,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_06.png",
+  "start": [
+   2359,
+   640
+  ],
+  "target": [
+   2367,
+   652
+  ],
+  "route_length": 50,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_07.png",
+  "start": [
+   3696,
+   864
+  ],
+  "target": [
+   3672,
+   848
+  ],
+  "route_length": 38,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_08.png",
+  "start": [
+   3899,
+   410
+  ],
+  "target": [
+   3847,
+   410
+  ],
+  "route_length": 84,
+  "result": "timed out"
+ },
+ {
+  "picture": "eval_02_09.png",
+  "start": [
+   4002,
+   850
+  ],
+  "target": [
+   4019,
+   832
+  ],
+  "route_length": 63,
+  "result": "timed out"
+ }
+]

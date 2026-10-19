@@ -69,6 +69,7 @@ All runs use the new worlds and scenario sets, custom PPO, stride 2, bf16 + over
 | `base_10m` | 10M steps | 88% | 96% | 90% | 86% | 81% | 82% | 11.1% | 91% | 4,570 | 37 min |
 | `rec_10m` | 10M steps, **memory (GRU)** | **91%** | 92% | 94% | 88% | **89%** | 84% | 8.6% | 91% | 3,250 | 51 min |
 | `fs2_20m` | 20M decisions **every 2 ticks** (same game time as 10M at 4 ticks), γ 0.995 | 87% | 95% | 89% | 82% | 80% | 78% | 11.7% | 92% | 4,815 | 70 min |
+| `near_10m` | 10M steps, **near waypoint** (3 route tiles ahead) next to the 12-tile one | 88% | 95% | 89% | 85% | 84% | 83% | 10.0% | 94% | 4,513 | 39 min |
 | `long_v3` | **50M steps** | **92%** | 98% | 92% | 89% | 88% | 84% | 7.8% | 97% | 4,690 | 3 h |
 
 Curves: [memory.png](../results/training/memory.png).
@@ -85,3 +86,22 @@ Findings:
 - **Detours hidden by the waypoint distance.** Example `eval_02_01` (route of 7): the bot starts on a small ledge next to a wall; the route steps 1 tile right, drops 5, and goes 1 tile left under the ledge to the target. The bot stands at the ledge edge pushing down-left into the wall for the whole episode. The waypoint is 12 route tiles ahead, already past the turn, so it points down-left too: the first move (right) is invisible to the policy. This matches your observation that small detours work and bigger ones don't. **Next experiment: a near waypoint (3 tiles ahead) next to the far one**, so the immediate next move is always visible. Cheap: 5 more numbers in the goal input.
 - **Flat jumps under a low ceiling** (`eval_02_05`): the route crosses a 5-tile gap from a ledge with a ceiling just above. The planner lets the body move sideways through the air there, but with no room to jump the bot only falls. This is planner optimism (it doesn't model head room for jumps); it matters only in a few scenarios.
 - Also still seen: tight pockets (`eval_01_09`, failed by both models), overhang approach angles (`eval_01_11`).
+
+
+## Oct 19 morning: near waypoint, evaluation noise, the hardest scenarios
+
+**Near waypoint: no held-out gain** (88.5% vs 88.3% for `base_10m`), although it learns the training worlds faster (94% vs 91%) and is 3 points better on the longest routes. The detour case that motivated it (`eval_02_01`) still fails sometimes: the near point mostly says "down", while the bot needs to shuffle about one more tile to the right before its 20 px body clears the ledge. That is a sub-tile body-position detail neither waypoint conveys.
+
+**Evaluation noise is large.** The 512-scenario held-out set gives one standard error of about ±1.4 points. Failures are partly luck: `base_10m` and `near_10m` share 41 failed scenarios, and 27 and 29 differ. Differences under about 3 points between single runs should not decide anything. Next decisions will use a doubled evaluation set and, where it matters, a second seed.
+
+**18 scenarios fail for every model** (`base_10m`, `rec_10m`, `near_10m`, `long_v3`); rendered in `results/training/common_failures/`. Of 8 inspected:
+
+| Kind | Count | Examples |
+| --- | --- | --- |
+| Underground cabins and structures: platform floors and roofs, wooden walls, doors | 4 | `eval_01_04`, `eval_02_00`, `eval_02_04`, `eval_02_06` |
+| Tight passages: a narrow 8-tile vertical shaft, a pit with a tight exit | 2 | `eval_02_07`, `eval_01_06` |
+| Hill lip, very long route | 2 | `eval_01_01`, `eval_01_03` |
+
+The cabin cluster is the clearest lead. Routes there drop through platforms (only possible by holding down while standing on one) or go through doors (they open only when walked into at floor level). Both are rare in training scenarios. Two possible fixes:
+- sample hard scenarios more often (Prioritized Level Replay: replay scenarios with low success);
+- add scenarios that must pass a platform or a door.
