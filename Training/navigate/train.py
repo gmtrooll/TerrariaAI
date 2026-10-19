@@ -31,7 +31,7 @@ class ProgressLog:
 
     FIELDS = ["iteration", "timesteps", "seconds", "steps_per_s", "episodes", "win_rate", "death_rate", "timeout_rate",
               "mean_return", "mean_length"] + [f"win_{b}" for b in BANDS] + ["open_bands", "pg_loss", "value_loss",
-              "entropy", "approx_kl", "clip_fraction", "explained_variance", "collect_seconds", "update_seconds"]
+              "entropy", "approx_kl", "clip_fraction", "explained_variance", "collect_seconds", "update_seconds", "epochs"]
 
     def __init__(self, run_dir: Path, env: NavigateVecEnv):
         self.env = env
@@ -60,7 +60,7 @@ class ProgressLog:
         for band, rate in self.env.curriculum.success().items():
             row[f"win_{band}"] = None if rate is None else round(rate, 4)
         row["open_bands"] = self.env.curriculum.open
-        for k in ("pg_loss", "value_loss", "entropy", "approx_kl", "clip_fraction", "explained_variance", "collect_seconds", "update_seconds"):
+        for k in ("pg_loss", "value_loss", "entropy", "approx_kl", "clip_fraction", "explained_variance", "collect_seconds", "update_seconds", "epochs"):
             if k in stats:
                 row[k] = round(float(stats[k]), 5)
         self.writer.writerow(row)
@@ -92,6 +92,7 @@ def main():
     p.add_argument("--replay", type=float, default=0.0, help="share of episodes replaying hard scenarios (0 = off)")
     p.add_argument("--damage-penalty", type=float, default=5.0, help="reward per full life lost (0 = off)")
     p.add_argument("--loadouts", default="tsunami", help="equipment variants, comma-separated: tsunami, none")
+    p.add_argument("--target-kl", type=float, default=0.0, help="stop an update early when the policy moves too far (0 = off)")
     p.add_argument("--port", type=int, default=5600)
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--checkpoint-every", type=int, default=50, help="iterations")
@@ -114,7 +115,7 @@ def main():
             model = RecurrentActorCritic(encoder) if args.recurrent else ActorCritic(encoder)
             cfg = PPOConfig(n_steps=args.n_steps, batch_size=args.batch, n_epochs=args.epochs, lr=args.lr,
                             gamma=args.gamma, ent_coef=args.ent, bf16=args.bf16, overlap=args.overlap,
-                            micro_batch=args.micro_batch)
+                            micro_batch=args.micro_batch, target_kl=args.target_kl)
             ppo = PPO(env, model, cfg)
 
             milestone = [10_000_000]

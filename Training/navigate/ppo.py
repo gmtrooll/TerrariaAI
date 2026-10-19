@@ -38,6 +38,7 @@ class PPOConfig:
     bf16: bool = False
     overlap: bool = False
     micro_batch: int = 0  # 0 = whole minibatch at once
+    target_kl: float = 0.0  # > 0: stop an update's remaining epochs once the policy moved more than 1.5x this (as SB3)
 
 
 class Rollout:
@@ -151,9 +152,14 @@ class PPO:
         flat_ret = returns.reshape(-1)
         stats = {"pg_loss": [], "value_loss": [], "entropy": [], "approx_kl": [], "clip_fraction": []}
         self.model.train()
+        stats["epochs"] = [0]
         if self.recurrent:
             self._update_sequences(buf, adv, returns, stats)
+        stop = False
         for _ in range(0 if self.recurrent else cfg.n_epochs):
+            if stop:
+                break
+            stats["epochs"][0] += 1
             perm = torch.randperm(T * N, device=self.device)
             for s in range(0, T * N, cfg.batch_size):
                 idx = perm[s:s + cfg.batch_size]
@@ -175,6 +181,12 @@ class PPO:
                     ent = entropy.mean()
                     loss = pg_loss + cfg.vf_coef * value_loss - cfg.ent_coef * ent
                     (loss * (len(sub) / len(idx))).backward()
+                with torch.no_grad():
+                    kl = ((ratio - 1) - log_ratio).mean().item()
+                if cfg.target_kl > 0 and kl > 1.5 * cfg.target_kl:
+                    self.optimizer.zero_grad(set_to_none=True)
+                    stop = True
+                    break
                 nn.utils.clip_grad_norm_(self.model.parameters(), cfg.max_grad_norm)
                 self.optimizer.step()
                 with torch.no_grad():
@@ -183,7 +195,7 @@ class PPO:
                     stats["entropy"].append(ent.item())
                     stats["approx_kl"].append(((ratio - 1) - log_ratio).mean().item())
                     stats["clip_fraction"].append(((ratio - 1).abs() > cfg.clip).float().mean().item())
-        out = {k: float(np.mean(v)) for k, v in stats.items()}
+        out = {k: float(np.mean(v)) if len(v) else 0.0 for k, v in stats.items()}
         var = flat_ret.var()
         out["explained_variance"] = float(1 - (flat_ret - buf.values.reshape(-1)).var() / var) if var > 0 else 0.0
         out["update_seconds"] = time.perf_counter() - start
@@ -201,6 +213,8 @@ class PPO:
             return sel.reshape((T * len(bots),) + sel.shape[2:])
 
         for _ in range(cfg.n_epochs):
+            stats["epochs"][0] += 1
+            stop = False
             perm = torch.randperm(N, device=self.device)
             for s in range(0, N, bots_per_batch):
                 bots = perm[s:s + bots_per_batch]
@@ -222,6 +236,12 @@ class PPO:
                     ent = entropy.mean()
                     loss = pg_loss + cfg.vf_coef * value_loss - cfg.ent_coef * ent
                     (loss * (len(sub) / len(bots))).backward()
+                with torch.no_grad():
+                    kl = ((ratio - 1) - log_ratio).mean().item()
+                if cfg.target_kl > 0 and kl > 1.5 * cfg.target_kl:
+                    self.optimizer.zero_grad(set_to_none=True)
+                    stop = True
+                    break
                 nn.utils.clip_grad_norm_(self.model.parameters(), cfg.max_grad_norm)
                 self.optimizer.step()
                 with torch.no_grad():
@@ -230,6 +250,8 @@ class PPO:
                     stats["entropy"].append(ent.item())
                     stats["approx_kl"].append(((ratio - 1) - log_ratio).mean().item())
                     stats["clip_fraction"].append(((ratio - 1).abs() > cfg.clip).float().mean().item())
+            if stop:
+                break
 
     def learn(self, total_timesteps: int, on_iteration=None):
         """on_iteration(stats: dict, episodes: list) is called after every update."""
