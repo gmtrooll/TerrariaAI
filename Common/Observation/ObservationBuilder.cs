@@ -24,7 +24,7 @@ namespace FirstMod_Sp.Common.Observation
     /// </summary>
     public static class ObservationBuilder
     {
-        public static readonly string[] SelfNames = {
+        private static readonly string[] BaseSelfNames = {
             "vx", "vy", "facing", "feet_x_in_tile", "feet_y_in_tile", "grounded", "grav_dir",
             "jump_left", "can_jump", "extra_jumps_available", "extra_jump_active",
             "wing_time", "rocket_time", "carpet_time",
@@ -35,6 +35,8 @@ namespace FirstMod_Sp.Common.Observation
             "life", "immune_time", "crowd_controlled", "confused", "tongued",
             "last_left", "last_right", "last_up", "last_down", "last_jump", "dead",
         };
+        private static readonly string[] BlockedSelfNames = BaseSelfNames.Concat(new[] { "blocked" }).ToArray();
+        public static string[] SelfNames => ObservationConfig.Blocked ? BlockedSelfNames : BaseSelfNames;
 
         public static readonly string[] CapabilityNames = {
             "max_run_speed", "sprint_speed", "run_acceleration", "run_slowdown",
@@ -424,6 +426,7 @@ namespace FirstMod_Sp.Common.Observation
             o[f++] = B(op.LastDown);
             o[f++] = B(op.LastJump);
             o[f++] = B(p.dead);
+            if (ObservationConfig.Blocked) o[f++] = Clip(op.BlockedDecisions / 20f, 0, 1);
             return f;
         }
 

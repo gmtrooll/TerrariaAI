@@ -21,6 +21,8 @@ namespace FirstMod_Sp.Common.Observation
         public float MaxFallSpeed = 10f;
 
         public bool LastLeft, LastRight, LastUp, LastDown, LastJump;
+        /// <summary>Decisions in a row pressing left or right while barely moving (ObservationConfig.Blocked).</summary>
+        public int BlockedDecisions;
 
         /// <summary>Goal position in world pixels, or null when the skill has none.</summary>
         public Vector2? Target;

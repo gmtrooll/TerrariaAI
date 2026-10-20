@@ -157,16 +157,28 @@ def main():
 
         results = {}
         obs = env.reset()
+        # Snags: decisions in a row pressing left or right while barely moving (|vx| < 0.3 px/tick: blocked); the
+        # longest run per episode is saved with its outcome.
+        ivx = (env.spec["self_names"] + env.spec["capability_names"] + env.spec["goal_names"]).index("vx")
+        streak = np.zeros(env.num_envs, int)
+        longest = np.zeros(env.num_envs, int)
         # The first scenario of every bot starts at connection, so run until every listed scenario has finished once.
         while len(results) < total:
-            env.step_async(act(obs))
+            actions = act(obs)
+            pressing = (np.asarray(actions)[:, 0] != 1) & (np.abs(obs["vec"][:, ivx]) < 0.03)
+            streak = np.where(pressing, streak + 1, 0)
+            longest = np.maximum(longest, streak)
+            env.step_async(actions)
             obs, _, dones, infos = env.step_wait()
             if hasattr(act, "observe"):
                 act.observe(dones)
-            for info in infos:
+            for i, info in enumerate(infos):
                 e = info.get("episode")
                 if e and e["id"] not in results:
+                    e["snag"] = int(longest[i])
                     results[e["id"]] = e
+            longest = np.where(dones, 0, longest)
+            streak = np.where(dones, 0, streak)
         episodes = list(results.values())
 
         def summary(group):
@@ -177,7 +189,7 @@ def main():
         out = {"policy": args.policy, "run": args.run, "obs": obs_spec, "deterministic": args.deterministic, "worlds": args.worlds,
                "overall": summary(episodes)}
         # Per-scenario outcomes, for comparisons on subsets (e.g. routes where the planners disagree).
-        out["episodes"] = [{"id": e["id"], "win": e["win"], "died": e["died"], "l": e["l"]} for e in episodes]
+        out["episodes"] = [{"id": e["id"], "win": e["win"], "died": e["died"], "l": e["l"], "snag": e.get("snag", 0)} for e in episodes]
         for key in ("world", "band", "layer"):
             groups = collections.defaultdict(list)
             for e in episodes:

@@ -268,6 +268,7 @@ namespace FirstMod_Sp.Common.Env
             // Target point: body centre of a player standing on the target cell (as in PathDistanceField's goals).
             op.Waypoint = null;
             op.NearWaypoint = null;
+            op.BlockedDecisions = 0;
             op.SeenBits = null;
             op.CoarseCache = null;
             b.Current = s;
@@ -387,6 +388,13 @@ namespace FirstMod_Sp.Common.Env
             return Vector2.Distance(p.Center, Main.player[b.Slot].GetModPlayer<ObservationPlayer>().Target ?? p.Center) / 16f + OffPathPenaltyTiles;
         }
 
+        /// <summary>Once per decision: pressing left or right while barely moving counts as blocked.</summary>
+        private static void UpdateBlocked(BotEnv b) {
+            Player p = Main.player[b.Slot];
+            var op = p.GetModPlayer<ObservationPlayer>();
+            op.BlockedDecisions = (op.LastLeft || op.LastRight) && Math.Abs(p.velocity.X) < 0.3f ? op.BlockedDecisions + 1 : 0;
+        }
+
         /// <summary>A route cell as an observation point: the body centre of a player standing in it.</summary>
         private static Vector2 RoutePoint(int x, int y) => new Vector2((x + 0.5f) * 16f, (y - 0.3f) * 16f);
 
@@ -496,6 +504,7 @@ namespace FirstMod_Sp.Common.Env
                 o += 4;
                 long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
                 UpdateWaypoint(b);
+                UpdateBlocked(b);
                 ObservationBuilder.Build(Main.player[b.Slot], sendBuffer.AsSpan(o, obsBytes));
                 timeObservations += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
                 o += obsBytes;
