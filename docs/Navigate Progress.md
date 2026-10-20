@@ -388,3 +388,17 @@ One recorded evaluation of the 1,024 set (`eval_big_rec`, 43 failures counting r
 - With `-plannerbody` the squeeze cases leave the set (they are not solvable).
 - The deaths are the planned hazard stage: damage avoidance and breaking long falls with the double jump (which the user noticed the bot rarely does).
 - Getting back after leaving the route (pits, side caves) is the biggest remaining policy weakness.
+
+## Oct 20 day: ablation and second seeds (10M steps, 6 worlds)
+
+| Model | Line of sight | 30% bending routes | Seed | 1,024 set | 316 detour scenarios | hand-made drop / climb / pocket |
+| --- | --- | --- | --- | --- | --- | --- |
+| `grid_ctrl_10m` | | | 0 | 93.1% | 81.3% | 76 / 14 / 98 |
+| `grid_ctrl_10m_s2` | | | 2 | 93.5% | 83.5% | 75 / 33 / 74 |
+| `detour_10m` | | ✓ | 0 | 93.8% | 85.4% | 91 / 73 / 100 |
+| `los_10m` | ✓ | | 0 | 94.9% | 87.0% | 100 / 92 / 100 |
+| `los_10m_s2` | ✓ | | 2 | 94.7% | 86.7% | 100 / 97 / 100 |
+| `losdetour_10m` | ✓ | ✓ | 0 | **96.6%** | 86.1% | 100 / 95 / 100 |
+
+- **The line-of-sight gain replicates across training seeds.** Averaged over both seeds, paired per scenario: +1.6 ± 0.6 points on the 1,024 set (z = 2.8), +4.4 ± 1.4 on the detour set (z = 3.2). The hand-made ledge behaviours are stable with it (climbs 92–97%) and fragile without (climbs 14–33%, pockets 74–98% between seeds).
+- **Both changes together** reach 96.6% at 10M steps on 6 worlds, `navigate_v1`'s 30M / 12-world score; paired against `los_10m`: 29 scenarios solved only with both, 12 only with line of sight alone (z = 2.7). On the small detour set the two line-of-sight runs are within noise (13 vs 10); the bending-route set evaluation follows.
