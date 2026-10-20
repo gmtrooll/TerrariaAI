@@ -444,3 +444,22 @@ Paired: −0.2 ± 0.5 on the 1,024 set, +0.6 ± 0.7 on bending routes. **The inp
 | hand-made drop / climb / pocket | 100 / 100 / 100 | 100 / 93 / 100 | |
 
 **Training on both loadouts costs nothing with Tsunami and gains 2.3 points without it**, at the same 30M budget: mixed equipment does not need much more training (the user's worry from Oct 19), at least for two loadouts. `results/training/navigate_v3/` holds the model; it is the best model for both loadouts.
+
+**Second seed of both changes** (`losdetour_10m_s2`): 95.4% on the 1,024 set, 93.6% on bending routes, hand-made 100 / 96 / 100. Over both seeds, paired per scenario, both changes vs line of sight alone: **+1.2 ± 0.5 on the 1,024 set (z = 2.5)**, +0.2 ± 0.5 on bending routes. The extra bending-route practice helps overall, not on bending routes themselves, once the waypoint is right.
+
+## Oct 20 evening: how diverse are the training scenarios?
+
+The user noticed that most watched scenarios are "hold left or right and jump"; the bot failed one where it had to jump out of honey onto a ledge. `navigate.route_features` traces every scenario's planner route and counts what it passes through. Over all 14,400 training scenarios (12 worlds; the held-out worlds look the same):
+
+| Route passes through or needs | Share |
+| --- | --- |
+| honey | **0.0%** |
+| water | 0.9% |
+| dropping through a platform | 1.8% |
+| turning back 3+ times (switchbacks) | 0.4% |
+| cobwebs | 6.9% |
+| turning back at least once | 15.2% |
+| climbing 7+ tiles in a row | 20.0% |
+| dropping 6+ tiles in a row | 23.5% |
+
+Two causes: starts and targets are placed on dry standable ground, and the planner's liquid costs (water 2, honey 4) route around liquids when it can. Plan agreed with the user: a fixed list of movement categories from the game's mechanics (liquids, webs, platforms, doors, slopes, ice and honey-block floors, ropes, conveyor belts, climbs, drops, gaps, switchbacks), quotas per category in training, targeted generation in the real worlds and randomized obstacle templates for categories the worlds rarely produce, and a held-out test set per category. Failures only point to categories; their scenarios never go into training.
