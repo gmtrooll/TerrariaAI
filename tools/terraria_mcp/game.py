@@ -163,7 +163,8 @@ class GameManager:
                          "-seed", str(create.get("seed", "42"))]
         else:
             self.prepare_client_config()
-            args += ["-skipselect", f"{config.AUTOMATION_PLAYER}:{world}"]
+            # No sound (Common/Automation/NoSoundSystem.cs): FAudio kills the game when the audio device changes.
+            args += ["-skipselect", f"{config.AUTOMATION_PLAYER}:{world}", "-nosound"]
         args += list(extra_args or [])
 
         config.LOGS_DIR.mkdir(parents=True, exist_ok=True)

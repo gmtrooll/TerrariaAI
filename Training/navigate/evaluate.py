@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from navigate.env import BANDS, LOADOUTS, Curriculum, NavigateVecEnv
+from navigate.env import BANDS, LOADOUTS, Curriculum, NavigateVecEnv, detour_ratio
 from navigate.model import ActorCritic, RecurrentActorCritic, make_encoder
 from terraria_mcp import scenarios as scenario_files
 
@@ -27,7 +27,9 @@ RESULTS = Path(__file__).resolve().parents[2] / "results" / "training"
 EVAL_WORLDS = ["eval_01", "eval_02"]
 
 
-def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunami") -> dict:
+def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunami", min_detour: float = 0.0) -> dict:
+    """per_band scenarios per band per world (fixed seed); with min_detour, instead every scenario whose route is at
+    least that many times the straight-line distance."""
     rng = random.Random(seed)
     suffix, code = LOADOUTS[loadout]
     out = {}
@@ -36,6 +38,9 @@ def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunam
         for i, s in enumerate(rows):
             s["id"] = f"{w}{suffix}:{i}"
             s["loadout"] = code
+        if min_detour > 0:
+            out[w] = [s for s in rows if detour_ratio(s) >= min_detour]
+            continue
         chosen = []
         for band in BANDS:
             pool = [s for s in rows if s["band"] == band]
@@ -115,6 +120,7 @@ def main():
     p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
     p.add_argument("--loadout", choices=sorted(LOADOUTS), default="tsunami", help="equipment variant to evaluate")
     p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. model_20M.pt")
+    p.add_argument("--min-detour", type=float, default=0.0, help="evaluate all scenarios with route/straight >= this instead")
     p.add_argument("--record", action="store_true", help="servers write failed episodes (path + planned route) to failures_<world>.jsonl")
     args = p.parse_args()
 
@@ -123,7 +129,7 @@ def main():
     obs_spec = config.get("obs", "grid=fovea,visibility=exposed")
     if args.loadout != "tsunami" and not args.tag:
         args.tag = args.loadout
-    lists = fixed_lists(args.worlds, args.per_band, loadout=args.loadout)
+    lists = fixed_lists(args.worlds, args.per_band, loadout=args.loadout, min_detour=args.min_detour)
     total = sum(len(v) for v in lists.values())
     extra = []
     if args.record:

@@ -69,8 +69,10 @@ def main():
                 result = "reached" if e["win"] else "died" if e["died"] else "timed out"
                 print(f"bot {i + 1}: {result:9s} {e['band']:>6s} {e['layer']:<11s} route {e['path_distance']:3d} tiles, "
                       f"{e['l']:3d} decisions   scenario {e['id']}   (total {wins}/{total} = {100 * wins // total}%)", flush=True)
-    except (KeyboardInterrupt, ConnectionError, OSError):
+    except KeyboardInterrupt:
         pass
+    except (ConnectionError, OSError) as e:  # the window was closed, or the game crashed
+        print(f"lost the game window: {e!r}", flush=True)
     finally:
         env.close()
 

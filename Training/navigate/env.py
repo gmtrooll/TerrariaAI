@@ -8,6 +8,7 @@ down), jump.
 """
 
 import json
+import math
 import random
 import socket
 import struct
@@ -88,17 +89,30 @@ class Curriculum:
         return {b: (sum(h) / len(h) if h else None) for b, h in self.history.items()}
 
 
+DETOUR_RATIO = 1.7
+
+
+def detour_ratio(s: dict) -> float:
+    """Route length over straight-line distance, start to target."""
+    return s["path_distance"] / max(1.0, math.hypot(s["target_x"] - s["start_x"], s["target_y"] - s["start_y"]))
+
+
 class ScenarioSource:
     """Per world: scenarios grouped by band. Training samples through the curriculum; evaluation walks a fixed
     list in order.
 
     replay > 0 (prioritized replay of hard scenarios, after Prioritized Level Replay): that share of the episodes
     picks, within the chosen band, a scenario with probability proportional to its estimated failure rate
-    (wins + 1) / (attempts + 2) from `stats`; the rest stay uniform, so new scenarios are still seen."""
+    (wins + 1) / (attempts + 2) from `stats`; the rest stay uniform, so new scenarios are still seen.
+
+    detour > 0: that share of the episodes picks, within the chosen band, a detour scenario (route at least
+    DETOUR_RATIO times the straight-line distance: the bot has to move away from the target first). They are
+    about 15% of the scenarios and the policy's weakest group (Oct 20)."""
 
     def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
-                 replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False):
+                 replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False, detour: float = 0.0):
         self.world = world
+        self.detour = detour
         self.curriculum = curriculum
         self.rng = rng
         self.replay = replay
@@ -115,6 +129,7 @@ class ScenarioSource:
             # scenarios bots solve are reachable in it, train_01, Oct 19), and the mod falls back to the grid distance
             # for an episode whose start is off the graph.
             self.sets.append({b: [s for s in rows if s["band"] == b] for b in BANDS})
+            self.sets[-1]["detours"] = {b: [s for s in rows if s["band"] == b and detour_ratio(s) >= DETOUR_RATIO] for b in BANDS}
         self.by_band = self.sets[0]
         self.fixed = list(fixed_list) if fixed_list is not None else None
         self.fixed_pos = 0
@@ -125,7 +140,10 @@ class ScenarioSource:
             self.fixed_pos += 1
             return s
         by_band = self.sets[self.rng.randrange(len(self.sets))] if len(self.sets) > 1 else self.by_band
-        pool = by_band[self.curriculum.pick_band(self.rng)]
+        band = self.curriculum.pick_band(self.rng)
+        pool = by_band[band]
+        if self.detour > 0 and by_band["detours"][band] and self.rng.random() < self.detour:
+            return self.rng.choice(by_band["detours"][band])
         if self.replay > 0 and self.rng.random() < self.replay:
             weights = []
             for s in pool:
@@ -165,12 +183,13 @@ class NavigateVecEnv(VecEnv):
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
                  games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None,
-                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None):
+                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None, detour: float = 0.0):
         """graph_dir: physics movement graphs (navigate.movegraph); the progress reward then uses physics route
         distances (option C), only physically reachable scenarios are used, and time limits follow physics times."""
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
         self.frame_skip = frame_skip
         self.replay = replay
+        self.detour = detour
         self.loadouts = loadouts or ["tsunami"]
         self.physics = graph_dir is not None
         self.reward_cfg = reward or RewardConfig()
@@ -269,7 +288,7 @@ class NavigateVecEnv(VecEnv):
         world = spec["world"]
         fixed = fixed_scenarios.get(world) if fixed_scenarios else None
         source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats,
-                                loadouts=self.loadouts, physics=self.physics)
+                                loadouts=self.loadouts, physics=self.physics, detour=self.detour)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.version = version
         if version < 2 and any(LOADOUTS[n][1] != 1 for n in self.loadouts):
