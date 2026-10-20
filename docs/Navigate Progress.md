@@ -496,3 +496,15 @@ In honey the body moves at a quarter of its velocity (Player.HoneyCollision) and
 The planner now uses these numbers: the jump height of a cell comes from its take-off ground (`PathDistanceField.HoneyJumpTiles`, `StickyJumpTiles`; the cell or a non-solid neighbouring column, since the 2-column body can leave shallow honey beside a deep part), and a cell on a honey block costs 4 like a honey cell (its time limit was 4 decisions per tile at a quarter of the run speed, about no slack). With it, 7 honey tests become unreachable, all 7 never solved by any model; no solved one is excluded. One switchback (never solved) also becomes unreachable. Without them `navigate_v3`'s honey score is 83%, not 80.5%. The water results are unchanged (water jumps are as high as dry ones).
 
 **Templates** (`navigate.templates`, in progress): randomized honey pits (3–12 wide, 1–6 deep, sides 0–9 tiles high, often a ledge 4–13 above) and honey-block floors (with a step, a wall, a dry gap or a ledge), each in a sealed vault carved out of solid rock, so no existing scenario's route changes. Sites are boxes of 36 × 26 tiles whose 2-tile shell is rock and whose inside is at least 70% rock and holds no existing scenario's start or target (about 47 per world). A trial on a copy of train_01 (40 vaults, 122 reachable scenarios): `navigate_v3` solved 70 of 77 honey-pit and 45 of 45 honey-floor scenarios.
+
+**Training with the templates** (`tmpl_10m`, `_s2` = `cat_10m`, `_s2` with the template rows as two more categories, on the planner with the measured honey jumps; Oct 21, 00:43). Both sides evaluated on the same build, paired per scenario over both seeds:
+
+| Test | `cat_10m` (2 seeds) | `tmpl_10m` (2 seeds) | pooled |
+| --- | --- | --- | --- |
+| held-out templates (183: 117 honey pits, 66 honey floors) | 94.0 / 93.4 | 92.9 / 92.9 | z = −0.7 |
+| category tests (1,541) | 93.5 / 94.9 | 93.6 / 93.9 | z = −1.1 |
+| 1,024 set | 96.0 / 96.6 | 95.9 / 96.2 | z = −0.6 |
+| bending routes | 93.8 / 93.6 | 93.9 / 93.1 | z = −0.4 |
+| hand-made | 100 / 96–97 / 100 | 100 / 98–100 / 100 | |
+
+**The templates do not help, not even on held-out templates.** Honey floors are solved 100% with or without them; honey pits stay at 89–91%. The failures are climbs out of the pit onto a side (out_left / out_right 78–91%). Per category, honey_block rises (z = 3.6, but one hive per world, and the baseline's seed 0 was low there) and ice falls (z = −2.5); with 8 categories tested, both are within what chance gives. `navigate_v3` (30M steps, 12 worlds) scores 96.2% on the templates (honey pits 94.0%), better than every 10M run: **at 10M steps, training length matters more than what the scenarios contain**, and the earlier models were not short of honey or switchback exposure. Category quotas, the templates and the corrected planner stay in the setup (they cost nothing and the planner is now faithful to the game), but they are not the next lever.
