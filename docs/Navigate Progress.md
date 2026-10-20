@@ -402,3 +402,18 @@ One recorded evaluation of the 1,024 set (`eval_big_rec`, 43 failures counting r
 
 - **The line-of-sight gain replicates across training seeds.** Averaged over both seeds, paired per scenario: +1.6 ± 0.6 points on the 1,024 set (z = 2.8), +4.4 ± 1.4 on the detour set (z = 3.2). The hand-made ledge behaviours are stable with it (climbs 92–97%) and fragile without (climbs 14–33%, pockets 74–98% between seeds).
 - **Both changes together** reach 96.6% at 10M steps on 6 worlds, `navigate_v1`'s 30M / 12-world score; paired against `los_10m`: 29 scenarios solved only with both, 12 only with line of sight alone (z = 2.7). On the small detour set the two line-of-sight runs are within noise (13 vs 10); the bending-route set evaluation follows.
+
+**On the 1,136-scenario bending-route set** (2–3 evaluation runs each):
+
+| Model | Bending-route success |
+| --- | --- |
+| `grid_ctrl_10m` / `_s2` | 88.7% / 89.3% |
+| `detour_10m` | 90.8% |
+| `los_10m` / `_s2` | 92.6% / 93.4% |
+| `losdetour_10m` | 92.9% |
+| `navigate_v1` (30M) | 92.9% |
+| `navigate_v2` (30M) | **95.2%** |
+
+Paired per scenario: line of sight vs control over both seeds **+4.0 ± 0.6 (z = 7.3)**; bending routes alone vs control +2.1 ± 0.7 (z = 3.0); adding bending routes on top of line of sight +0.3 ± 0.5 (no effect here, though +1.7 on the 1,024 set, z = 2.7). Once the waypoint is right, extra practice on bending routes no longer helps on them.
+
+Also: `navigate_v2`, trained with Tsunami only, gets 86.7% without the extra jump (`mix_10m` 85.2%, `grid_ctrl_10m` 83.5%).
