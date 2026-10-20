@@ -27,6 +27,9 @@ namespace FirstMod_Sp.Common.Systems
     ///  - Up: allowed into a passable cell only if it is at most maxJumpTiles above the first
     ///    supporting tile (Solid or Platform) below it in the same column. This stops the search from
     ///    finding paths straight up into the sky. Platforms can be jumped through from below.
+    ///    Taking off in honey (with cell info) lowers that height: Player.HoneyCollision moves the body at a
+    ///    quarter of its velocity, so a jump from a honey pool's floor lifts the feet about 3 tiles at any depth
+    ///    (no swimming without flippers), and the extra jump adds less (HoneyJumpTiles; navigate.liquid_jump).
     /// Optional cell info (docs/Movement Hazards.md) adds:
     ///  - costs: water 2, honey 4, cobweb 8 per cell the body is in (cobwebs cap speed and cancel jumps);
     ///  - blocked cells: the body touching a damaging tile, lava or shimmer, or within 2 tiles of a trap;
@@ -43,6 +46,16 @@ namespace FirstMod_Sp.Common.Systems
         public const byte InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64,
             InfoPartial = 128;  // a sloped or half block: Solid for the planner, but bodies slide along / into it
         public const int CostWater = 2, CostHoney = 4, CostWeb = 8, MaxCost = 8;
+
+        /// <summary>
+        /// Jump height from the floor of a honey pool `depth` cells deep, for a player whose dry jump is maxJumpTiles.
+        /// Measured feet rise (navigate.liquid_jump, Oct 20): dry 6.1 one jump / 13.1 with Tsunami's extra jump;
+        /// honey 3.1 one jump at every depth; with the extra jump at its best moment (--sweep) 10.1 from pools 1-3
+        /// deep (it fires once the body is out), 6.1-6.5 from deeper ones (it fires inside). Water jumps go as high
+        /// as dry ones or higher: not limited.
+        /// </summary>
+        public static int HoneyJumpTiles(int maxJumpTiles, int depth) =>
+            maxJumpTiles <= 6 ? Math.Min(maxJumpTiles, 3) : depth <= 3 ? Math.Min(maxJumpTiles, 10) : 6;
 
         public readonly int OriginX; // world tile of field cell (0, 0)
         public readonly int OriginY;
@@ -190,18 +203,41 @@ namespace FirstMod_Sp.Common.Systems
 
             bool Passable(int x, int y) => Clear(x, y) && (Clear(x - 1, y) || Clear(x + 1, y)) && !blocked[y * size + x];
 
-            // Height of each cell above the first supporting tile below it (same column).
+            // Height of each cell above the first supporting tile below it (same column), and the jump height from
+            // that ground: lower when the player takes off in honey.
             var heightAboveGround = new int[n];
+            var jumpTiles = new int[n];
             for (int x = 0; x < size; x++)
             {
-                int h = int.MaxValue;
+                int h = int.MaxValue, jump = maxJumpTiles;
                 for (int y = size - 1; y >= 0; y--)
                 {
                     PathTile below = T(x, y + 1);
-                    if (y + 1 < size && (below == PathTile.Solid || below == PathTile.Platform)) h = 0;
+                    if (y + 1 < size && (below == PathTile.Solid || below == PathTile.Platform))
+                    {
+                        h = 0;
+                        jump = maxJumpTiles;
+                        if ((I(x, y) & InfoHoney) != 0)
+                        {
+                            int depth = 0;
+                            while (depth < 4 && (I(x, y - depth) & InfoHoney) != 0) depth++;
+                            jump = HoneyJumpTiles(maxJumpTiles, depth);
+                        }
+                    }
                     else if (h != int.MaxValue) h++;
                     heightAboveGround[y * size + x] = h;
+                    jumpTiles[y * size + x] = jump;
                 }
+            }
+            // Jumpable: within the dry jump height of the ground below, and within the take-off's jump height in this
+            // column or a non-solid neighbour (the body spans 2 columns: it can leave shallow honey beside a deep part).
+            // Away from honey jumpTiles == maxJumpTiles, so this is the plain height rule.
+            bool Within(int x, int y) => x >= 0 && x < size && heightAboveGround[y * size + x] <= jumpTiles[y * size + x];
+            bool Jumpable(int i)
+            {
+                if (heightAboveGround[i] > maxJumpTiles) return false;
+                int x = i % size, y = i / size;
+                return Within(x, y) || T(x - 1, y) != PathTile.Solid && Within(x - 1, y) || T(x + 1, y) != PathTile.Solid && Within(x + 1, y);
             }
 
             // Per cell: horizontal distance (same row) to the nearest passable cell within jump height of the ground.
@@ -215,14 +251,14 @@ namespace FirstMod_Sp.Common.Systems
                     for (int x = 0; x < size; x++)
                     {
                         int i = y * size + x;
-                        if (Passable(x, y) && heightAboveGround[i] <= maxJumpTiles) last = x;
+                        if (Passable(x, y) && Jumpable(i)) last = x;
                         nearJumpable[i] = x - last;
                     }
                     last = int.MaxValue / 2;
                     for (int x = size - 1; x >= 0; x--)
                     {
                         int i = y * size + x;
-                        if (Passable(x, y) && heightAboveGround[i] <= maxJumpTiles) last = x;
+                        if (Passable(x, y) && Jumpable(i)) last = x;
                         nearJumpable[i] = Math.Min(nearJumpable[i], last - x);
                     }
                 }
@@ -274,7 +310,7 @@ namespace FirstMod_Sp.Common.Systems
                     // p above d: falling into d (through a platform too, by holding down).
                     TryRelax(dx, dy - 1);
                     // p below d: jumping up into d, only within jump height of the ground.
-                    if (heightAboveGround[idx] <= maxJumpTiles) TryRelax(dx, dy + 1);
+                    if (Jumpable(idx)) TryRelax(dx, dy + 1);
 
                     void TryRelax(int px, int py)
                     {

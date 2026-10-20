@@ -1,0 +1,1178 @@
+[
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 8.53
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 9.45
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 9.96
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 10.06
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 9.76
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 9.06
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 7.97
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 4.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 4.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 4.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 4.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 9.16
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 9.86
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 10.17
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 10.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 9.57
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 8.67
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 4.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 4.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 4.11
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 4.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 3.83
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 3.78
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 4.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 4.42
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 5.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 5.12
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 5.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 5.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 5.14
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 9.72
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 10.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 10.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 9.66
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 3.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 3.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 3.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 3.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 5.13
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 5.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 4.49
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 4.3
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 5.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 3.91
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 3.71
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 3.39
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 3.73
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 4.06
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 4.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 4.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 4.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 5.27
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 5.5
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 6.14
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 6.09
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 6.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 6.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 6.11
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 6.12
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 6.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 6.14
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 6.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 6.13
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 6.09
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 6.11
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 6.09
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 6.13
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 6.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 6.13
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 6.1
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 3.69
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 3.99
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 4.3
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 4.65
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 4.95
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 5.23
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 5.47
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 5.69
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 5.88
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 6.05
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 6.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 6.3
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 6.39
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 6.45
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 6.49
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 6.49
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 6.48
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 6.44
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 6.37
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 6.28
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 6.16
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 6.02
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 5.85
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 5.65
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 3.69
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 3.99
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 4.3
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 4.61
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 4.89
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 5.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 5.4
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 5.64
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 5.84
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 6.01
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 6.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 6.26
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 6.35
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 6.42
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 6.45
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 6.46
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 6.45
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 6.41
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 6.34
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 6.24
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 6.12
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 5.97
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 5.8
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 5.6
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at4",
+  "rise_tiles": 3.69
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at8",
+  "rise_tiles": 3.99
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at12",
+  "rise_tiles": 4.3
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at16",
+  "rise_tiles": 4.61
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at20",
+  "rise_tiles": 4.89
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at24",
+  "rise_tiles": 5.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at28",
+  "rise_tiles": 5.39
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at32",
+  "rise_tiles": 5.6
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at36",
+  "rise_tiles": 5.78
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at40",
+  "rise_tiles": 5.94
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at44",
+  "rise_tiles": 6.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at48",
+  "rise_tiles": 6.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at52",
+  "rise_tiles": 6.27
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at56",
+  "rise_tiles": 6.33
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at60",
+  "rise_tiles": 6.37
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at64",
+  "rise_tiles": 6.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at68",
+  "rise_tiles": 6.36
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at72",
+  "rise_tiles": 6.32
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at76",
+  "rise_tiles": 6.26
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at80",
+  "rise_tiles": 6.17
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at84",
+  "rise_tiles": 6.05
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at88",
+  "rise_tiles": 5.91
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at92",
+  "rise_tiles": 5.75
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "at96",
+  "rise_tiles": 5.56
+ }
+]

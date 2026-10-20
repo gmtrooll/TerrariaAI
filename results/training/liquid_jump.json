@@ -1,0 +1,667 @@
+[
+ {
+  "liquid": "dry",
+  "depth": 0,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 6.13
+ },
+ {
+  "liquid": "dry",
+  "depth": 0,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.67
+ },
+ {
+  "liquid": "dry",
+  "depth": 0,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 6.13
+ },
+ {
+  "liquid": "dry",
+  "depth": 0,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 13.08
+ },
+ {
+  "liquid": "dry",
+  "depth": 0,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.73
+ },
+ {
+  "liquid": "water",
+  "depth": 1,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 4.16
+ },
+ {
+  "liquid": "water",
+  "depth": 1,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.37
+ },
+ {
+  "liquid": "water",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 4.16
+ },
+ {
+  "liquid": "water",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 11.1
+ },
+ {
+  "liquid": "water",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.78
+ },
+ {
+  "liquid": "water",
+  "depth": 2,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 5.07
+ },
+ {
+  "liquid": "water",
+  "depth": 2,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.35
+ },
+ {
+  "liquid": "water",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 5.07
+ },
+ {
+  "liquid": "water",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 12.01
+ },
+ {
+  "liquid": "water",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.14
+ },
+ {
+  "liquid": "water",
+  "depth": 3,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 6.16
+ },
+ {
+  "liquid": "water",
+  "depth": 3,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.33
+ },
+ {
+  "liquid": "water",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 6.16
+ },
+ {
+  "liquid": "water",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 13.1
+ },
+ {
+  "liquid": "water",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.75
+ },
+ {
+  "liquid": "water",
+  "depth": 4,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 7.06
+ },
+ {
+  "liquid": "water",
+  "depth": 4,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.28
+ },
+ {
+  "liquid": "water",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 7.06
+ },
+ {
+  "liquid": "water",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 14.01
+ },
+ {
+  "liquid": "water",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.73
+ },
+ {
+  "liquid": "water",
+  "depth": 5,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 7.86
+ },
+ {
+  "liquid": "water",
+  "depth": 5,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.28
+ },
+ {
+  "liquid": "water",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 7.86
+ },
+ {
+  "liquid": "water",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 14.81
+ },
+ {
+  "liquid": "water",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.7
+ },
+ {
+  "liquid": "water",
+  "depth": 6,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 8.27
+ },
+ {
+  "liquid": "water",
+  "depth": 6,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.28
+ },
+ {
+  "liquid": "water",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 8.27
+ },
+ {
+  "liquid": "water",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 15.22
+ },
+ {
+  "liquid": "water",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.67
+ },
+ {
+  "liquid": "water",
+  "depth": 8,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 8.23
+ },
+ {
+  "liquid": "water",
+  "depth": 8,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.28
+ },
+ {
+  "liquid": "water",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 8.23
+ },
+ {
+  "liquid": "water",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 15.17
+ },
+ {
+  "liquid": "water",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.67
+ },
+ {
+  "liquid": "water",
+  "depth": 10,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 8.18
+ },
+ {
+  "liquid": "water",
+  "depth": 10,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.28
+ },
+ {
+  "liquid": "water",
+  "depth": 10,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 8.18
+ },
+ {
+  "liquid": "water",
+  "depth": 10,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 13.04
+ },
+ {
+  "liquid": "water",
+  "depth": 10,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.67
+ },
+ {
+  "liquid": "water",
+  "depth": 14,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 8.18
+ },
+ {
+  "liquid": "water",
+  "depth": 14,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 3.28
+ },
+ {
+  "liquid": "water",
+  "depth": 14,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 8.18
+ },
+ {
+  "liquid": "water",
+  "depth": 14,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 17.04
+ },
+ {
+  "liquid": "water",
+  "depth": 14,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.67
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.27
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 10.02
+ },
+ {
+  "liquid": "honey",
+  "depth": 1,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 3.86
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.23
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.19
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 10.13
+ },
+ {
+  "liquid": "honey",
+  "depth": 2,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 4.86
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 4.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 3,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.8
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 6.07
+ },
+ {
+  "liquid": "honey",
+  "depth": 4,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.75
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 7.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 5,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.75
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.38
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 6.46
+ },
+ {
+  "liquid": "honey",
+  "depth": 6,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.75
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 6.37
+ },
+ {
+  "liquid": "honey",
+  "depth": 8,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.75
+ },
+ {
+  "liquid": "honey",
+  "depth": 10,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 10,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 10,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 10,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 6.37
+ },
+ {
+  "liquid": "honey",
+  "depth": 10,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.75
+ },
+ {
+  "liquid": "honey",
+  "depth": 14,
+  "tsunami": false,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 14,
+  "tsunami": false,
+  "pattern": "mash",
+  "rise_tiles": 2.15
+ },
+ {
+  "liquid": "honey",
+  "depth": 14,
+  "tsunami": true,
+  "pattern": "hold",
+  "rise_tiles": 3.08
+ },
+ {
+  "liquid": "honey",
+  "depth": 14,
+  "tsunami": true,
+  "pattern": "double",
+  "rise_tiles": 6.37
+ },
+ {
+  "liquid": "honey",
+  "depth": 14,
+  "tsunami": true,
+  "pattern": "mash",
+  "rise_tiles": 2.75
+ }
+]
