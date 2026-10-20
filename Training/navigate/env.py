@@ -220,7 +220,8 @@ class NavigateVecEnv(VecEnv):
             name = f"{'watch' if mode == 'client' else 'env'}{port}_{i}_{world}"
             try:
                 self.games.launch(mode, world=world, bots=bots_per_server, name=name, extra_args=args, wait=False)
-                self.instance_names.append(name)
+                if name not in self.instance_names:
+                    self.instance_names.append(name)
             except Exception as e:  # noqa: BLE001
                 errors.append(f"{world}: {e}")
 
@@ -230,9 +231,30 @@ class NavigateVecEnv(VecEnv):
             time.sleep(1.0)
 
         self.servers = []
+        deadline = time.time() + launch_timeout
+        listener.settimeout(5.0)
+        relaunched = {}
         try:
-            for _ in worlds:
-                conn, _ = listener.accept()
+            while len(self.servers) < len(worlds):
+                try:
+                    conn, _ = listener.accept()
+                except socket.timeout:
+                    if time.time() > deadline:
+                        raise TimeoutError(f"{len(worlds) - len(self.servers)} servers did not connect in {launch_timeout} s")
+                    # A server that exited before connecting (e.g. its port was taken by another process launching at
+                    # the same moment, Oct 20): launch it again, at most twice.
+                    connected = {s.world for s in self.servers}
+                    for i, w in enumerate(worlds):
+                        inst = self.games.instances.get(f"{'watch' if mode == 'client' else 'env'}{port}_{i}_{w}")
+                        if w in connected or inst is None or inst.running:
+                            continue
+                        relaunched[w] = relaunched.get(w, 0) + 1
+                        if relaunched[w] > 2:
+                            raise RuntimeError(f"{w}: server exited before connecting, twice relaunched")
+                        print(f"{w}: server exited before connecting; relaunching", flush=True)
+                        launch(i, w)
+                        deadline = max(deadline, time.time() + launch_timeout)
+                    continue
                 conn.setsockopt(socket.IPPROTO_TCP, socket.TCP_NODELAY, 1)
                 conn.setsockopt(socket.SOL_SOCKET, socket.SO_RCVBUF, 1 << 22)
                 conn.settimeout(None)
