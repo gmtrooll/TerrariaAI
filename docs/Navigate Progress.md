@@ -326,3 +326,21 @@ Paired on the same scenarios: on the detour set 24 solved only by `detour_10m`, 
 Paired against `grid_ctrl_10m`: 1,024 set 42 solved only by `los_10m`, 23 only by `grid_ctrl_10m` (z = 2.4); detour set 28 vs 10 (z = 2.9). **The line-of-sight waypoint is the largest single gain since the near waypoint**: the long routes gain most, and at 10M steps it matches the 30M model on bending routes while solving the ledge cases that model fails. Oversampling bending routes also helps, less (and was not combined yet).
 
 Next: `losdetour12_30m`, `navigate_v1`'s setup (12 worlds, 30M steps) with both changes, as the candidate for `navigate_v2`.
+
+## Oct 20 morning: navigate_v2
+
+`losdetour12_30m` = `navigate_v1`'s setup (12 worlds, 16 bots each, seed 1, 30M steps) with the line-of-sight waypoint and 30% bending routes:
+
+| | `navigate_v1` (30M) | **`navigate_v2`** (30M) |
+| --- | --- | --- |
+| 1,024 set | 96.6% | 96.6% ± 0.6 (paired: 15 solved only by each) |
+| … without the 8 planner-squeeze scenarios | 97.3% | 97.3% |
+| 316 detour scenarios | 87.3% | **90.2%** (paired 19 vs 10, z = 1.7) |
+| hand-made drop / climb / pocket | 64% / 21% / 96% | **100% / 100% / 100%** |
+| at 10M steps (1,024 set) | 94.1% | 96.4% |
+
+- The 1,024 set looks saturated around 96.5–97%: the two models tie there; the gains are where the old waypoint misled (ledges) and on bending routes.
+- v2 reaches v1's final score by 10M steps.
+- Evaluation noise check: two evaluations of the same 10M checkpoint gave 95.4% and 96.4% (sampled actions). Single-evaluation differences of about a point are noise; paired comparisons on the same scenarios are the reliable test.
+
+`results/training/navigate_v2/` holds the model, config and evaluations. Watch it with `python -m navigate.watch --run navigate_v2`.
