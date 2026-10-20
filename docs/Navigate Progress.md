@@ -299,3 +299,15 @@ Does mixed equipment need much more training? Three 10M runs with `grid_ctrl_10m
 - **Training with Tsunami transfers to no extra jump** (83.5%, the same as training without it), but not the reverse: `none_10m` never learns to use the double jump (87.3% with it).
 - **Without the extra jump everything is harder** (83–85%): no mid-air correction, more precise jumps. The 30–60 and 60–120 bands drop most (77–81% and 73–75%).
 - For the planned random-equipment stage: train on the mixture from the start; the cost per loadout looks small, at least for two loadouts that differ in jump height.
+
+## Oct 20 night: more bending routes in training
+
+Success falls with how much the route bends away from the target (route length ÷ straight-line distance): `navigate_v1` 98.9% below 1.3×, 90.6% at 1.7–2.5×, 88% above; the 10M models 71–77% above 1.7×. Such scenarios are only 4–15% of training episodes (rarest in the short bands the curriculum starts with). `detour_10m` = `grid_ctrl_10m` with 30% of episodes drawn from scenarios with a ratio of at least 1.7 (`--detour 0.3`), evaluated on the 1,024 set and on all 316 held-out scenarios with that ratio (`--min-detour 1.7`):
+
+| Model (10M steps) | 1,024 set | 316 detour scenarios |
+| --- | --- | --- |
+| `grid_ctrl_10m` | 93.1% ± 0.8 | 81.3% ± 2.2 |
+| `detour_10m` | 93.8% ± 0.8 | **85.4% ± 2.0** |
+| `navigate_v1` (30M, 12 worlds), for reference | 96.6% | 87.3% ± 1.9 |
+
+Paired on the same scenarios: on the detour set 24 solved only by `detour_10m`, 11 only by `grid_ctrl_10m` (McNemar z = 2.2); on the 1,024 set 33 vs 25 (z = 1.05). **Oversampling bending routes helps on them (+4 points) at no cost elsewhere**; at 10M steps it closes most of the gap to the 30M model on that set.
