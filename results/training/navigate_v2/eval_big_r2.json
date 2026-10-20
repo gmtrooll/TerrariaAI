@@ -1,0 +1,6222 @@
+{
+  "policy": "model",
+  "run": "navigate_v2",
+  "obs": "grid=fovea,visibility=exposed,near=1,los=1",
+  "deterministic": false,
+  "worlds": [
+    "eval_01",
+    "eval_02"
+  ],
+  "overall": {
+    "n": 1024,
+    "success": 0.9707,
+    "died": 0.002,
+    "mean_win_length": 52.8
+  },
+  "episodes": [
+    {
+      "id": "eval_02:881",
+      "win": true,
+      "died": false,
+      "l": 9
+    },
+    {
+      "id": "eval_01:481",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:47",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:859",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:805",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:853",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:23",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:494",
+      "win": true,
+      "died": false,
+      "l": 13
+    },
+    {
+      "id": "eval_02:9",
+      "win": true,
+      "died": false,
+      "l": 13
+    },
+    {
+      "id": "eval_01:45",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:573",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:18",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:506",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:575",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:2",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:531",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:486",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:958",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_02:929",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:109",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:561",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:508",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:95",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:82",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:982",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:846",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:151",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:500",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:426",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:83",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:500",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:177",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:576",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:539",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:1049",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:198",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:606",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:229",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:419",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_02:563",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:487",
+      "win": true,
+      "died": false,
+      "l": 6
+    },
+    {
+      "id": "eval_01:179",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:147",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:1051",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_01:643",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:1063",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:277",
+      "win": true,
+      "died": false,
+      "l": 47
+    },
+    {
+      "id": "eval_02:962",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:976",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_02:3",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_02:1065",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_01:503",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_01:585",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:698",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:253",
+      "win": true,
+      "died": false,
+      "l": 55
+    },
+    {
+      "id": "eval_01:1",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:615",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:1032",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:608",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:46",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:840",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:461",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:210",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_01:1196",
+      "win": true,
+      "died": false,
+      "l": 68
+    },
+    {
+      "id": "eval_02:916",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:836",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:637",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_02:553",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:118",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:256",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_01:281",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:980",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:632",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_01:748",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_01:994",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:379",
+      "win": true,
+      "died": false,
+      "l": 76
+    },
+    {
+      "id": "eval_02:1121",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_02:1015",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_02:258",
+      "win": true,
+      "died": false,
+      "l": 80
+    },
+    {
+      "id": "eval_01:1046",
+      "win": true,
+      "died": false,
+      "l": 43
+    },
+    {
+      "id": "eval_02:426",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:557",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:125",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:199",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:1091",
+      "win": true,
+      "died": false,
+      "l": 85
+    },
+    {
+      "id": "eval_02:366",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_02:238",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_01:841",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:883",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:1178",
+      "win": true,
+      "died": false,
+      "l": 86
+    },
+    {
+      "id": "eval_01:1122",
+      "win": true,
+      "died": false,
+      "l": 87
+    },
+    {
+      "id": "eval_02:969",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:1148",
+      "win": true,
+      "died": false,
+      "l": 88
+    },
+    {
+      "id": "eval_02:324",
+      "win": true,
+      "died": false,
+      "l": 88
+    },
+    {
+      "id": "eval_02:1079",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:1081",
+      "win": true,
+      "died": false,
+      "l": 59
+    },
+    {
+      "id": "eval_02:411",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:1100",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_01:776",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:1060",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_02:135",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:776",
+      "win": true,
+      "died": false,
+      "l": 94
+    },
+    {
+      "id": "eval_01:323",
+      "win": true,
+      "died": false,
+      "l": 95
+    },
+    {
+      "id": "eval_01:191",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_02:43",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:395",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_02:86",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1154",
+      "win": true,
+      "died": false,
+      "l": 100
+    },
+    {
+      "id": "eval_01:1021",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_02:129",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_02:654",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_01:254",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_01:130",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_01:339",
+      "win": true,
+      "died": false,
+      "l": 80
+    },
+    {
+      "id": "eval_02:792",
+      "win": true,
+      "died": false,
+      "l": 53
+    },
+    {
+      "id": "eval_02:439",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:403",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:1172",
+      "win": true,
+      "died": false,
+      "l": 94
+    },
+    {
+      "id": "eval_02:927",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:265",
+      "win": true,
+      "died": false,
+      "l": 105
+    },
+    {
+      "id": "eval_02:808",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:99",
+      "win": true,
+      "died": false,
+      "l": 13
+    },
+    {
+      "id": "eval_02:973",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:1128",
+      "win": true,
+      "died": false,
+      "l": 109
+    },
+    {
+      "id": "eval_01:899",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:591",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:81",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:54",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:451",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:91",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:424",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:683",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:834",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:344",
+      "win": true,
+      "died": false,
+      "l": 101
+    },
+    {
+      "id": "eval_01:526",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_01:1179",
+      "win": true,
+      "died": false,
+      "l": 122
+    },
+    {
+      "id": "eval_02:407",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:347",
+      "win": true,
+      "died": false,
+      "l": 125
+    },
+    {
+      "id": "eval_02:549",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:780",
+      "win": true,
+      "died": false,
+      "l": 126
+    },
+    {
+      "id": "eval_02:639",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:1103",
+      "win": true,
+      "died": false,
+      "l": 47
+    },
+    {
+      "id": "eval_01:881",
+      "win": true,
+      "died": false,
+      "l": 43
+    },
+    {
+      "id": "eval_01:575",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:627",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:178",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:107",
+      "win": true,
+      "died": false,
+      "l": 71
+    },
+    {
+      "id": "eval_02:847",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:246",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:303",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_02:520",
+      "win": false,
+      "died": false,
+      "l": 116
+    },
+    {
+      "id": "eval_01:672",
+      "win": true,
+      "died": false,
+      "l": 65
+    },
+    {
+      "id": "eval_02:1175",
+      "win": true,
+      "died": false,
+      "l": 121
+    },
+    {
+      "id": "eval_02:967",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:491",
+      "win": true,
+      "died": false,
+      "l": 9
+    },
+    {
+      "id": "eval_01:217",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_02:644",
+      "win": true,
+      "died": false,
+      "l": 32
+    },
+    {
+      "id": "eval_02:364",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:849",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:478",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:193",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:878",
+      "win": true,
+      "died": false,
+      "l": 6
+    },
+    {
+      "id": "eval_01:255",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_01:925",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:87",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:593",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:760",
+      "win": true,
+      "died": false,
+      "l": 58
+    },
+    {
+      "id": "eval_02:353",
+      "win": true,
+      "died": false,
+      "l": 147
+    },
+    {
+      "id": "eval_01:138",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_02:240",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_02:751",
+      "win": true,
+      "died": false,
+      "l": 120
+    },
+    {
+      "id": "eval_01:372",
+      "win": true,
+      "died": false,
+      "l": 149
+    },
+    {
+      "id": "eval_02:1058",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:892",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_02:513",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:588",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:121",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_02:689",
+      "win": true,
+      "died": false,
+      "l": 84
+    },
+    {
+      "id": "eval_02:879",
+      "win": true,
+      "died": false,
+      "l": 5
+    },
+    {
+      "id": "eval_02:27",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:244",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_02:146",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:12",
+      "win": true,
+      "died": false,
+      "l": 9
+    },
+    {
+      "id": "eval_01:754",
+      "win": true,
+      "died": false,
+      "l": 104
+    },
+    {
+      "id": "eval_01:710",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_02:906",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:468",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:911",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:78",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:594",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:773",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_01:974",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:997",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_02:200",
+      "win": true,
+      "died": false,
+      "l": 69
+    },
+    {
+      "id": "eval_02:397",
+      "win": true,
+      "died": false,
+      "l": 55
+    },
+    {
+      "id": "eval_02:1151",
+      "win": true,
+      "died": false,
+      "l": 85
+    },
+    {
+      "id": "eval_01:1048",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_01:368",
+      "win": true,
+      "died": false,
+      "l": 144
+    },
+    {
+      "id": "eval_02:381",
+      "win": true,
+      "died": false,
+      "l": 95
+    },
+    {
+      "id": "eval_01:149",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_01:705",
+      "win": true,
+      "died": false,
+      "l": 101
+    },
+    {
+      "id": "eval_02:1068",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:218",
+      "win": true,
+      "died": false,
+      "l": 69
+    },
+    {
+      "id": "eval_02:773",
+      "win": true,
+      "died": false,
+      "l": 75
+    },
+    {
+      "id": "eval_02:1048",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:904",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:501",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:163",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:231",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_01:164",
+      "win": true,
+      "died": false,
+      "l": 160
+    },
+    {
+      "id": "eval_01:768",
+      "win": true,
+      "died": false,
+      "l": 72
+    },
+    {
+      "id": "eval_01:767",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_01:1183",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_02:172",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_02:963",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:1114",
+      "win": true,
+      "died": false,
+      "l": 100
+    },
+    {
+      "id": "eval_01:1092",
+      "win": true,
+      "died": false,
+      "l": 87
+    },
+    {
+      "id": "eval_01:527",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_02:861",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:372",
+      "win": true,
+      "died": false,
+      "l": 121
+    },
+    {
+      "id": "eval_01:134",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:374",
+      "win": true,
+      "died": false,
+      "l": 130
+    },
+    {
+      "id": "eval_01:139",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:329",
+      "win": true,
+      "died": false,
+      "l": 119
+    },
+    {
+      "id": "eval_01:1182",
+      "win": true,
+      "died": false,
+      "l": 64
+    },
+    {
+      "id": "eval_01:1082",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_02:647",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_01:148",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:55",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:59",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:536",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:965",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:273",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:990",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:845",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:1116",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_02:865",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:148",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:369",
+      "win": true,
+      "died": false,
+      "l": 80
+    },
+    {
+      "id": "eval_01:1064",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:110",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_01:983",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:399",
+      "win": true,
+      "died": false,
+      "l": 80
+    },
+    {
+      "id": "eval_02:469",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:106",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:471",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:1145",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_02:566",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:669",
+      "win": true,
+      "died": false,
+      "l": 80
+    },
+    {
+      "id": "eval_01:525",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:80",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:332",
+      "win": true,
+      "died": false,
+      "l": 153
+    },
+    {
+      "id": "eval_02:277",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:1036",
+      "win": true,
+      "died": false,
+      "l": 32
+    },
+    {
+      "id": "eval_01:507",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:306",
+      "win": true,
+      "died": false,
+      "l": 135
+    },
+    {
+      "id": "eval_02:199",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:638",
+      "win": false,
+      "died": false,
+      "l": 228
+    },
+    {
+      "id": "eval_01:698",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_02:839",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:823",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:85",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:1091",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:331",
+      "win": true,
+      "died": false,
+      "l": 131
+    },
+    {
+      "id": "eval_02:570",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:1162",
+      "win": true,
+      "died": false,
+      "l": 225
+    },
+    {
+      "id": "eval_02:310",
+      "win": true,
+      "died": false,
+      "l": 132
+    },
+    {
+      "id": "eval_01:932",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_02:752",
+      "win": true,
+      "died": false,
+      "l": 106
+    },
+    {
+      "id": "eval_02:888",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:108",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_01:935",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:554",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_02:286",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_02:975",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:162",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:40",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:1140",
+      "win": true,
+      "died": false,
+      "l": 93
+    },
+    {
+      "id": "eval_01:283",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_01:1127",
+      "win": true,
+      "died": false,
+      "l": 125
+    },
+    {
+      "id": "eval_02:490",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:193",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:741",
+      "win": true,
+      "died": false,
+      "l": 98
+    },
+    {
+      "id": "eval_02:222",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_01:687",
+      "win": true,
+      "died": false,
+      "l": 59
+    },
+    {
+      "id": "eval_01:314",
+      "win": true,
+      "died": false,
+      "l": 135
+    },
+    {
+      "id": "eval_02:922",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:455",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:802",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:341",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_02:816",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:535",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:239",
+      "win": true,
+      "died": false,
+      "l": 43
+    },
+    {
+      "id": "eval_02:889",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:858",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:359",
+      "win": true,
+      "died": false,
+      "l": 111
+    },
+    {
+      "id": "eval_02:671",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_02:837",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:489",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1156",
+      "win": true,
+      "died": false,
+      "l": 88
+    },
+    {
+      "id": "eval_02:204",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:230",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:1117",
+      "win": true,
+      "died": false,
+      "l": 105
+    },
+    {
+      "id": "eval_01:647",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:857",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:1096",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:1190",
+      "win": true,
+      "died": false,
+      "l": 93
+    },
+    {
+      "id": "eval_01:629",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:708",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_02:6",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:105",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:93",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:690",
+      "win": true,
+      "died": false,
+      "l": 69
+    },
+    {
+      "id": "eval_01:89",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:1094",
+      "win": true,
+      "died": false,
+      "l": 80
+    },
+    {
+      "id": "eval_01:1144",
+      "win": true,
+      "died": false,
+      "l": 141
+    },
+    {
+      "id": "eval_01:1133",
+      "win": true,
+      "died": false,
+      "l": 241
+    },
+    {
+      "id": "eval_02:28",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:845",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:999",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:878",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:663",
+      "win": true,
+      "died": false,
+      "l": 61
+    },
+    {
+      "id": "eval_01:996",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_02:864",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:1065",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:160",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_02:113",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:1161",
+      "win": true,
+      "died": false,
+      "l": 165
+    },
+    {
+      "id": "eval_01:214",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_01:208",
+      "win": true,
+      "died": false,
+      "l": 68
+    },
+    {
+      "id": "eval_01:801",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:974",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:1007",
+      "win": true,
+      "died": false,
+      "l": 64
+    },
+    {
+      "id": "eval_01:522",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_02:213",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_01:864",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:812",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:102",
+      "win": true,
+      "died": false,
+      "l": 32
+    },
+    {
+      "id": "eval_01:336",
+      "win": true,
+      "died": false,
+      "l": 92
+    },
+    {
+      "id": "eval_02:931",
+      "win": true,
+      "died": false,
+      "l": 13
+    },
+    {
+      "id": "eval_01:97",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:936",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:1104",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_01:1026",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_01:886",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:679",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_02:727",
+      "win": true,
+      "died": false,
+      "l": 127
+    },
+    {
+      "id": "eval_02:398",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_01:460",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:769",
+      "win": true,
+      "died": false,
+      "l": 84
+    },
+    {
+      "id": "eval_02:788",
+      "win": true,
+      "died": false,
+      "l": 314
+    },
+    {
+      "id": "eval_02:95",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:51",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1139",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:179",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:704",
+      "win": true,
+      "died": false,
+      "l": 145
+    },
+    {
+      "id": "eval_01:592",
+      "win": true,
+      "died": false,
+      "l": 41
+    },
+    {
+      "id": "eval_02:1193",
+      "win": true,
+      "died": false,
+      "l": 150
+    },
+    {
+      "id": "eval_02:131",
+      "win": true,
+      "died": false,
+      "l": 32
+    },
+    {
+      "id": "eval_01:723",
+      "win": true,
+      "died": false,
+      "l": 113
+    },
+    {
+      "id": "eval_02:629",
+      "win": false,
+      "died": false,
+      "l": 172
+    },
+    {
+      "id": "eval_02:466",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:977",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:185",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:382",
+      "win": true,
+      "died": false,
+      "l": 136
+    },
+    {
+      "id": "eval_01:169",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:153",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_01:464",
+      "win": true,
+      "died": false,
+      "l": 9
+    },
+    {
+      "id": "eval_01:227",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_02:797",
+      "win": false,
+      "died": false,
+      "l": 320
+    },
+    {
+      "id": "eval_02:1184",
+      "win": true,
+      "died": false,
+      "l": 121
+    },
+    {
+      "id": "eval_02:735",
+      "win": true,
+      "died": false,
+      "l": 113
+    },
+    {
+      "id": "eval_01:657",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:41",
+      "win": true,
+      "died": false,
+      "l": 9
+    },
+    {
+      "id": "eval_01:52",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:1080",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_02:1172",
+      "win": true,
+      "died": false,
+      "l": 140
+    },
+    {
+      "id": "eval_02:269",
+      "win": true,
+      "died": false,
+      "l": 62
+    },
+    {
+      "id": "eval_02:1106",
+      "win": true,
+      "died": false,
+      "l": 106
+    },
+    {
+      "id": "eval_01:707",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_02:298",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_01:1033",
+      "win": true,
+      "died": false,
+      "l": 210
+    },
+    {
+      "id": "eval_02:427",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:1013",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:896",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:474",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:100",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:1152",
+      "win": true,
+      "died": false,
+      "l": 66
+    },
+    {
+      "id": "eval_01:98",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:758",
+      "win": true,
+      "died": false,
+      "l": 61
+    },
+    {
+      "id": "eval_02:544",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_01:728",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_01:1102",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_02:67",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:173",
+      "win": true,
+      "died": false,
+      "l": 32
+    },
+    {
+      "id": "eval_02:444",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:811",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:492",
+      "win": true,
+      "died": false,
+      "l": 9
+    },
+    {
+      "id": "eval_02:782",
+      "win": true,
+      "died": false,
+      "l": 119
+    },
+    {
+      "id": "eval_02:190",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:756",
+      "win": true,
+      "died": false,
+      "l": 81
+    },
+    {
+      "id": "eval_02:681",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:1",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:532",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:707",
+      "win": false,
+      "died": true,
+      "l": 191
+    },
+    {
+      "id": "eval_01:432",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:592",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_02:791",
+      "win": true,
+      "died": false,
+      "l": 68
+    },
+    {
+      "id": "eval_01:181",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_02:467",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:1040",
+      "win": true,
+      "died": false,
+      "l": 65
+    },
+    {
+      "id": "eval_02:1051",
+      "win": true,
+      "died": false,
+      "l": 58
+    },
+    {
+      "id": "eval_02:65",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:972",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:298",
+      "win": true,
+      "died": false,
+      "l": 41
+    },
+    {
+      "id": "eval_02:1170",
+      "win": true,
+      "died": false,
+      "l": 94
+    },
+    {
+      "id": "eval_02:917",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:805",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:276",
+      "win": true,
+      "died": false,
+      "l": 97
+    },
+    {
+      "id": "eval_02:1008",
+      "win": true,
+      "died": false,
+      "l": 63
+    },
+    {
+      "id": "eval_02:731",
+      "win": true,
+      "died": false,
+      "l": 75
+    },
+    {
+      "id": "eval_02:568",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:621",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_02:219",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_01:248",
+      "win": true,
+      "died": false,
+      "l": 66
+    },
+    {
+      "id": "eval_01:1016",
+      "win": false,
+      "died": true,
+      "l": 53
+    },
+    {
+      "id": "eval_01:244",
+      "win": true,
+      "died": false,
+      "l": 56
+    },
+    {
+      "id": "eval_01:224",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_02:14",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:869",
+      "win": true,
+      "died": false,
+      "l": 2
+    },
+    {
+      "id": "eval_02:8",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:884",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:606",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_01:488",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:729",
+      "win": true,
+      "died": false,
+      "l": 101
+    },
+    {
+      "id": "eval_02:317",
+      "win": true,
+      "died": false,
+      "l": 63
+    },
+    {
+      "id": "eval_01:120",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_01:546",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_01:743",
+      "win": true,
+      "died": false,
+      "l": 117
+    },
+    {
+      "id": "eval_01:828",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:659",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_02:992",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:427",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:474",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1053",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_02:924",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:1013",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_01:365",
+      "win": true,
+      "died": false,
+      "l": 95
+    },
+    {
+      "id": "eval_02:1150",
+      "win": true,
+      "died": false,
+      "l": 126
+    },
+    {
+      "id": "eval_01:377",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_02:1063",
+      "win": true,
+      "died": false,
+      "l": 56
+    },
+    {
+      "id": "eval_02:472",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1149",
+      "win": true,
+      "died": false,
+      "l": 115
+    },
+    {
+      "id": "eval_02:603",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:371",
+      "win": true,
+      "died": false,
+      "l": 116
+    },
+    {
+      "id": "eval_01:219",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_01:195",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_01:631",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_01:380",
+      "win": true,
+      "died": false,
+      "l": 63
+    },
+    {
+      "id": "eval_02:618",
+      "win": false,
+      "died": false,
+      "l": 220
+    },
+    {
+      "id": "eval_01:965",
+      "win": true,
+      "died": false,
+      "l": 43
+    },
+    {
+      "id": "eval_01:136",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:1009",
+      "win": true,
+      "died": false,
+      "l": 89
+    },
+    {
+      "id": "eval_02:622",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:804",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:1017",
+      "win": true,
+      "died": false,
+      "l": 61
+    },
+    {
+      "id": "eval_02:1097",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_01:260",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_02:902",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:271",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_02:1120",
+      "win": true,
+      "died": false,
+      "l": 52
+    },
+    {
+      "id": "eval_02:759",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_01:1072",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:890",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:744",
+      "win": true,
+      "died": false,
+      "l": 125
+    },
+    {
+      "id": "eval_02:631",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_02:479",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:519",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:889",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:4",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:634",
+      "win": true,
+      "died": false,
+      "l": 120
+    },
+    {
+      "id": "eval_02:305",
+      "win": true,
+      "died": false,
+      "l": 127
+    },
+    {
+      "id": "eval_02:214",
+      "win": true,
+      "died": false,
+      "l": 97
+    },
+    {
+      "id": "eval_01:450",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:1055",
+      "win": true,
+      "died": false,
+      "l": 63
+    },
+    {
+      "id": "eval_02:412",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:755",
+      "win": true,
+      "died": false,
+      "l": 126
+    },
+    {
+      "id": "eval_01:1166",
+      "win": true,
+      "died": false,
+      "l": 129
+    },
+    {
+      "id": "eval_01:1000",
+      "win": true,
+      "died": false,
+      "l": 178
+    },
+    {
+      "id": "eval_02:691",
+      "win": true,
+      "died": false,
+      "l": 145
+    },
+    {
+      "id": "eval_02:798",
+      "win": false,
+      "died": false,
+      "l": 292
+    },
+    {
+      "id": "eval_02:703",
+      "win": true,
+      "died": false,
+      "l": 118
+    },
+    {
+      "id": "eval_01:1115",
+      "win": true,
+      "died": false,
+      "l": 103
+    },
+    {
+      "id": "eval_02:281",
+      "win": true,
+      "died": false,
+      "l": 59
+    },
+    {
+      "id": "eval_01:91",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:787",
+      "win": true,
+      "died": false,
+      "l": 182
+    },
+    {
+      "id": "eval_02:416",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:103",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:609",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_02:109",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_02:464",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:675",
+      "win": false,
+      "died": false,
+      "l": 232
+    },
+    {
+      "id": "eval_02:483",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:215",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_01:1171",
+      "win": true,
+      "died": false,
+      "l": 266
+    },
+    {
+      "id": "eval_02:1061",
+      "win": true,
+      "died": false,
+      "l": 204
+    },
+    {
+      "id": "eval_01:50",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:459",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:325",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_02:473",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:477",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:151",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_01:815",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:407",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:320",
+      "win": true,
+      "died": false,
+      "l": 139
+    },
+    {
+      "id": "eval_01:1170",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:150",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_02:121",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:1169",
+      "win": true,
+      "died": false,
+      "l": 228
+    },
+    {
+      "id": "eval_01:271",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:158",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_02:1186",
+      "win": true,
+      "died": false,
+      "l": 122
+    },
+    {
+      "id": "eval_01:188",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:362",
+      "win": true,
+      "died": false,
+      "l": 140
+    },
+    {
+      "id": "eval_02:682",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:832",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:191",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:880",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:990",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:771",
+      "win": true,
+      "died": false,
+      "l": 98
+    },
+    {
+      "id": "eval_01:203",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:340",
+      "win": true,
+      "died": false,
+      "l": 143
+    },
+    {
+      "id": "eval_02:38",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:473",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:34",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:20",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:652",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_01:390",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_01:863",
+      "win": true,
+      "died": false,
+      "l": 5
+    },
+    {
+      "id": "eval_01:823",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:988",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_02:423",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:986",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:312",
+      "win": true,
+      "died": false,
+      "l": 71
+    },
+    {
+      "id": "eval_01:825",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:717",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_01:897",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:223",
+      "win": true,
+      "died": false,
+      "l": 61
+    },
+    {
+      "id": "eval_01:669",
+      "win": true,
+      "died": false,
+      "l": 113
+    },
+    {
+      "id": "eval_01:440",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1197",
+      "win": true,
+      "died": false,
+      "l": 313
+    },
+    {
+      "id": "eval_02:909",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:1023",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_02:503",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:161",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:639",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_02:70",
+      "win": false,
+      "died": false,
+      "l": 88
+    },
+    {
+      "id": "eval_01:159",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:335",
+      "win": true,
+      "died": false,
+      "l": 126
+    },
+    {
+      "id": "eval_01:753",
+      "win": true,
+      "died": false,
+      "l": 61
+    },
+    {
+      "id": "eval_02:480",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:902",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:508",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_01:806",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:560",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_02:829",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:3",
+      "win": false,
+      "died": false,
+      "l": 88
+    },
+    {
+      "id": "eval_01:789",
+      "win": true,
+      "died": false,
+      "l": 83
+    },
+    {
+      "id": "eval_02:784",
+      "win": true,
+      "died": false,
+      "l": 135
+    },
+    {
+      "id": "eval_02:1128",
+      "win": true,
+      "died": false,
+      "l": 115
+    },
+    {
+      "id": "eval_02:55",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:452",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:650",
+      "win": true,
+      "died": false,
+      "l": 66
+    },
+    {
+      "id": "eval_01:566",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:1073",
+      "win": true,
+      "died": false,
+      "l": 114
+    },
+    {
+      "id": "eval_01:1096",
+      "win": true,
+      "died": false,
+      "l": 53
+    },
+    {
+      "id": "eval_02:442",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:528",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:1112",
+      "win": true,
+      "died": false,
+      "l": 76
+    },
+    {
+      "id": "eval_01:175",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:63",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:704",
+      "win": true,
+      "died": false,
+      "l": 87
+    },
+    {
+      "id": "eval_01:94",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:1056",
+      "win": true,
+      "died": false,
+      "l": 111
+    },
+    {
+      "id": "eval_01:588",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_01:895",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:1117",
+      "win": true,
+      "died": false,
+      "l": 243
+    },
+    {
+      "id": "eval_02:233",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_01:1135",
+      "win": true,
+      "died": false,
+      "l": 279
+    },
+    {
+      "id": "eval_01:501",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_01:1030",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_01:537",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:966",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:402",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:221",
+      "win": true,
+      "died": false,
+      "l": 69
+    },
+    {
+      "id": "eval_02:453",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:605",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:854",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:319",
+      "win": true,
+      "died": false,
+      "l": 138
+    },
+    {
+      "id": "eval_01:170",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:241",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_02:994",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:50",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:956",
+      "win": true,
+      "died": false,
+      "l": 58
+    },
+    {
+      "id": "eval_02:379",
+      "win": true,
+      "died": false,
+      "l": 122
+    },
+    {
+      "id": "eval_01:434",
+      "win": true,
+      "died": false,
+      "l": 13
+    },
+    {
+      "id": "eval_02:688",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:387",
+      "win": true,
+      "died": false,
+      "l": 112
+    },
+    {
+      "id": "eval_01:590",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_02:518",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:620",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_01:133",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:129",
+      "win": true,
+      "died": false,
+      "l": 52
+    },
+    {
+      "id": "eval_02:167",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:1081",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:624",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:603",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:524",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:180",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:653",
+      "win": true,
+      "died": false,
+      "l": 59
+    },
+    {
+      "id": "eval_02:445",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:263",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:857",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:287",
+      "win": true,
+      "died": false,
+      "l": 63
+    },
+    {
+      "id": "eval_01:913",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:1141",
+      "win": true,
+      "died": false,
+      "l": 101
+    },
+    {
+      "id": "eval_02:954",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:128",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:730",
+      "win": true,
+      "died": false,
+      "l": 127
+    },
+    {
+      "id": "eval_02:181",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_01:84",
+      "win": true,
+      "died": false,
+      "l": 13
+    },
+    {
+      "id": "eval_01:963",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:1123",
+      "win": true,
+      "died": false,
+      "l": 84
+    },
+    {
+      "id": "eval_01:614",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_02:686",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:616",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_01:358",
+      "win": true,
+      "died": false,
+      "l": 114
+    },
+    {
+      "id": "eval_02:713",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_02:867",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:819",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:21",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:972",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_02:702",
+      "win": true,
+      "died": false,
+      "l": 92
+    },
+    {
+      "id": "eval_01:30",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:138",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:1083",
+      "win": true,
+      "died": false,
+      "l": 71
+    },
+    {
+      "id": "eval_01:284",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_02:557",
+      "win": false,
+      "died": false,
+      "l": 152
+    },
+    {
+      "id": "eval_02:789",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_02:828",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:1039",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_01:1005",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:824",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:641",
+      "win": true,
+      "died": false,
+      "l": 62
+    },
+    {
+      "id": "eval_01:591",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_02:103",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:815",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:711",
+      "win": true,
+      "died": false,
+      "l": 128
+    },
+    {
+      "id": "eval_01:766",
+      "win": true,
+      "died": false,
+      "l": 84
+    },
+    {
+      "id": "eval_02:314",
+      "win": true,
+      "died": false,
+      "l": 123
+    },
+    {
+      "id": "eval_01:256",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:146",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:122",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:205",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_02:1026",
+      "win": true,
+      "died": false,
+      "l": 41
+    },
+    {
+      "id": "eval_02:101",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_01:1012",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:676",
+      "win": true,
+      "died": false,
+      "l": 100
+    },
+    {
+      "id": "eval_02:533",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_02:54",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:58",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:948",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:197",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:136",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:5",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:246",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_02:492",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:1195",
+      "win": true,
+      "died": false,
+      "l": 170
+    },
+    {
+      "id": "eval_02:664",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:764",
+      "win": true,
+      "died": false,
+      "l": 268
+    },
+    {
+      "id": "eval_02:693",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:449",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:1043",
+      "win": true,
+      "died": false,
+      "l": 43
+    },
+    {
+      "id": "eval_01:927",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:1112",
+      "win": true,
+      "died": false,
+      "l": 232
+    },
+    {
+      "id": "eval_01:1025",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_02:322",
+      "win": true,
+      "died": false,
+      "l": 121
+    },
+    {
+      "id": "eval_01:702",
+      "win": true,
+      "died": false,
+      "l": 86
+    },
+    {
+      "id": "eval_02:41",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:68",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:820",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:264",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_02:1006",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_01:1162",
+      "win": true,
+      "died": false,
+      "l": 153
+    },
+    {
+      "id": "eval_02:16",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:15",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:907",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:1164",
+      "win": true,
+      "died": false,
+      "l": 82
+    },
+    {
+      "id": "eval_02:913",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_01:318",
+      "win": true,
+      "died": false,
+      "l": 110
+    },
+    {
+      "id": "eval_01:391",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_01:363",
+      "win": true,
+      "died": false,
+      "l": 85
+    },
+    {
+      "id": "eval_02:934",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_01:737",
+      "win": true,
+      "died": false,
+      "l": 72
+    },
+    {
+      "id": "eval_01:891",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:775",
+      "win": true,
+      "died": false,
+      "l": 117
+    },
+    {
+      "id": "eval_02:781",
+      "win": true,
+      "died": false,
+      "l": 142
+    },
+    {
+      "id": "eval_02:565",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:111",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:750",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_01:1138",
+      "win": false,
+      "died": false,
+      "l": 516
+    },
+    {
+      "id": "eval_01:446",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_02:1109",
+      "win": true,
+      "died": false,
+      "l": 129
+    },
+    {
+      "id": "eval_01:617",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_01:755",
+      "win": true,
+      "died": false,
+      "l": 84
+    },
+    {
+      "id": "eval_01:1157",
+      "win": false,
+      "died": false,
+      "l": 520
+    },
+    {
+      "id": "eval_02:1115",
+      "win": true,
+      "died": false,
+      "l": 75
+    },
+    {
+      "id": "eval_01:1111",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_02:873",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:769",
+      "win": false,
+      "died": false,
+      "l": 316
+    },
+    {
+      "id": "eval_01:1066",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_01:112",
+      "win": true,
+      "died": false,
+      "l": 32
+    },
+    {
+      "id": "eval_01:598",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_01:330",
+      "win": true,
+      "died": false,
+      "l": 124
+    },
+    {
+      "id": "eval_02:841",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:249",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_01:302",
+      "win": true,
+      "died": false,
+      "l": 78
+    },
+    {
+      "id": "eval_01:1161",
+      "win": true,
+      "died": false,
+      "l": 159
+    },
+    {
+      "id": "eval_02:232",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_01:821",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_01:207",
+      "win": true,
+      "died": false,
+      "l": 71
+    },
+    {
+      "id": "eval_01:556",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_01:502",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_01:681",
+      "win": true,
+      "died": false,
+      "l": 101
+    },
+    {
+      "id": "eval_01:176",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:746",
+      "win": true,
+      "died": false,
+      "l": 75
+    },
+    {
+      "id": "eval_01:894",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:1055",
+      "win": true,
+      "died": false,
+      "l": 166
+    },
+    {
+      "id": "eval_02:245",
+      "win": true,
+      "died": false,
+      "l": 55
+    },
+    {
+      "id": "eval_01:83",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:220",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_02:585",
+      "win": false,
+      "died": false,
+      "l": 136
+    },
+    {
+      "id": "eval_02:341",
+      "win": true,
+      "died": false,
+      "l": 130
+    },
+    {
+      "id": "eval_02:817",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:1020",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_02:824",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:294",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_01:998",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_01:423",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:1054",
+      "win": true,
+      "died": false,
+      "l": 97
+    },
+    {
+      "id": "eval_02:202",
+      "win": true,
+      "died": false,
+      "l": 59
+    },
+    {
+      "id": "eval_01:2",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:297",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_01:10",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:120",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_02:951",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:953",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:770",
+      "win": true,
+      "died": false,
+      "l": 97
+    },
+    {
+      "id": "eval_01:212",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_01:117",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_02:624",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_01:871",
+      "win": true,
+      "died": false,
+      "l": 2
+    },
+    {
+      "id": "eval_01:301",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_02:367",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_01:986",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_02:72",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:905",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_02:659",
+      "win": true,
+      "died": false,
+      "l": 83
+    },
+    {
+      "id": "eval_02:612",
+      "win": true,
+      "died": false,
+      "l": 69
+    },
+    {
+      "id": "eval_02:831",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:689",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_01:433",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:919",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:547",
+      "win": true,
+      "died": false,
+      "l": 38
+    },
+    {
+      "id": "eval_02:159",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:354",
+      "win": true,
+      "died": false,
+      "l": 168
+    },
+    {
+      "id": "eval_02:541",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_02:169",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_02:291",
+      "win": true,
+      "died": false,
+      "l": 65
+    },
+    {
+      "id": "eval_01:1034",
+      "win": true,
+      "died": false,
+      "l": 106
+    },
+    {
+      "id": "eval_01:13",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_01:77",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:660",
+      "win": true,
+      "died": false,
+      "l": 37
+    },
+    {
+      "id": "eval_02:275",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_02:893",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:929",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_01:75",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:594",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_01:792",
+      "win": true,
+      "died": false,
+      "l": 134
+    },
+    {
+      "id": "eval_01:127",
+      "win": true,
+      "died": false,
+      "l": 30
+    },
+    {
+      "id": "eval_02:987",
+      "win": true,
+      "died": false,
+      "l": 28
+    },
+    {
+      "id": "eval_01:308",
+      "win": true,
+      "died": false,
+      "l": 62
+    },
+    {
+      "id": "eval_02:590",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:1082",
+      "win": true,
+      "died": false,
+      "l": 144
+    },
+    {
+      "id": "eval_02:485",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_02:947",
+      "win": true,
+      "died": false,
+      "l": 95
+    },
+    {
+      "id": "eval_01:194",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_01:561",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_02:555",
+      "win": true,
+      "died": false,
+      "l": 50
+    },
+    {
+      "id": "eval_02:532",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:632",
+      "win": true,
+      "died": false,
+      "l": 58
+    },
+    {
+      "id": "eval_02:1028",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:482",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:39",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:349",
+      "win": true,
+      "died": false,
+      "l": 69
+    },
+    {
+      "id": "eval_01:569",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_02:343",
+      "win": true,
+      "died": false,
+      "l": 98
+    },
+    {
+      "id": "eval_02:1010",
+      "win": true,
+      "died": false,
+      "l": 55
+    },
+    {
+      "id": "eval_01:113",
+      "win": true,
+      "died": false,
+      "l": 19
+    },
+    {
+      "id": "eval_02:282",
+      "win": true,
+      "died": false,
+      "l": 53
+    },
+    {
+      "id": "eval_01:717",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_01:42",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:810",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:94",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:1087",
+      "win": true,
+      "died": false,
+      "l": 66
+    },
+    {
+      "id": "eval_01:63",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:866",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:700",
+      "win": true,
+      "died": false,
+      "l": 128
+    },
+    {
+      "id": "eval_01:1164",
+      "win": true,
+      "died": false,
+      "l": 87
+    },
+    {
+      "id": "eval_02:1073",
+      "win": true,
+      "died": false,
+      "l": 147
+    },
+    {
+      "id": "eval_02:914",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:645",
+      "win": true,
+      "died": false,
+      "l": 82
+    },
+    {
+      "id": "eval_01:493",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:415",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:1052",
+      "win": true,
+      "died": false,
+      "l": 29
+    },
+    {
+      "id": "eval_01:382",
+      "win": true,
+      "died": false,
+      "l": 88
+    },
+    {
+      "id": "eval_01:797",
+      "win": true,
+      "died": false,
+      "l": 156
+    },
+    {
+      "id": "eval_02:84",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:97",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:727",
+      "win": true,
+      "died": false,
+      "l": 89
+    },
+    {
+      "id": "eval_02:482",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:738",
+      "win": false,
+      "died": false,
+      "l": 364
+    },
+    {
+      "id": "eval_02:946",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_01:904",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:790",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_02:1196",
+      "win": true,
+      "died": false,
+      "l": 83
+    },
+    {
+      "id": "eval_02:583",
+      "win": true,
+      "died": false,
+      "l": 24
+    },
+    {
+      "id": "eval_01:1174",
+      "win": true,
+      "died": false,
+      "l": 85
+    },
+    {
+      "id": "eval_01:513",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:907",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:161",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:40",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:953",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:843",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_02:19",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:549",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:786",
+      "win": true,
+      "died": false,
+      "l": 112
+    },
+    {
+      "id": "eval_01:387",
+      "win": true,
+      "died": false,
+      "l": 84
+    },
+    {
+      "id": "eval_01:240",
+      "win": true,
+      "died": false,
+      "l": 64
+    },
+    {
+      "id": "eval_01:312",
+      "win": true,
+      "died": false,
+      "l": 122
+    },
+    {
+      "id": "eval_01:425",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:787",
+      "win": true,
+      "died": false,
+      "l": 82
+    },
+    {
+      "id": "eval_01:456",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:861",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:357",
+      "win": true,
+      "died": false,
+      "l": 102
+    },
+    {
+      "id": "eval_01:413",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:962",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_01:65",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:1069",
+      "win": true,
+      "died": false,
+      "l": 52
+    },
+    {
+      "id": "eval_01:533",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:921",
+      "win": true,
+      "died": false,
+      "l": 26
+    },
+    {
+      "id": "eval_01:712",
+      "win": true,
+      "died": false,
+      "l": 75
+    },
+    {
+      "id": "eval_02:478",
+      "win": true,
+      "died": false,
+      "l": 8
+    },
+    {
+      "id": "eval_01:888",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:310",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_01:442",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:276",
+      "win": true,
+      "died": false,
+      "l": 62
+    },
+    {
+      "id": "eval_01:562",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_02:309",
+      "win": true,
+      "died": false,
+      "l": 130
+    },
+    {
+      "id": "eval_02:165",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_02:1071",
+      "win": true,
+      "died": false,
+      "l": 104
+    },
+    {
+      "id": "eval_01:251",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_02:42",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:257",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_01:405",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:633",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_01:38",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_02:115",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_02:723",
+      "win": true,
+      "died": false,
+      "l": 82
+    },
+    {
+      "id": "eval_02:768",
+      "win": true,
+      "died": false,
+      "l": 155
+    },
+    {
+      "id": "eval_01:189",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_01:1079",
+      "win": true,
+      "died": false,
+      "l": 53
+    },
+    {
+      "id": "eval_01:213",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_02:680",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_02:587",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:602",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:261",
+      "win": true,
+      "died": false,
+      "l": 47
+    },
+    {
+      "id": "eval_01:644",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:497",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:709",
+      "win": true,
+      "died": false,
+      "l": 92
+    },
+    {
+      "id": "eval_02:871",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:509",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:47",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_02:370",
+      "win": true,
+      "died": false,
+      "l": 116
+    },
+    {
+      "id": "eval_01:885",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_02:124",
+      "win": true,
+      "died": false,
+      "l": 22
+    },
+    {
+      "id": "eval_01:167",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_01:779",
+      "win": true,
+      "died": false,
+      "l": 111
+    },
+    {
+      "id": "eval_02:1100",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_02:1113",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_02:672",
+      "win": false,
+      "died": false,
+      "l": 220
+    },
+    {
+      "id": "eval_02:567",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:722",
+      "win": true,
+      "died": false,
+      "l": 136
+    },
+    {
+      "id": "eval_01:1076",
+      "win": true,
+      "died": false,
+      "l": 56
+    },
+    {
+      "id": "eval_02:1084",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_01:837",
+      "win": true,
+      "died": false,
+      "l": 18
+    },
+    {
+      "id": "eval_01:1087",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_02:1046",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_01:267",
+      "win": true,
+      "died": false,
+      "l": 100
+    },
+    {
+      "id": "eval_01:765",
+      "win": true,
+      "died": false,
+      "l": 170
+    },
+    {
+      "id": "eval_01:763",
+      "win": true,
+      "died": false,
+      "l": 199
+    },
+    {
+      "id": "eval_01:438",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:814",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_01:1068",
+      "win": true,
+      "died": false,
+      "l": 57
+    },
+    {
+      "id": "eval_01:1145",
+      "win": true,
+      "died": false,
+      "l": 160
+    },
+    {
+      "id": "eval_01:1024",
+      "win": true,
+      "died": false,
+      "l": 47
+    },
+    {
+      "id": "eval_02:1021",
+      "win": true,
+      "died": false,
+      "l": 75
+    },
+    {
+      "id": "eval_01:984",
+      "win": true,
+      "died": false,
+      "l": 55
+    },
+    {
+      "id": "eval_01:1160",
+      "win": true,
+      "died": false,
+      "l": 164
+    },
+    {
+      "id": "eval_01:141",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_01:1075",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_02:1047",
+      "win": true,
+      "died": false,
+      "l": 89
+    },
+    {
+      "id": "eval_02:641",
+      "win": true,
+      "died": false,
+      "l": 33
+    },
+    {
+      "id": "eval_02:99",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_01:1058",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_01:605",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:732",
+      "win": true,
+      "died": false,
+      "l": 128
+    },
+    {
+      "id": "eval_01:187",
+      "win": true,
+      "died": false,
+      "l": 41
+    },
+    {
+      "id": "eval_01:156",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_02:741",
+      "win": true,
+      "died": false,
+      "l": 144
+    },
+    {
+      "id": "eval_01:431",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:1118",
+      "win": true,
+      "died": false,
+      "l": 108
+    },
+    {
+      "id": "eval_01:975",
+      "win": false,
+      "died": false,
+      "l": 148
+    },
+    {
+      "id": "eval_02:36",
+      "win": true,
+      "died": false,
+      "l": 23
+    },
+    {
+      "id": "eval_01:800",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:411",
+      "win": true,
+      "died": false,
+      "l": 27
+    },
+    {
+      "id": "eval_02:777",
+      "win": true,
+      "died": false,
+      "l": 113
+    },
+    {
+      "id": "eval_02:299",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_02:1078",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_02:1101",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_01:31",
+      "win": true,
+      "died": false,
+      "l": 11
+    },
+    {
+      "id": "eval_01:880",
+      "win": true,
+      "died": false,
+      "l": 34
+    },
+    {
+      "id": "eval_02:611",
+      "win": true,
+      "died": false,
+      "l": 67
+    },
+    {
+      "id": "eval_01:1143",
+      "win": true,
+      "died": false,
+      "l": 305
+    },
+    {
+      "id": "eval_02:1189",
+      "win": false,
+      "died": false,
+      "l": 344
+    },
+    {
+      "id": "eval_02:327",
+      "win": true,
+      "died": false,
+      "l": 128
+    },
+    {
+      "id": "eval_02:303",
+      "win": true,
+      "died": false,
+      "l": 135
+    },
+    {
+      "id": "eval_02:1034",
+      "win": true,
+      "died": false,
+      "l": 51
+    },
+    {
+      "id": "eval_02:944",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:699",
+      "win": true,
+      "died": false,
+      "l": 47
+    },
+    {
+      "id": "eval_01:1189",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_02:331",
+      "win": true,
+      "died": false,
+      "l": 85
+    },
+    {
+      "id": "eval_02:264",
+      "win": true,
+      "died": false,
+      "l": 173
+    },
+    {
+      "id": "eval_02:278",
+      "win": true,
+      "died": false,
+      "l": 73
+    },
+    {
+      "id": "eval_01:1192",
+      "win": true,
+      "died": false,
+      "l": 136
+    },
+    {
+      "id": "eval_01:788",
+      "win": true,
+      "died": false,
+      "l": 94
+    },
+    {
+      "id": "eval_01:666",
+      "win": true,
+      "died": false,
+      "l": 35
+    },
+    {
+      "id": "eval_01:961",
+      "win": true,
+      "died": false,
+      "l": 25
+    },
+    {
+      "id": "eval_02:454",
+      "win": true,
+      "died": false,
+      "l": 20
+    },
+    {
+      "id": "eval_01:734",
+      "win": true,
+      "died": false,
+      "l": 112
+    },
+    {
+      "id": "eval_02:409",
+      "win": true,
+      "died": false,
+      "l": 15
+    },
+    {
+      "id": "eval_01:1070",
+      "win": true,
+      "died": false,
+      "l": 45
+    },
+    {
+      "id": "eval_01:581",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_01:1089",
+      "win": true,
+      "died": false,
+      "l": 39
+    },
+    {
+      "id": "eval_01:249",
+      "win": true,
+      "died": false,
+      "l": 76
+    },
+    {
+      "id": "eval_01:33",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:736",
+      "win": false,
+      "died": false,
+      "l": 348
+    },
+    {
+      "id": "eval_02:430",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:706",
+      "win": true,
+      "died": false,
+      "l": 248
+    },
+    {
+      "id": "eval_01:813",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:152",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:119",
+      "win": true,
+      "died": false,
+      "l": 41
+    },
+    {
+      "id": "eval_01:1153",
+      "win": true,
+      "died": false,
+      "l": 49
+    },
+    {
+      "id": "eval_02:572",
+      "win": true,
+      "died": false,
+      "l": 31
+    },
+    {
+      "id": "eval_01:833",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_01:930",
+      "win": true,
+      "died": false,
+      "l": 60
+    },
+    {
+      "id": "eval_02:338",
+      "win": true,
+      "died": false,
+      "l": 113
+    },
+    {
+      "id": "eval_01:101",
+      "win": false,
+      "died": false,
+      "l": 124
+    },
+    {
+      "id": "eval_02:959",
+      "win": true,
+      "died": false,
+      "l": 42
+    },
+    {
+      "id": "eval_01:342",
+      "win": true,
+      "died": false,
+      "l": 99
+    },
+    {
+      "id": "eval_01:774",
+      "win": true,
+      "died": false,
+      "l": 74
+    },
+    {
+      "id": "eval_01:694",
+      "win": false,
+      "died": false,
+      "l": 160
+    },
+    {
+      "id": "eval_01:190",
+      "win": true,
+      "died": false,
+      "l": 36
+    },
+    {
+      "id": "eval_01:844",
+      "win": true,
+      "died": false,
+      "l": 10
+    },
+    {
+      "id": "eval_02:1014",
+      "win": true,
+      "died": false,
+      "l": 48
+    },
+    {
+      "id": "eval_02:348",
+      "win": true,
+      "died": false,
+      "l": 71
+    },
+    {
+      "id": "eval_01:279",
+      "win": true,
+      "died": false,
+      "l": 77
+    },
+    {
+      "id": "eval_01:228",
+      "win": true,
+      "died": false,
+      "l": 70
+    },
+    {
+      "id": "eval_02:678",
+      "win": true,
+      "died": false,
+      "l": 46
+    },
+    {
+      "id": "eval_01:709",
+      "win": true,
+      "died": false,
+      "l": 82
+    },
+    {
+      "id": "eval_02:697",
+      "win": true,
+      "died": false,
+      "l": 40
+    },
+    {
+      "id": "eval_01:514",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:247",
+      "win": true,
+      "died": false,
+      "l": 63
+    },
+    {
+      "id": "eval_01:696",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_01:995",
+      "win": true,
+      "died": false,
+      "l": 21
+    },
+    {
+      "id": "eval_02:733",
+      "win": true,
+      "died": false,
+      "l": 92
+    },
+    {
+      "id": "eval_02:334",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_01:356",
+      "win": true,
+      "died": false,
+      "l": 148
+    },
+    {
+      "id": "eval_02:1198",
+      "win": true,
+      "died": false,
+      "l": 262
+    },
+    {
+      "id": "eval_01:469",
+      "win": true,
+      "died": false,
+      "l": 12
+    },
+    {
+      "id": "eval_01:100",
+      "win": true,
+      "died": false,
+      "l": 117
+    },
+    {
+      "id": "eval_01:683",
+      "win": true,
+      "died": false,
+      "l": 115
+    },
+    {
+      "id": "eval_02:1019",
+      "win": true,
+      "died": false,
+      "l": 236
+    },
+    {
+      "id": "eval_02:1018",
+      "win": true,
+      "died": false,
+      "l": 129
+    },
+    {
+      "id": "eval_02:153",
+      "win": true,
+      "died": false,
+      "l": 17
+    },
+    {
+      "id": "eval_02:311",
+      "win": true,
+      "died": false,
+      "l": 133
+    },
+    {
+      "id": "eval_02:746",
+      "win": true,
+      "died": false,
+      "l": 155
+    },
+    {
+      "id": "eval_02:627",
+      "win": false,
+      "died": false,
+      "l": 188
+    },
+    {
+      "id": "eval_02:770",
+      "win": false,
+      "died": false,
+      "l": 304
+    },
+    {
+      "id": "eval_01:703",
+      "win": true,
+      "died": false,
+      "l": 162
+    },
+    {
+      "id": "eval_02:260",
+      "win": true,
+      "died": false,
+      "l": 54
+    },
+    {
+      "id": "eval_02:1188",
+      "win": true,
+      "died": false,
+      "l": 358
+    },
+    {
+      "id": "eval_02:811",
+      "win": true,
+      "died": false,
+      "l": 16
+    },
+    {
+      "id": "eval_02:701",
+      "win": true,
+      "died": false,
+      "l": 113
+    },
+    {
+      "id": "eval_01:1107",
+      "win": false,
+      "died": false,
+      "l": 468
+    },
+    {
+      "id": "eval_02:494",
+      "win": true,
+      "died": false,
+      "l": 14
+    },
+    {
+      "id": "eval_02:760",
+      "win": false,
+      "died": false,
+      "l": 284
+    },
+    {
+      "id": "eval_02:1142",
+      "win": true,
+      "died": false,
+      "l": 212
+    },
+    {
+      "id": "eval_01:388",
+      "win": true,
+      "died": false,
+      "l": 91
+    },
+    {
+      "id": "eval_02:756",
+      "win": true,
+      "died": false,
+      "l": 129
+    },
+    {
+      "id": "eval_02:1174",
+      "win": false,
+      "died": false,
+      "l": 312
+    },
+    {
+      "id": "eval_02:684",
+      "win": true,
+      "died": false,
+      "l": 44
+    },
+    {
+      "id": "eval_02:771",
+      "win": false,
+      "died": false,
+      "l": 284
+    },
+    {
+      "id": "eval_02:762",
+      "win": false,
+      "died": false,
+      "l": 420
+    }
+  ],
+  "by_world": {
+    "eval_01": {
+      "n": 512,
+      "success": 0.9805,
+      "died": 0.002,
+      "mean_win_length": 52.9
+    },
+    "eval_02": {
+      "n": 512,
+      "success": 0.9609,
+      "died": 0.002,
+      "mean_win_length": 52.7
+    }
+  },
+  "by_band": {
+    "15-30": {
+      "n": 256,
+      "success": 0.9805,
+      "died": 0.0,
+      "mean_win_length": 29.4
+    },
+    "30-60": {
+      "n": 256,
+      "success": 0.9688,
+      "died": 0.0039,
+      "mean_win_length": 58.1
+    },
+    "5-15": {
+      "n": 256,
+      "success": 0.9922,
+      "died": 0.0,
+      "mean_win_length": 14.3
+    },
+    "60-120": {
+      "n": 256,
+      "success": 0.9414,
+      "died": 0.0039,
+      "mean_win_length": 112.1
+    }
+  },
+  "by_layer": {
+    "cavern": {
+      "n": 336,
+      "success": 0.9792,
+      "died": 0.003,
+      "mean_win_length": 56.6
+    },
+    "surface": {
+      "n": 348,
+      "success": 0.9914,
+      "died": 0.0,
+      "mean_win_length": 50.3
+    },
+    "underground": {
+      "n": 340,
+      "success": 0.9412,
+      "died": 0.0029,
+      "mean_win_length": 51.6
+    }
+  }
+}

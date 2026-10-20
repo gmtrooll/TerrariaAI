@@ -344,3 +344,17 @@ Next: `losdetour12_30m`, `navigate_v1`'s setup (12 worlds, 30M steps) with both 
 - Evaluation noise check: two evaluations of the same 10M checkpoint gave 95.4% and 96.4% (sampled actions). Single-evaluation differences of about a point are noise; paired comparisons on the same scenarios are the reliable test.
 
 `results/training/navigate_v2/` holds the model, config and evaluations. Watch it with `python -m navigate.watch --run navigate_v2`.
+
+### v1 vs v2 with repeated evaluations
+
+Why a tie on the 1,024 set but a gain on bending routes? Bending routes (≥ 1.7×) are only 134 of the 1,024 scenarios (13%), and on those 134, two evaluations of the same model differ by about 2 points (v1: 89.6% then 87.3%, 11 outcomes flipped). Both models were evaluated 5 times on both sets:
+
+| | `navigate_v1` (5 runs) | `navigate_v2` (5 runs) | v2 − v1, paired per scenario |
+| --- | --- | --- | --- |
+| 1,024 set | 96.56% (runs 96.2–97.0) | 96.80% (96.4–97.1) | +0.23 ± 0.31 (z = 0.8) |
+| 316 detour scenarios | 87.91% (86.7–88.6) | 89.94% (88.6–90.5) | +2.0 ± 1.2 (z = 1.75) |
+
+- The 1,024 set is a tie. A +2 gain on 13% of it adds about 0.3 points overall.
+- On bending routes v2 is ahead in all 5 runs (better on 38 scenarios on average, worse on 20), but z < 2: the remaining uncertainty comes from the few hard scenarios, not from evaluation runs (run-to-run sd 0.8). A larger bending-route set would settle it.
+- Run-to-run sd on the 1,024 set is about 0.3 points; the binomial ± 0.6 overstates the noise of comparing two models on the same fixed scenarios.
+- The clear difference is the ledge situations (hand-made: 100% vs 64% / 21%), which are rare in the generated scenarios.
