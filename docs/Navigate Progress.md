@@ -431,3 +431,16 @@ Snags (pressing left or right while barely moving, `evaluate` now saves the long
 | hand-made drop / climb / pocket | 100 / 92 / 100 | 100 / 92 / 100 |
 
 Paired: −0.2 ± 0.5 on the 1,024 set, +0.6 ± 0.7 on bending routes. **The input halves the long snags but not the failures**: the bot gets free and then fails otherwise, so the snags were a symptom. Left off.
+
+## Oct 20 evening: navigate_v3 (mixed loadouts)
+
+`losdetourmix12_30m` = `navigate_v2`'s setup with half the episodes without the extra jump (`--loadouts tsunami,none`; `navigate.scenario_set` made the missing `_j6` sets for train_07–12 from the existing worlds). 3 evaluations each on the 1,024 sets:
+
+| | `navigate_v2` | **`navigate_v3`** | v3 − v2, paired |
+| --- | --- | --- | --- |
+| with Tsunami | 96.6 / 97.3 / 96.3 | 96.8 / 96.3 / 96.8 | −0.1 ± 0.3 |
+| without the extra jump | 86.7 / 86.1 / 85.2 | 88.5 / 88.6 / 87.7 | **+2.3 ± 0.5 (z = 4.2)** |
+| bending routes (1 run) | 95.2 (3-run mean) | 95.0 | |
+| hand-made drop / climb / pocket | 100 / 100 / 100 | 100 / 93 / 100 | |
+
+**Training on both loadouts costs nothing with Tsunami and gains 2.3 points without it**, at the same 30M budget: mixed equipment does not need much more training (the user's worry from Oct 19), at least for two loadouts. `results/training/navigate_v3/` holds the model; it is the best model for both loadouts.
