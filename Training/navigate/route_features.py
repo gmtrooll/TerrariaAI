@@ -30,7 +30,7 @@ foreach (var line in rows) {{
     // water, honey, web, platform-drops, max climb run, max drop run, horizontal reversals, steps, lava-adjacent
     int water = 0, honey = 0, web = 0, platDrop = 0, climb = 0, maxClimb = 0, drop = 0, maxDrop = 0, rev = 0, steps = 0, lastDx = 0;
     for (int k = 0; k < 400; k++) {{
-        byte info = 0;
+        ushort info = 0;
         for (int j = 0; j < 3; j++) info |= GridSensors.PathInfo(x, y - j);
         if ((info & PathDistanceField.InfoWater) != 0) water++;
         if ((info & PathDistanceField.InfoHoney) != 0) honey++;

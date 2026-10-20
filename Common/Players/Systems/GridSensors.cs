@@ -81,11 +81,11 @@ namespace FirstMod_Sp.Common.Systems
         };
 
         /// <summary>Planner cell info for world tile (x, y): PathDistanceField.Info* flags (docs/Movement Hazards.md).</summary>
-        public static byte PathInfo(int x, int y)
+        public static ushort PathInfo(int x, int y)
         {
             if (!WorldGen.InWorld(x, y)) return 0;
             Tile tile = Main.tile[x, y];
-            byte f = 0;
+            ushort f = 0;
             if (tile.LiquidAmount > 0)
             {
                 int type = tile.LiquidType;
@@ -96,6 +96,7 @@ namespace FirstMod_Sp.Common.Systems
             {
                 ushort type = tile.TileType;
                 if (type == TileID.Cobweb) f |= PathDistanceField.InfoWeb;
+                if (type == TileID.HoneyBlock) f |= PathDistanceField.InfoSticky;
                 // Cactus only hurts in the Don't Starve seed (Collision.cs:3717).
                 if (TileID.Sets.TouchDamageImmediate[type] > 0 && type != TileID.Cactus || TileID.Sets.TouchDamageHot[type]) f |= PathDistanceField.InfoHurts;
                 if (TrapTiles.Contains(type)) f |= PathDistanceField.InfoTrap;

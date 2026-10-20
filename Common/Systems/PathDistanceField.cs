@@ -30,6 +30,7 @@ namespace FirstMod_Sp.Common.Systems
     ///    Taking off in honey (with cell info) lowers that height: Player.HoneyCollision moves the body at a
     ///    quarter of its velocity, so a jump from a honey pool's floor lifts the feet about 3 tiles at any depth
     ///    (no swimming without flippers), and the extra jump adds less (HoneyJumpTiles; navigate.liquid_jump).
+    ///    So does a honey block floor (InfoSticky, StickyJumpTiles).
     /// Optional cell info (docs/Movement Hazards.md) adds:
     ///  - costs: water 2, honey 4, cobweb 8 per cell the body is in (cobwebs cap speed and cancel jumps);
     ///  - blocked cells: the body touching a damaging tile, lava or shimmer, or within 2 tiles of a trap;
@@ -43,8 +44,9 @@ namespace FirstMod_Sp.Common.Systems
         public const int UNREACHABLE = -1;
 
         // Cell info flags (per tile, from the infoAt callback).
-        public const byte InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64,
+        public const ushort InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64,
             InfoPartial = 128;  // a sloped or half block: Solid for the planner, but bodies slide along / into it
+        public const ushort InfoSticky = 256;  // a honey block (Player.sticky while standing on it: jumpHeight / 10, jumpSpeed / 5)
         public const int CostWater = 2, CostHoney = 4, CostWeb = 8, MaxCost = 8;
 
         /// <summary>
@@ -56,6 +58,12 @@ namespace FirstMod_Sp.Common.Systems
         /// </summary>
         public static int HoneyJumpTiles(int maxJumpTiles, int depth) =>
             maxJumpTiles <= 6 ? Math.Min(maxJumpTiles, 3) : depth <= 3 ? Math.Min(maxJumpTiles, 10) : 6;
+
+        /// <summary>
+        /// Jump height from a honey block floor (Player.sticky). Measured (navigate.liquid_jump --floor): 1.85 tiles
+        /// for one jump; Tsunami's extra jump fires in the air at full strength, 8.8 at its best moment.
+        /// </summary>
+        public static int StickyJumpTiles(int maxJumpTiles) => maxJumpTiles <= 6 ? 1 : Math.Min(maxJumpTiles, 8);
 
         public readonly int OriginX; // world tile of field cell (0, 0)
         public readonly int OriginY;
@@ -127,7 +135,7 @@ namespace FirstMod_Sp.Common.Systems
         /// <param name="consistentBody">Vertical steps need a common clear side column (see the class notes).</param>
         public static PathDistanceField Build(Func<int, int, PathTile> tileAt, float targetTileX, float targetTileY,
             int radius, int maxJumpTiles, float goalRadiusTiles, int maxAirGapTiles = int.MaxValue,
-            Func<int, int, byte> infoAt = null, int maxSafeFallTiles = int.MaxValue, bool consistentBody = false)
+            Func<int, int, ushort> infoAt = null, int maxSafeFallTiles = int.MaxValue, bool consistentBody = false)
         {
             int size = radius * 2 + 1;
             int originX = (int)Math.Floor(targetTileX) - radius;
@@ -139,14 +147,14 @@ namespace FirstMod_Sp.Common.Systems
                 for (int x = 0; x < size; x++)
                     tiles[y * size + x] = tileAt(originX + x, originY + y);
 
-            var info = new byte[n];
+            var info = new ushort[n];
             if (infoAt != null)
                 for (int y = 0; y < size; y++)
                     for (int x = 0; x < size; x++)
                         info[y * size + x] = infoAt(originX + x, originY + y);
 
             PathTile T(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? PathTile.Solid : tiles[y * size + x];
-            byte I(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? (byte)0 : info[y * size + x];
+            ushort I(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? (ushort)0 : info[y * size + x];
             bool Clear(int x, int y) => T(x, y) != PathTile.Solid && T(x, y - 1) != PathTile.Solid && T(x, y - 2) != PathTile.Solid;
             bool Full(int x, int y) => T(x, y) == PathTile.Solid && (I(x, y) & InfoPartial) == 0;
             bool ClearOfFull(int x, int y) => !Full(x, y) && !Full(x, y - 1) && !Full(x, y - 2);
@@ -164,7 +172,7 @@ namespace FirstMod_Sp.Common.Systems
                     {
                         for (int j = 0; j < 3; j++)
                         {
-                            byte b = I(x, y - j);
+                            ushort b = I(x, y - j);
                             if ((b & InfoWeb) != 0) c = Math.Max(c, CostWeb);
                             if ((b & InfoHoney) != 0) c = Math.Max(c, CostHoney);
                             if ((b & InfoWater) != 0) c = Math.Max(c, CostWater);
@@ -223,6 +231,7 @@ namespace FirstMod_Sp.Common.Systems
                             while (depth < 4 && (I(x, y - depth) & InfoHoney) != 0) depth++;
                             jump = HoneyJumpTiles(maxJumpTiles, depth);
                         }
+                        if ((I(x, y + 1) & InfoSticky) != 0) jump = Math.Min(jump, StickyJumpTiles(maxJumpTiles));
                     }
                     else if (h != int.MaxValue) h++;
                     heightAboveGround[y * size + x] = h;

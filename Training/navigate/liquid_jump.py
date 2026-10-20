@@ -11,6 +11,7 @@ tall, liquid D tiles deep. One bot per (liquid, depth, loadout, jump pattern), s
 
     python -m navigate.liquid_jump            # liquids, depths, loadouts and the three patterns
     python -m navigate.liquid_jump --sweep    # honey with Tsunami: the extra jump's timing per depth
+    python -m navigate.liquid_jump --floor    # honey block floors: one jump, mashing, the extra jump's timing
 Prints the highest rise of the feet above the pool floor in tiles; writes results/training/liquid_jump.json.
 """
 
@@ -33,7 +34,10 @@ PATTERNS = ["hold", "double", "mash"]
 TICKS = 240
 
 
-def cases(sweep=False):
+def cases(sweep=False, floor=False):
+    if floor:  # honey block floor (Player.sticky: jumpHeight / 10, jumpSpeed / 5 while standing on it)
+        out = [{"liquid": "honey_block", "depth": 0, "tsunami": t, "pattern": p} for t in (False, True) for p in ("hold", "mash")]
+        return out + [{"liquid": "honey_block", "depth": 0, "tsunami": True, "pattern": f"at{t}"} for t in range(1, 41)]
     if sweep:
         return [{"liquid": "honey", "depth": d, "tsunami": True, "pattern": f"at{t}"} for d in (1, 2, 3, 4, 5, 6, 8) for t in range(4, 100, 4)]
     out = []
@@ -58,6 +62,8 @@ def build_code(items):
     for i, c in enumerate(items):
         x = X0 + i * WIDTH
         lines.append(f"Solid({x}, {TOP}, {x}, {FLOOR - 1});")
+        if c["liquid"] == "honey_block":
+            lines.append(f"for (int x = {x + 1}; x < {x + WIDTH}; x++) Main.tile[x, {FLOOR}].ResetToType(TileID.HoneyBlock);")
         if c["depth"]:
             lines.append(f"Liquid({x + 1}, {FLOOR - c['depth']}, {x + WIDTH - 1}, {FLOOR - 1}, {LIQUIDS[c['liquid']]});")
     lines.append(f"Solid({x_end}, {TOP}, {x_end}, {FLOOR - 1});")
@@ -70,8 +76,9 @@ def main():
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("--port", type=int, default=7895)
     p.add_argument("--sweep", action="store_true")
+    p.add_argument("--floor", action="store_true", help="honey block floors instead of liquids")
     args = p.parse_args()
-    items = cases(args.sweep)
+    items = cases(args.sweep, args.floor)
     games = GameManager()
     name = "liquid_jump"
     games.launch("server", world="handmade", name=name, bridge_port=args.port)
@@ -116,7 +123,7 @@ def main():
             c["rise_tiles"] = round(s0 - b, 2)
         for c in items:
             print(f"{c['liquid']:6s} depth {c['depth']:2d} {'tsunami' if c['tsunami'] else 'none   '} {c['pattern']:7s} rise {c['rise_tiles']:6.2f}")
-        (OUT / f"liquid_jump{'_sweep' if args.sweep else ''}.json").write_text(json.dumps(items, indent=1))
+        (OUT / f"liquid_jump{'_sweep' if args.sweep else '_floor' if args.floor else ''}.json").write_text(json.dumps(items, indent=1))
     finally:
         games.stop(name)
 
