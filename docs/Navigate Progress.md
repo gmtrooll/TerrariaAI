@@ -284,3 +284,18 @@ New observation option: the far waypoint is the furthest route point, up to 12 a
 | held-out, without the 8 squeeze scenarios | 97.3% | 97.8% |
 
 The held-out worlds have few short drops under ledges, so the effect there is small; the hand-made cases are the situations the user saw. `los_10m` (trained with it) runs tonight.
+
+## Oct 20 night: two equipment loadouts
+
+Does mixed equipment need much more training? Three 10M runs with `grid_ctrl_10m`'s settings, each evaluated on both loadouts (1,024 sets; the "no extra jump" set holds the scenarios reachable with a 6-tile jump, `_j6`):
+
+| Model (10M steps) | With Tsunami | Without extra jump | Mean |
+| --- | --- | --- | --- |
+| `grid_ctrl_10m` (trained with Tsunami only) | **93.1% ± 0.8** | 83.5% ± 1.2 | 88.3% |
+| `none_10m` (trained without only) | 87.3% ± 1.0 | 83.3% ± 1.2 | 85.3% |
+| `mix_10m` (trained 50/50) | 91.8% ± 0.9 | **85.2% ± 1.1** | **88.5%** |
+
+- **Mixing costs little at the same budget:** `mix_10m` is within noise of the specialist on each loadout (−1.3 with Tsunami, +1.7 without), and has the best mean.
+- **Training with Tsunami transfers to no extra jump** (83.5%, the same as training without it), but not the reverse: `none_10m` never learns to use the double jump (87.3% with it).
+- **Without the extra jump everything is harder** (83–85%): no mid-air correction, more precise jumps. The 30–60 and 60–120 bands drop most (77–81% and 73–75%).
+- For the planned random-equipment stage: train on the mixture from the start; the cost per loadout looks small, at least for two loadouts that differ in jump height.
