@@ -463,3 +463,36 @@ The user noticed that most watched scenarios are "hold left or right and jump"; 
 | dropping 6+ tiles in a row | 23.5% |
 
 Two causes: starts and targets are placed on dry standable ground, and the planner's liquid costs (water 2, honey 4) route around liquids when it can. Plan agreed with the user: a fixed list of movement categories from the game's mechanics (liquids, webs, platforms, doors, slopes, ice and honey-block floors, ropes, conveyor belts, climbs, drops, gaps, switchbacks), quotas per category in training, targeted generation in the real worlds and randomized obstacle templates for categories the worlds rarely produce, and a held-out test set per category. Failures only point to categories; their scenarios never go into training.
+
+## Oct 20 night: category quotas, and what honey really allows
+
+**Category scenarios.** `generate_category_scenarios` (Common/Scenarios/CategoryScenarios.cs) picks a tile of the category (honey or water pool, cobweb, platform, door, ice or honey-block floor; any spot for switchbacks), a target near it and a start whose planned route has the category. `navigate.category_sets` made a held-out test of 100 per category per held-out world (`eval_0X_cat`, 1,550 scenarios) and training sets of about 300 per category per training world (`train_XX_cat`). `--categories 0.3` makes 30% of the training episodes draw a category uniformly, then a scenario of it.
+
+**Training with the quota** (`cat_10m`, `cat_10m_s2` = `losdetour_10m`, `_s2` + `--categories 0.3`; 10M steps), paired per scenario over both seeds:
+
+| Test | without | with | pooled |
+| --- | --- | --- | --- |
+| category tests (1,541 feasible) | 93.1 / 92.9 | 92.7 / 94.4 | +0.6, z = 1.4 |
+| 1,024 set | 96.6 / 95.4 | 96.9 / 95.7 | +0.3, z = 0.8 |
+| bending routes | 93.1 / 93.6 | 93.3 / 93.9 | +0.3, z = 0.6 |
+| hand-made | 100 / 96 / 100 both | 100 / 96–97 / 100 | — |
+
+Per category (seed 0 / seed 2): switchback 84.0 → 88.8 / 87.0 → 92.3 (32 vs 15 scenarios, **z = 2.5**); honey 80.8 → 81.9 / 80.8 → 83.4 (z = 1.2); honey_block 93.9 → 84.4 / 88.9 → 95.0 (z = −1.0); the rest stay within a point of 95–100%. **The quota helps switchbacks and nothing else measurably.** The models already handle most categories, so the ceiling is not a lack of exposure.
+
+**The honey_block test is two places.** Its 180 scenarios come from 4 areas of 40 × 40 tiles in eval_01 and 3 in eval_02 (one hive each): 19 of the 20 scenarios `cat_10m` lost there are at one spot. A score on it says whether one hive is solved. Honey is clustered too (23–27 areas per world); the other categories spread over 46–85 areas.
+
+**Honey was partly impossible.** Honey success fell with the route's climb out of the pool (84–95% for climbs of 1–8 tiles, 52% for 9, 39% for 10+; 17 of those 49 were never solved by any of 5 models). The planner gave a jump from honey the same 13 tiles as on land. `navigate.liquid_jump` measures it in the game (bots on the floor of pools 1–14 deep, every pattern of jumps, `results/training/liquid_jump*.json`). The feet rise, in tiles:
+
+| From | one jump | with Tsunami's extra jump (best moment) |
+| --- | --- | --- |
+| dry floor | 6.1 | 13.1 |
+| water, any depth | 4.2–8.3 | 11–17 |
+| honey 1–3 deep | 3.1 | 10.1 |
+| honey 4+ deep | 3.1 | 6.1–6.5 |
+| honey block floor | 1.85 | 8.8 |
+
+In honey the body moves at a quarter of its velocity (Player.HoneyCollision) and without flippers there is no swimming, so from a pool 4+ deep the feet never reach the surface without the extra jump. On a honey block, `Player.sticky` divides the jump height by 10 and the jump speed by 5 (Player.cs:18320) and the run speed by 4; the extra jump fires in the air at full strength.
+
+The planner now uses these numbers: the jump height of a cell comes from its take-off ground (`PathDistanceField.HoneyJumpTiles`, `StickyJumpTiles`; the cell or a non-solid neighbouring column, since the 2-column body can leave shallow honey beside a deep part), and a cell on a honey block costs 4 like a honey cell (its time limit was 4 decisions per tile at a quarter of the run speed, about no slack). With it, 7 honey tests become unreachable, all 7 never solved by any model; no solved one is excluded. One switchback (never solved) also becomes unreachable. Without them `navigate_v3`'s honey score is 83%, not 80.5%. The water results are unchanged (water jumps are as high as dry ones).
+
+**Templates** (`navigate.templates`, in progress): randomized honey pits (3–12 wide, 1–6 deep, sides 0–9 tiles high, often a ledge 4–13 above) and honey-block floors (with a step, a wall, a dry gap or a ledge), each in a sealed vault carved out of solid rock, so no existing scenario's route changes. Sites are boxes of 36 × 26 tiles whose 2-tile shell is rock and whose inside is at least 70% rock and holds no existing scenario's start or target (about 47 per world). A trial on a copy of train_01 (40 vaults, 122 reachable scenarios): `navigate_v3` solved 70 of 77 honey-pit and 45 of 45 honey-floor scenarios.

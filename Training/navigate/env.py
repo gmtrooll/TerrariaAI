@@ -111,7 +111,8 @@ class ScenarioSource:
 
     categories > 0: that share of the episodes picks, within the chosen band, a movement category uniformly (water,
     honey, ice, honey_block, web, platform, door, switchback: Common/Scenarios/CategoryScenarios.cs) and a scenario of
-    it from <world>_cat.jsonl (navigate.category_sets). Of 14,400 random scenarios none passed honey (Oct 20)."""
+    it from <world>_cat.jsonl (navigate.category_sets) and <world>_tmpl.jsonl when present (navigate.templates: honey_pit,
+    honey_floor). Of 14,400 random scenarios none passed honey (Oct 20)."""
 
     def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
                  replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False, detour: float = 0.0,
@@ -121,10 +122,13 @@ class ScenarioSource:
         self.categories = categories
         self.by_category = {}  # band -> category -> scenarios
         if categories > 0 and fixed_list is None:
-            for i, s in enumerate(scenario_files.load(world, "_cat")):
-                s["id"] = f"{world}_cat:{i}"
-                s["loadout"] = LOADOUTS["tsunami"][1]
-                self.by_category.setdefault(s["band"], {}).setdefault(s["category"], []).append(s)
+            for suffix in ("_cat", "_tmpl"):  # _tmpl: obstacle templates (navigate.templates), categories of their own
+                if suffix == "_tmpl" and not (scenario_files.SCENARIO_DIR / f"{world}_tmpl.jsonl").exists():
+                    continue
+                for i, s in enumerate(scenario_files.load(world, suffix)):
+                    s["id"] = f"{world}{suffix}:{i}"
+                    s["loadout"] = LOADOUTS["tsunami"][1]
+                    self.by_category.setdefault(s["band"], {}).setdefault(s["category"], []).append(s)
         self.curriculum = curriculum
         self.rng = rng
         self.replay = replay

@@ -32,7 +32,8 @@ namespace FirstMod_Sp.Common.Systems
     ///    (no swimming without flippers), and the extra jump adds less (HoneyJumpTiles; navigate.liquid_jump).
     ///    So does a honey block floor (InfoSticky, StickyJumpTiles).
     /// Optional cell info (docs/Movement Hazards.md) adds:
-    ///  - costs: water 2, honey 4, cobweb 8 per cell the body is in (cobwebs cap speed and cancel jumps);
+    ///  - costs: water 2, honey 4, cobweb 8 per cell the body is in (cobwebs cap speed and cancel jumps), 4 per cell
+    ///    standing on a honey block (run speed x 0.25);
     ///  - blocked cells: the body touching a damaging tile, lava or shimmer, or within 2 tiles of a trap;
     ///  - unsafe falls: air cells more than maxSafeFallTiles above their landing are blocked, unless the fall
     ///    ends in liquid or on a tile that negates fall damage (falls over 25 tiles hurt: Player.cs:24324).
@@ -47,7 +48,7 @@ namespace FirstMod_Sp.Common.Systems
         public const ushort InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64,
             InfoPartial = 128;  // a sloped or half block: Solid for the planner, but bodies slide along / into it
         public const ushort InfoSticky = 256;  // a honey block (Player.sticky while standing on it: jumpHeight / 10, jumpSpeed / 5)
-        public const int CostWater = 2, CostHoney = 4, CostWeb = 8, MaxCost = 8;
+        public const int CostWater = 2, CostHoney = 4, CostSticky = 4, CostWeb = 8, MaxCost = 8;
 
         /// <summary>
         /// Jump height from the floor of a honey pool `depth` cells deep, for a player whose dry jump is maxJumpTiles.
@@ -178,6 +179,7 @@ namespace FirstMod_Sp.Common.Systems
                             if ((b & InfoWater) != 0) c = Math.Max(c, CostWater);
                             if ((b & InfoLethal) != 0) block = true;
                         }
+                        if ((I(x, y + 1) & InfoSticky) != 0) c = Math.Max(c, CostSticky);  // run speed x 0.25 (Player.sticky)
                         // Touching: the body box (3 columns, as it covers 2 of them at any offset) plus the floor row.
                         for (int i = -1; i <= 1 && !block; i++)
                             for (int j = -2; j <= 1 && !block; j++)
