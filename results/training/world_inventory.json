@@ -1,0 +1,67 @@
+{
+ "eval_01": {
+  "water cells": 95739,
+  "sand floor tiles": 2693,
+  "cobwebs": 28185,
+  "sloped or half floor tiles": 34319,
+  "lava cells": 26676,
+  "door tiles": 204,
+  "platform tiles": 795,
+  "ice floor tiles": 4582,
+  "honey block floor tiles": 147,
+  "honey cells": 1132,
+  "shimmer cells": 743
+ },
+ "eval_02": {
+  "water cells": 105870,
+  "sand floor tiles": 2863,
+  "sloped or half floor tiles": 35830,
+  "lava cells": 19213,
+  "cobwebs": 29053,
+  "platform tiles": 817,
+  "door tiles": 273,
+  "ice floor tiles": 5771,
+  "honey block floor tiles": 173,
+  "honey cells": 1434,
+  "shimmer cells": 640
+ },
+ "train_01": {
+  "water cells": 107585,
+  "sand floor tiles": 3031,
+  "sloped or half floor tiles": 35209,
+  "cobwebs": 26436,
+  "lava cells": 26213,
+  "shimmer cells": 642,
+  "platform tiles": 748,
+  "honey cells": 1907,
+  "door tiles": 228,
+  "honey block floor tiles": 150,
+  "ice floor tiles": 7901
+ },
+ "train_02": {
+  "water cells": 104313,
+  "sand floor tiles": 2998,
+  "sloped or half floor tiles": 34858,
+  "cobwebs": 25922,
+  "lava cells": 24699,
+  "platform tiles": 741,
+  "door tiles": 195,
+  "shimmer cells": 793,
+  "honey block floor tiles": 78,
+  "honey cells": 1485,
+  "ice floor tiles": 4816
+ },
+ "train_03": {
+  "water cells": 112278,
+  "sand floor tiles": 2718,
+  "sloped or half floor tiles": 35671,
+  "cobwebs": 28214,
+  "lava cells": 27810,
+  "platform tiles": 749,
+  "door tiles": 219,
+  "ice floor tiles": 5829,
+  "honey block floor tiles": 87,
+  "honey cells": 1753,
+  "shimmer cells": 653
+ }
+}

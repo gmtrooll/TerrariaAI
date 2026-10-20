@@ -107,12 +107,24 @@ class ScenarioSource:
 
     detour > 0: that share of the episodes picks, within the chosen band, a detour scenario (route at least
     DETOUR_RATIO times the straight-line distance: the bot has to move away from the target first). They are
-    about 15% of the scenarios and the policy's weakest group (Oct 20)."""
+    about 15% of the scenarios and the policy's weakest group (Oct 20).
+
+    categories > 0: that share of the episodes picks, within the chosen band, a movement category uniformly (water,
+    honey, ice, honey_block, web, platform, door, switchback: Common/Scenarios/CategoryScenarios.cs) and a scenario of
+    it from <world>_cat.jsonl (navigate.category_sets). Of 14,400 random scenarios none passed honey (Oct 20)."""
 
     def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
-                 replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False, detour: float = 0.0):
+                 replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False, detour: float = 0.0,
+                 categories: float = 0.0):
         self.world = world
         self.detour = detour
+        self.categories = categories
+        self.by_category = {}  # band -> category -> scenarios
+        if categories > 0 and fixed_list is None:
+            for i, s in enumerate(scenario_files.load(world, "_cat")):
+                s["id"] = f"{world}_cat:{i}"
+                s["loadout"] = LOADOUTS["tsunami"][1]
+                self.by_category.setdefault(s["band"], {}).setdefault(s["category"], []).append(s)
         self.curriculum = curriculum
         self.rng = rng
         self.replay = replay
@@ -142,6 +154,9 @@ class ScenarioSource:
         by_band = self.sets[self.rng.randrange(len(self.sets))] if len(self.sets) > 1 else self.by_band
         band = self.curriculum.pick_band(self.rng)
         pool = by_band[band]
+        if self.categories > 0 and self.by_category.get(band) and self.rng.random() < self.categories:
+            cats = self.by_category[band]
+            return self.rng.choice(cats[self.rng.choice(sorted(cats))])
         if self.detour > 0 and by_band["detours"][band] and self.rng.random() < self.detour:
             return self.rng.choice(by_band["detours"][band])
         if self.replay > 0 and self.rng.random() < self.replay:
@@ -183,13 +198,14 @@ class NavigateVecEnv(VecEnv):
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
                  games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None,
-                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None, detour: float = 0.0):
+                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None, detour: float = 0.0, categories: float = 0.0):
         """graph_dir: physics movement graphs (navigate.movegraph); the progress reward then uses physics route
         distances (option C), only physically reachable scenarios are used, and time limits follow physics times."""
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
         self.frame_skip = frame_skip
         self.replay = replay
         self.detour = detour
+        self.categories = categories
         self.loadouts = loadouts or ["tsunami"]
         self.physics = graph_dir is not None
         self.reward_cfg = reward or RewardConfig()
@@ -310,7 +326,7 @@ class NavigateVecEnv(VecEnv):
         world = spec["world"]
         fixed = fixed_scenarios.get(world) if fixed_scenarios else None
         source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats,
-                                loadouts=self.loadouts, physics=self.physics, detour=self.detour)
+                                loadouts=self.loadouts, physics=self.physics, detour=self.detour, categories=self.categories)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.version = version
         if version < 2 and any(LOADOUTS[n][1] != 1 for n in self.loadouts):

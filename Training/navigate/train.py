@@ -91,6 +91,7 @@ def main():
     p.add_argument("--frame-skip", type=int, default=4, help="ticks per decision (time limits scale with it)")
     p.add_argument("--replay", type=float, default=0.0, help="share of episodes replaying hard scenarios (0 = off)")
     p.add_argument("--detour", type=float, default=0.0, help="share of episodes drawn from detour scenarios (0 = off)")
+    p.add_argument("--categories", type=float, default=0.0, help="share of episodes drawn from the movement-category sets (0 = off)")
     p.add_argument("--damage-penalty", type=float, default=5.0, help="reward per full life lost (0 = off)")
     p.add_argument("--loadouts", default="tsunami", help="equipment variants, comma-separated: tsunami, none")
     p.add_argument("--target-kl", type=float, default=0.0, help="stop an update early when the policy moves too far (0 = off)")
@@ -107,7 +108,7 @@ def main():
     (run_dir / "config.json").write_text(json.dumps(vars(args), indent=2))
 
     env = NavigateVecEnv(args.worlds, bots_per_server=args.bots, port=args.port, obs=args.obs,
-                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay, detour=args.detour,
+                         curriculum=Curriculum(), seed=args.seed, frame_skip=args.frame_skip, replay=args.replay, detour=args.detour, categories=args.categories,
                          reward=RewardConfig(damage=args.damage_penalty,
                                              # physics distances drop in one step when a jump lands: no 3-tile cap
                                              max_progress_per_step=60.0 if args.physics_reward else 3.0),
