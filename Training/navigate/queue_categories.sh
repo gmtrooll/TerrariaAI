@@ -7,10 +7,6 @@ set -u
 cd "$(dirname "$0")/.."
 OUT=../results/training
 log() { echo "$(date +%H:%M) $*" >> $OUT/queue.log; }
-for w in train_01 train_02 train_03 train_04 train_05 train_06 train_07 train_08 train_09 train_10 train_11 train_12; do  # all generated: no server launches overlap
-    until [ -f scenarios/${w}_cat.jsonl ]; do sleep 30; done
-    sleep 5
-done
 COMMON="--steps 10000000 --bf16 --overlap --micro-batch 2048 --target-kl 0.03 --recurrent --obs grid=fovea,visibility=exposed,near=1,los=1 --detour 0.3"
 for seed in 0 2; do
     run=cat_10m; [ $seed = 2 ] && run=cat_10m_s2
