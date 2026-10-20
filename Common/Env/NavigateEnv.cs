@@ -56,6 +56,8 @@ namespace FirstMod_Sp.Common.Env
         public const float GoalRadiusTiles = 1.5f, OffPathPenaltyTiles = 10f;
         /// <summary>The observation's waypoint is this many path tiles ahead of the bot (inside the 41 x 41 grid).</summary>
         public const int WaypointSteps = 12, NearWaypointSteps = 3;
+        /// <summary>-plannerbody: the planner's vertical steps keep one clear side column (PathDistanceField notes).</summary>
+        public static readonly bool ConsistentBody = Program.LaunchParameters.ContainsKey("-plannerbody");
 
         public static readonly int Port = AutomationArgs.GetIntArg("-env", 0);
         public static readonly int FrameSkip = AutomationArgs.GetIntArg("-frameskip", 4);
@@ -334,7 +336,7 @@ namespace FirstMod_Sp.Common.Env
             long t0 = System.Diagnostics.Stopwatch.GetTimestamp();
             fieldBuilds++;
             field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, FieldRadius, jumpTiles, GoalRadiusTiles, MaxAirGapTiles,
-                GridSensors.PathInfo, MaxSafeFallTiles);
+                GridSensors.PathInfo, MaxSafeFallTiles, ConsistentBody);
             fields[key] = field;
             timeFields += System.Diagnostics.Stopwatch.GetTimestamp() - t0;
             return field;

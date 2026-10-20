@@ -100,6 +100,7 @@ namespace FirstMod_Sp.Common.Systems
                 if (TileID.Sets.TouchDamageImmediate[type] > 0 && type != TileID.Cactus || TileID.Sets.TouchDamageHot[type]) f |= PathDistanceField.InfoHurts;
                 if (TrapTiles.Contains(type)) f |= PathDistanceField.InfoTrap;
                 if (TileID.Sets.NegatesFallDamage[type]) f |= PathDistanceField.InfoSoftLanding;
+                if (tile.IsHalfBlock || tile.Slope != SlopeType.Solid) f |= PathDistanceField.InfoPartial;
             }
             return f;
         }

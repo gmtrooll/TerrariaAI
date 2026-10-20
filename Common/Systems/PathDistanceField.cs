@@ -15,6 +15,13 @@ namespace FirstMod_Sp.Common.Systems
     ///  - A cell is passable if it and the two cells above it are not Solid, and the same holds for the
     ///    column to its left or to its right: the player is 42 x 20 px (Player.width/height), so its
     ///    body always covers 3 rows and 2 columns. One-tile-wide shafts and notches are not passable.
+    ///  - With consistentBody, a step down also needs the same side column clear in both cells (counting only
+    ///    full blocks: slopes and half blocks let the body through, the bots solve such routes). Steps up are
+    ///    exempt: walking into a 1-tile ledge lifts the player onto it in one tick (Collision.StepUp), which
+    ///    switches sides without sweeping through the gap. Otherwise
+    ///    a cell clear only on its right can connect to the cell below that is clear only on its left: that
+    ///    "switches sides" through a 1-tile gap the 1.25-tile body cannot pass (a drop under an overhang,
+    ///    eval_02 3869,396: 7 of navigate_v1's 37 failures, Oct 20).
     ///  - Left/right: always allowed into a passable cell (walking or air control).
     ///  - Down: allowed into any passable cell, also through platforms (holding down drops through them).
     ///  - Up: allowed into a passable cell only if it is at most maxJumpTiles above the first
@@ -33,7 +40,8 @@ namespace FirstMod_Sp.Common.Systems
         public const int UNREACHABLE = -1;
 
         // Cell info flags (per tile, from the infoAt callback).
-        public const byte InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64;
+        public const byte InfoWater = 1, InfoHoney = 2, InfoWeb = 4, InfoHurts = 8, InfoTrap = 16, InfoSoftLanding = 32, InfoLethal = 64,
+            InfoPartial = 128;  // a sloped or half block: Solid for the planner, but bodies slide along / into it
         public const int CostWater = 2, CostHoney = 4, CostWeb = 8, MaxCost = 8;
 
         public readonly int OriginX; // world tile of field cell (0, 0)
@@ -103,9 +111,10 @@ namespace FirstMod_Sp.Common.Systems
         /// int.MaxValue keeps the old behaviour.</param>
         /// <param name="infoAt">Optional cell info flags of world tile (x, y) (Info* constants); null = none.</param>
         /// <param name="maxSafeFallTiles">Longest allowed hard fall; int.MaxValue = no limit.</param>
+        /// <param name="consistentBody">Vertical steps need a common clear side column (see the class notes).</param>
         public static PathDistanceField Build(Func<int, int, PathTile> tileAt, float targetTileX, float targetTileY,
             int radius, int maxJumpTiles, float goalRadiusTiles, int maxAirGapTiles = int.MaxValue,
-            Func<int, int, byte> infoAt = null, int maxSafeFallTiles = int.MaxValue)
+            Func<int, int, byte> infoAt = null, int maxSafeFallTiles = int.MaxValue, bool consistentBody = false)
         {
             int size = radius * 2 + 1;
             int originX = (int)Math.Floor(targetTileX) - radius;
@@ -126,6 +135,8 @@ namespace FirstMod_Sp.Common.Systems
             PathTile T(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? PathTile.Solid : tiles[y * size + x];
             byte I(int x, int y) => (x < 0 || y < 0 || x >= size || y >= size) ? (byte)0 : info[y * size + x];
             bool Clear(int x, int y) => T(x, y) != PathTile.Solid && T(x, y - 1) != PathTile.Solid && T(x, y - 2) != PathTile.Solid;
+            bool Full(int x, int y) => T(x, y) == PathTile.Solid && (I(x, y) & InfoPartial) == 0;
+            bool ClearOfFull(int x, int y) => !Full(x, y) && !Full(x, y - 1) && !Full(x, y - 2);
 
             // Per feet cell: traversal cost and whether the body may be there at all.
             var cost = new byte[n];
@@ -270,6 +281,10 @@ namespace FirstMod_Sp.Common.Systems
                         if (px < 0 || py < 0 || px >= size || py >= size) return;
                         int p = py * size + px;
                         if (!Passable(px, py)) return;
+                        if (consistentBody && px == dx && py < dy) {  // p above d: falling from p into d
+                            int top = Math.Min(py, dy), bottom = Math.Max(py, dy);
+                            if (!(ClearOfFull(px - 1, top) && ClearOfFull(px - 1, bottom)) && !(ClearOfFull(px + 1, top) && ClearOfFull(px + 1, bottom))) return;
+                        }
                         int nd = current + cost[p];
                         if (dist[p] != UNREACHABLE && dist[p] <= nd) return;
                         dist[p] = nd;

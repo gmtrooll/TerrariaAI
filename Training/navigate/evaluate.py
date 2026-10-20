@@ -120,13 +120,14 @@ def main():
     p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
     p.add_argument("--loadout", choices=sorted(LOADOUTS), default="tsunami", help="equipment variant to evaluate")
     p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. model_20M.pt")
+    p.add_argument("--obs-extra", default="", help="observation settings added to the run's, e.g. los=1")
     p.add_argument("--min-detour", type=float, default=0.0, help="evaluate all scenarios with route/straight >= this instead")
     p.add_argument("--record", action="store_true", help="servers write failed episodes (path + planned route) to failures_<world>.jsonl")
     args = p.parse_args()
 
     run_dir = RESULTS / (args.run or args.name)
     config = json.loads((run_dir / "config.json").read_text()) if args.run else {}
-    obs_spec = config.get("obs", "grid=fovea,visibility=exposed")
+    obs_spec = config.get("obs", "grid=fovea,visibility=exposed") + ("," + args.obs_extra if args.obs_extra else "")
     if args.loadout != "tsunami" and not args.tag:
         args.tag = args.loadout
     lists = fixed_lists(args.worlds, args.per_band, loadout=args.loadout, min_detour=args.min_detour)

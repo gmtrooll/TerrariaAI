@@ -108,7 +108,7 @@ namespace FirstMod_Sp.Common.Scenarios
 
                 // Target point = body centre of a player standing on the target cell (as in PathDistanceField's goals).
                 var field = PathDistanceField.Build(GridSensors.ClassifyPathTile, tx + 0.5f, ty - 0.3f, radius, maxJump, 1.5f, maxAirGap,
-                    GridSensors.PathInfo, Env.NavigateEnv.MaxSafeFallTiles);
+                    GridSensors.PathInfo, Env.NavigateEnv.MaxSafeFallTiles, Env.NavigateEnv.ConsistentBody);
                 var byDistance = new List<(int x, int y, int d)>();
                 for (int y = ty - radius; y <= ty + radius; y++) {
                     for (int x = tx - radius; x <= tx + radius; x++) {

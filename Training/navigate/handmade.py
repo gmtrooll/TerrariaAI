@@ -107,7 +107,7 @@ def evaluate(run: str, repeats: int, port: int, checkpoint: str, only: list = No
 
     run_dir = RESULTS / run
     config = json.loads((run_dir / "config.json").read_text())
-    obs = config["obs"] + ("," + obs_extra if obs_extra else "")
+    obs_spec = config["obs"] + ("," + obs_extra if obs_extra else "")
     rows = []
     distances = json.loads(DISTANCES.read_text()) if DISTANCES.exists() else {}
     for name, variant, _, _, start, target, route in tests():
@@ -121,7 +121,7 @@ def evaluate(run: str, repeats: int, port: int, checkpoint: str, only: list = No
             rows.append({"start_x": start[0], "start_y": start[1], "target_x": target[0], "target_y": target[1],
                          "path_distance": route, "band": name, "layer": variant, "id": f"{name}|{variant}|{i}", "loadout": 1})
     extra = ["-envrecord", str(run_dir / "handmade_failures")] if record else []
-    env = NavigateVecEnv([WORLD], bots_per_server=min(32, len(rows)), port=port, obs=obs, curriculum=Curriculum(fixed=True),
+    env = NavigateVecEnv([WORLD], bots_per_server=min(32, len(rows)), port=port, obs=obs_spec, curriculum=Curriculum(fixed=True),
                          fixed_scenarios={WORLD: rows}, frame_skip=config.get("frame_skip", 4), extra_args=extra)
     try:
         act = load_policy(run_dir, config, env, False, checkpoint)
@@ -140,12 +140,12 @@ def evaluate(run: str, repeats: int, port: int, checkpoint: str, only: list = No
     table = defaultdict(list)
     for e in results.values():
         name, variant, _ = e["id"].split("|")
-        table[(name, variant)].append(e["win"])
+        table[(name, variant)].append(bool(e["win"]))
     out = {f"{n} {v}": round(sum(w) / len(w), 3) for (n, v), w in table.items()}
     if only:
         return
     (run_dir / f"handmade{'_' + tag if tag else ''}.json").write_text(
-        json.dumps({"run": run, "checkpoint": checkpoint, "obs": obs, "repeats": repeats, "success": out}, indent=2))
+        json.dumps({"run": run, "checkpoint": checkpoint, "obs": obs_spec, "repeats": repeats, "success": out}, indent=2))
     current = None
     for (n, v), w in table.items():
         if n != current:
