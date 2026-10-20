@@ -417,3 +417,17 @@ One recorded evaluation of the 1,024 set (`eval_big_rec`, 43 failures counting r
 Paired per scenario: line of sight vs control over both seeds **+4.0 ± 0.6 (z = 7.3)**; bending routes alone vs control +2.1 ± 0.7 (z = 3.0); adding bending routes on top of line of sight +0.3 ± 0.5 (no effect here, though +1.7 on the 1,024 set, z = 2.7). Once the waypoint is right, extra practice on bending routes no longer helps on them.
 
 Also: `navigate_v2`, trained with Tsunami only, gets 86.7% without the extra jump (`mix_10m` 85.2%, `grid_ctrl_10m` 83.5%).
+
+## Oct 20 afternoon: a "blocked" input does not help
+
+Snags (pressing left or right while barely moving, `evaluate` now saves the longest run per episode): in one evaluation of `navigate_v2`, 12 of 29 failures pressed while blocked for 40+ decisions (the planner squeeze, slope snags such as `eval_02` (1262, 351): left 1.00 at speed 0, jump 0.00). `losblocked_10m` = `los_10m` + `blocked=1` (decisions in a row pressing without moving, ÷ 20):
+
+| | `los_10m` | `losblocked_10m` |
+| --- | --- | --- |
+| 1,024 set (2 runs) | 96.0 / 95.6% | 95.2 / 96.0% |
+| failures with a 40+ decision snag (1,024 set, 2 runs) | 11 / 10 | 7 / 5 |
+| bending-route set | 92.3% | 92.9% |
+| failures with a 40+ decision snag (bending routes) | 24 | 10 |
+| hand-made drop / climb / pocket | 100 / 92 / 100 | 100 / 92 / 100 |
+
+Paired: −0.2 ± 0.5 on the 1,024 set, +0.6 ± 0.7 on bending routes. **The input halves the long snags but not the failures**: the bot gets free and then fails otherwise, so the snags were a symptom. Left off.
