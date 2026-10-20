@@ -373,3 +373,18 @@ Paired per scenario: **+2.3 ± 0.6 points (z = 4.1)**, v2 better on 76 scenarios
 ### More pocket variants
 
 The user's C-shape (bot inside a small pocket, has to back out to jump over) reproduced: bot starting inside a pocket with a 5-tile lip: `navigate_v1` 1/8, `navigate_v2` 8/8. With a 3-tile lip, or a back wall 2 tiles taller than the lip, both 8/8.
+
+### What navigate_v2 still fails
+
+One recorded evaluation of the 1,024 set (`eval_big_rec`, 43 failures counting repeats; pictures in `results/training/navigate_v2/failures/`):
+
+| Kind | Failures | What happens |
+| --- | --- | --- |
+| Planner squeeze (unreachable with `-plannerbody`) | 10 | the `eval_02` overhang drop (8), one unreachable start (2) |
+| Stuck off the route / wandering | 16 | dropped into a pit or side cave off the route and never got back; complex cave topology |
+| Died | 7 (5 scenarios) | long jumps over lava to small platforms; long falls without using the double jump to break them |
+| Ledges and gaps | 10 | climbs of 5+ tiles, drops off edges, gaps |
+
+- With `-plannerbody` the squeeze cases leave the set (they are not solvable).
+- The deaths are the planned hazard stage: damage avoidance and breaking long falls with the double jump (which the user noticed the bot rarely does).
+- Getting back after leaving the route (pits, side caves) is the biggest remaining policy weakness.
