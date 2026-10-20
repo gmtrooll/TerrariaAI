@@ -235,3 +235,52 @@ Movement graphs (sampler v2) for 6 training and 2 held-out worlds: 174k–191k s
 What remains open:
 - Option B (physics waypoints in the observation) as an upper bound: does *telling* the bot about run-ups help, when a better reward does not?
 - Using the physics graph for what it measured well: scenario reachability (92–96% of scenarios physically reachable, the rest flagged).
+
+## Oct 20 night: where the bot gets stuck at ledges
+
+The user, watching `navigate_v1` (the final 30M model, 96.6% held-out), saw it shaking left and right on a ledge above a nearby target instead of walking to the ledge's end and dropping; the same under a ledge with the target on top.
+
+### A planner squeeze (7 of navigate_v1's 37 failures)
+
+7 of the 37 held-out failures end on one tile of `eval_02` (3869, 396). The probe (`navigate.probe`: action probabilities at a tile, fresh start vs arriving there) shows the bot pressing left with probability 1.00 at speed 0: its head is against an overhang and its feet on the ledge, and the opening below is 1 tile wide; the body is 1.25 tiles. The grid planner allowed it because a cell counts as passable with room on either side, and the ledge cell (room only on the right) connects to the cell below (room only on the left).
+
+Fix: `-plannerbody` (off by default; `PathDistanceField` consistentBody). A drop must keep one clear side column, counting full blocks only. Steps up are exempt: walking into a 1-tile ledge lifts the player onto it in one tick (`Collision.StepUp`). Slopes and half blocks don't block. Checked against the bot's outcomes (`navigate.planner_check`):
+
+| Rule | eval scenarios made unreachable | Of those in the 1,024 set: solved by navigate_v1 |
+| --- | --- | --- |
+| Same side, any solid tile, up and down | 60 | 20 of 31 (too strict) |
+| Full blocks only | 24 | 3 of 11 (all 1-tile steps up) |
+| **Full blocks only, drops only** | **12** | **0 of 8** |
+
+### Hand-made tests (`navigate.handmade`)
+
+Small structures in a separate world (`handmade`), one thing varied at a time, 8 tries each:
+- **drop:** bot on a 1-tile-thick ledge (open only at its left end), target on the floor at column c (0 = ledge end, + = under the ledge), ledge height H;
+- **climb:** the same structure, bot under the ledge, target on top;
+- **pocket:** a C-shaped pocket 3 tiles tall opening toward the bot, target behind it.
+
+`navigate_v1`:
+
+| Test | Result |
+| --- | --- |
+| drop, target beyond the ledge end (c ≤ 0) | 8/8 at every height |
+| drop, target under a 4- or 6-tile ledge (c ≥ 4) | 0–2 / 8 |
+| drop, target under a 10-tile ledge | 8/8 |
+| climb onto the ledge from under it | 0–6 / 8 (23% overall) |
+| pocket | 8/8 |
+
+The ledge height mattering, not the direction alone, is explained by the far waypoint. Probed at the ledge end (H = 6, target under the ledge): the 12-step waypoint is at (+4.5, +5) tiles, back under the ledge (12 route steps go off the edge, down and back right), and the policy follows it right (probability 0.93). With H = 10 the 12 steps stay in the drop shaft, the waypoint is at (+1.5, +9) and the bot steps off (left 0.68–0.96). Climbs fail the same way: near the ledge end the waypoint jumps onto the ledge top behind the bot.
+
+### Line-of-sight waypoint (`los=1`)
+
+New observation option: the far waypoint is the furthest route point, up to 12 ahead, with every route point up to it in line of sight from the bot (`Collision.CanHitLine`). `navigate_v1` with it, **no retraining**:
+
+| | Without | With line of sight |
+| --- | --- | --- |
+| hand-made drops | 63% | **100%** |
+| hand-made climbs | 23% | **100%** |
+| hand-made pockets | 100% | 100% |
+| held-out 1,024 set | 96.6% | 97.1% (9 fixed, 4 broken) |
+| held-out, without the 8 squeeze scenarios | 97.3% | 97.8% |
+
+The held-out worlds have few short drops under ledges, so the effect there is small; the hand-made cases are the situations the user saw. `los_10m` (trained with it) runs tonight.
