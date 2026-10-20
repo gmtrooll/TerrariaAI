@@ -311,3 +311,18 @@ Success falls with how much the route bends away from the target (route length �
 | `navigate_v1` (30M, 12 worlds), for reference | 96.6% | 87.3% ± 1.9 |
 
 Paired on the same scenarios: on the detour set 24 solved only by `detour_10m`, 11 only by `grid_ctrl_10m` (McNemar z = 2.2); on the 1,024 set 33 vs 25 (z = 1.05). **Oversampling bending routes helps on them (+4 points) at no cost elsewhere**; at 10M steps it closes most of the gap to the 30M model on that set.
+
+## Oct 20 morning: training with the line-of-sight waypoint
+
+`los_10m` = `grid_ctrl_10m` with `los=1` (all 10M steps, 6 worlds; hand-made: 8 tries per variant, planner route lengths as time limits):
+
+| Model | 1,024 set | 60–120 band | 316 detour scenarios | hand-made drop | hand-made climb | hand-made pocket |
+| --- | --- | --- | --- | --- | --- | --- |
+| `grid_ctrl_10m` | 93.1% ± 0.8 | 85% | 81.3% ± 2.2 | 76% | 14% | 98% |
+| `detour_10m` | 93.8% ± 0.8 | 87% | 85.4% ± 2.0 | 91% | 73% | 100% |
+| **`los_10m`** | **94.9% ± 0.7** | **91%** | **87.0% ± 1.9** | **100%** | **93%** | 100% |
+| `navigate_v1` (30M, 12 worlds) | 96.6% | 94% | 87.3% ± 1.9 | 64% | 21% | 96% |
+
+Paired against `grid_ctrl_10m`: 1,024 set 42 solved only by `los_10m`, 23 only by `grid_ctrl_10m` (z = 2.4); detour set 28 vs 10 (z = 2.9). **The line-of-sight waypoint is the largest single gain since the near waypoint**: the long routes gain most, and at 10M steps it matches the 30M model on bending routes while solving the ledge cases that model fails. Oversampling bending routes also helps, less (and was not combined yet).
+
+Next: `losdetour12_30m`, `navigate_v1`'s setup (12 worlds, 30M steps) with both changes, as the candidate for `navigate_v2`.
