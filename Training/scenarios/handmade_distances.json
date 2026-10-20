@@ -46,5 +46,10 @@
  "pocket D3 gap2": 22,
  "pocket D3 gap8": 28,
  "pocket D5 gap2": 24,
- "pocket D5 gap8": 30
+ "pocket D5 gap8": 30,
+ "pocket D3 inside": 23,
+ "pocket D5 inside": 27,
+ "pocket D2 tall": 31,
+ "pocket D3 tall": 32,
+ "pocket D5 tall": 34
 }

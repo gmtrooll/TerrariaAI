@@ -358,3 +358,18 @@ Why a tie on the 1,024 set but a gain on bending routes? Bending routes (≥ 1.7
 - On bending routes v2 is ahead in all 5 runs (better on 38 scenarios on average, worse on 20), but z < 2: the remaining uncertainty comes from the few hard scenarios, not from evaluation runs (run-to-run sd 0.8). A larger bending-route set would settle it.
 - Run-to-run sd on the 1,024 set is about 0.3 points; the binomial ± 0.6 overstates the noise of comparing two models on the same fixed scenarios.
 - The clear difference is the ledge situations (hand-made: 100% vs 64% / 21%), which are rare in the generated scenarios.
+
+### A larger bending-route test set
+
+`navigate.bend_set` samples new scenarios from the two held-out worlds with fresh seeds (the worlds are not regenerated) and keeps routes at least 1.7× the straight line, leaving out the main set's scenarios: 1,136 scenarios (`eval_01_bend`, `eval_02_bend`; 150 per band, fewer in 5–15 where bending routes are rare). Evaluated 3 times per model (`evaluate --set _bend`):
+
+| | runs | mean |
+| --- | --- | --- |
+| `navigate_v1` | 93.2 / 92.9 / 92.6 | 92.9% |
+| `navigate_v2` | 95.2 / 95.1 / 95.3 | **95.2%** |
+
+Paired per scenario: **+2.3 ± 0.6 points (z = 4.1)**, v2 better on 76 scenarios, worse on 36. With enough bending scenarios the gain is clear; the 316-scenario set was too small to show it.
+
+### More pocket variants
+
+The user's C-shape (bot inside a small pocket, has to back out to jump over) reproduced: bot starting inside a pocket with a 5-tile lip: `navigate_v1` 1/8, `navigate_v2` 8/8. With a 3-tile lip, or a back wall 2 tiles taller than the lip, both 8/8.

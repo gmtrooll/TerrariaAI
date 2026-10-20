@@ -24,9 +24,9 @@ from pathlib import Path
 WORLD = "handmade"
 F = 262            # floor surface row (solid F..F+2); standing feet cells are on row F - 1
 TOP = 150          # regions are cleared from this row down to the floor
-REGION = 80        # tiles per structure
+REGION = 70        # tiles per structure
 DISTANCES = Path(__file__).resolve().parents[1] / "scenarios" / "handmade_distances.json"  # planner route lengths
-X0 = 200           # first region (48 regions end at 4040, inside the world's 4200 columns)
+X0 = 200           # first region (56 regions end at 4120, inside the world's 4200 columns)
 
 
 def tests():
@@ -63,6 +63,16 @@ def tests():
             solids = [(W, F - 4, W, F - 1), (W, F - 4, W + D, F - 4)]  # back wall, lip (pocket opens to the right)
             start, target = (W + D + 1 + gap, F - 1), (W - 10, F - 1)
             out.append(("pocket", f"D{D} gap{gap}", r, solids, start, target, gap + D + 20))
+    for D in (3, 5):  # the bot starts inside the pocket, at its back wall
+        r = region()
+        W = r + 30
+        solids = [(W, F - 4, W, F - 1), (W, F - 4, W + D, F - 4)]
+        out.append(("pocket", f"D{D} inside", r, solids, (W + 1, F - 1), (W - 10, F - 1), D + 20))
+    for D in (2, 3, 5):  # taller back wall: 2 tiles above the lip
+        r = region()
+        W = r + 30
+        solids = [(W, F - 6, W, F - 1), (W, F - 4, W + D, F - 4)]
+        out.append(("pocket", f"D{D} tall", r, solids, (W + D + 9, F - 1), (W - 10, F - 1), D + 24))
     return out
 
 
@@ -142,16 +152,15 @@ def evaluate(run: str, repeats: int, port: int, checkpoint: str, only: list = No
         name, variant, _ = e["id"].split("|")
         table[(name, variant)].append(bool(e["win"]))
     out = {f"{n} {v}": round(sum(w) / len(w), 3) for (n, v), w in table.items()}
-    if only:
-        return
-    (run_dir / f"handmade{'_' + tag if tag else ''}.json").write_text(
-        json.dumps({"run": run, "checkpoint": checkpoint, "obs": obs_spec, "repeats": repeats, "success": out}, indent=2))
     current = None
-    for (n, v), w in table.items():
+    for (n, v), w in sorted(table.items()):
         if n != current:
             print(n)
             current = n
         print(f"   {v:12s} {sum(w)}/{len(w)}")
+    if not only:  # a partial run would overwrite the full results
+        (run_dir / f"handmade{'_' + tag if tag else ''}.json").write_text(
+            json.dumps({"run": run, "checkpoint": checkpoint, "obs": obs_spec, "repeats": repeats, "success": out}, indent=2))
 
 
 def main():

@@ -27,17 +27,21 @@ RESULTS = Path(__file__).resolve().parents[2] / "results" / "training"
 EVAL_WORLDS = ["eval_01", "eval_02"]
 
 
-def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunami", min_detour: float = 0.0) -> dict:
+def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunami", min_detour: float = 0.0,
+                scenario_set: str = "") -> dict:
     """per_band scenarios per band per world (fixed seed); with min_detour, instead every scenario whose route is at
     least that many times the straight-line distance."""
     rng = random.Random(seed)
     suffix, code = LOADOUTS[loadout]
     out = {}
     for w in worlds:
-        rows = scenario_files.load(w, suffix)
+        rows = scenario_files.load(w, scenario_set or suffix)
         for i, s in enumerate(rows):
-            s["id"] = f"{w}{suffix}:{i}"
+            s["id"] = f"{w}{scenario_set or suffix}:{i}"
             s["loadout"] = code
+        if scenario_set:  # a separate test set (e.g. _bend): all of it
+            out[w] = rows
+            continue
         if min_detour > 0:
             out[w] = [s for s in rows if detour_ratio(s) >= min_detour]
             continue
@@ -121,6 +125,7 @@ def main():
     p.add_argument("--loadout", choices=sorted(LOADOUTS), default="tsunami", help="equipment variant to evaluate")
     p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. model_20M.pt")
     p.add_argument("--obs-extra", default="", help="observation settings added to the run's, e.g. los=1")
+    p.add_argument("--set", default="", help="evaluate all scenarios of Training/scenarios/<world><set>.jsonl, e.g. _bend")
     p.add_argument("--min-detour", type=float, default=0.0, help="evaluate all scenarios with route/straight >= this instead")
     p.add_argument("--record", action="store_true", help="servers write failed episodes (path + planned route) to failures_<world>.jsonl")
     args = p.parse_args()
@@ -130,7 +135,7 @@ def main():
     obs_spec = config.get("obs", "grid=fovea,visibility=exposed") + ("," + args.obs_extra if args.obs_extra else "")
     if args.loadout != "tsunami" and not args.tag:
         args.tag = args.loadout
-    lists = fixed_lists(args.worlds, args.per_band, loadout=args.loadout, min_detour=args.min_detour)
+    lists = fixed_lists(args.worlds, args.per_band, loadout=args.loadout, min_detour=args.min_detour, scenario_set=args.set)
     total = sum(len(v) for v in lists.values())
     extra = []
     if args.record:
