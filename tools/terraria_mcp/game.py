@@ -148,8 +148,13 @@ class GameManager:
         name = name or f"{mode}{bridge_port}"
         if name in self.instances and self.instances[name].running:
             raise RuntimeError(f"instance '{name}' is already running")
-        # Always reinstall: tModLoader rewrites enabled.json without the mod after a load error.
-        self.install()
+        # Always reinstall: tModLoader rewrites enabled.json without the mod after a load error. When another running
+        # instance holds the installed .tmod, launch with that build instead (the new one installs once they stop).
+        try:
+            self.install()
+        except PermissionError as e:
+            print(f"warning: {e}; launching with the installed build", flush=True)
+            (config.MODS_DIR / "enabled.json").write_text(json.dumps([config.MOD_NAME], indent=2))
 
         args = [str(config.DOTNET), "tModLoader.dll", "-nosteam", "-tmlsavedirectory", str(config.SAVE_DIR),
                 "-bridgeport", str(bridge_port)]

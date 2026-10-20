@@ -41,6 +41,10 @@ namespace FirstMod_Sp.Common.Observation
         /// <summary>Also a near waypoint (NearWaypointSteps ahead): the route's immediate direction, which the far
         /// waypoint hides when the route first turns away from the target. Off by default (older models).</summary>
         public static bool NearWaypoint;
+        /// <summary>Far waypoint kept in sight: the furthest route point (up to WaypointSteps ahead) such that every
+        /// route point up to it is in line of sight from the bot. Without it, a route that drops off a ledge and turns
+        /// back puts the far waypoint under the ledge, pointing the wrong way (handmade tests, Oct 20).</summary>
+        public static bool WaypointLos;
         /// <summary>Refresh the overview every N observations of a bot (cached in between).</summary>
         public static int CoarseEvery = 4;
         public const int EntitySlots = 16;
@@ -84,8 +88,11 @@ namespace FirstMod_Sp.Common.Observation
                 case "near":
                     NearWaypoint = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
                     break;
+                case "los":
+                    WaypointLos = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                    break;
                 default:
-                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint, near)");
+                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint, near, los)");
             }
         }
 
@@ -96,6 +103,7 @@ namespace FirstMod_Sp.Common.Observation
             Entities = false;
             Waypoint = true;
             NearWaypoint = false;
+            WaypointLos = false;
             CoarseEvery = 4;
             if (Program.LaunchParameters.TryGetValue("-obs", out string spec) && !string.IsNullOrWhiteSpace(spec)) Apply(spec);
         }

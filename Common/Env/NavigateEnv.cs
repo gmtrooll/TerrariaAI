@@ -385,13 +385,33 @@ namespace FirstMod_Sp.Common.Env
             return Vector2.Distance(p.Center, Main.player[b.Slot].GetModPlayer<ObservationPlayer>().Target ?? p.Center) / 16f + OffPathPenaltyTiles;
         }
 
+        /// <summary>A route cell as an observation point: the body centre of a player standing in it.</summary>
+        private static Vector2 RoutePoint(int x, int y) => new Vector2((x + 0.5f) * 16f, (y - 0.3f) * 16f);
+
+        /// <summary>The furthest route point, up to WaypointSteps ahead, such that every route point up to it is in
+        /// line of sight from the bot's centre (the game's tile raycast, Collision.CanHitLine).</summary>
+        private static Vector2? WaypointInSight(BotEnv b, Player p, int tx, int ty) {
+            Vector2? best = null;
+            int px = int.MinValue, py = int.MinValue;
+            for (int k = 1; k <= WaypointSteps; k++) {
+                if (!b.Field.Waypoint(tx, ty, k, out int wx, out int wy) || (wx == px && wy == py)) break;  // end of the route
+                Vector2 pt = RoutePoint(wx, wy);
+                if (best != null && !Collision.CanHitLine(p.Center, 0, 0, pt, 0, 0)) break;
+                best = pt;
+                px = wx;
+                py = wy;
+            }
+            return best;
+        }
+
         /// <summary>Sets the bot's observation waypoint from its route (the planner's distance field).</summary>
         private static void UpdateWaypoint(BotEnv b) {
             Player p = Main.player[b.Slot];
             var op = p.GetModPlayer<ObservationPlayer>();
             int tx = (int)(p.Center.X / 16f), ty = (int)((p.Bottom.Y - 1f) / 16f);
-            op.Waypoint = ObservationConfig.Waypoint && b.Field.Waypoint(tx, ty, WaypointSteps, out int wx, out int wy)
-                ? new Vector2((wx + 0.5f) * 16f, (wy - 0.3f) * 16f) : null;
+            op.Waypoint = !ObservationConfig.Waypoint ? null
+                : ObservationConfig.WaypointLos ? WaypointInSight(b, p, tx, ty)
+                : b.Field.Waypoint(tx, ty, WaypointSteps, out int wx, out int wy) ? RoutePoint(wx, wy) : null;
             op.NearWaypoint = ObservationConfig.NearWaypoint && b.Field.Waypoint(tx, ty, NearWaypointSteps, out int nx, out int ny)
                 ? new Vector2((nx + 0.5f) * 16f, (ny - 0.3f) * 16f) : null;
         }
