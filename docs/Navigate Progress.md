@@ -508,3 +508,46 @@ The planner now uses these numbers: the jump height of a cell comes from its tak
 | hand-made | 100 / 96–97 / 100 | 100 / 98–100 / 100 | |
 
 **The templates do not help, not even on held-out templates.** Honey floors are solved 100% with or without them; honey pits stay at 89–91%. The failures are climbs out of the pit onto a side (out_left / out_right 78–91%). Per category, honey_block rises (z = 3.6, but one hive per world, and the baseline's seed 0 was low there) and ice falls (z = −2.5); with 8 categories tested, both are within what chance gives. `navigate_v3` (30M steps, 12 worlds) scores 96.2% on the templates (honey pits 94.0%), better than every 10M run: **at 10M steps, training length matters more than what the scenarios contain**, and the earlier models were not short of honey or switchback exposure. Category quotas, the templates and the corrected planner stay in the setup (they cost nothing and the planner is now faithful to the game), but they are not the next lever.
+
+## Oct 21 night: navigate_v4 candidate, and the first equipment experiments
+
+**v4 candidate** (`v4cand12_30m` = `navigate_v3`'s setup + the category quota with the template rows, on the planner with measured honey jumps; 30M steps, 12 worlds). Paired against v3 on the same build, one evaluation run each (repeats are queued):
+
+| Test | v3 | v4 | paired |
+| --- | --- | --- | --- |
+| 1,024 set, Tsunami | 96.1 | 97.2 | 20 vs 9, z = 2.0 |
+| 1,024 set, no extra jump | 88.3 | 88.4 | z = 0.2 |
+| bending routes | 94.6 | 95.7 | 25 vs 13, z = 1.9 |
+| category tests | 95.7 | 95.6 | z = −0.1 |
+| templates | 96.2 | 95.6 | 3 vs 4 |
+| hand-made | 100 / 93 / 100 | 100 / 99 / 100 | |
+
+**Equipment.** `docs/Movement Equipment.md` catalogues every movement item, buff and mount from the game code. Its derived jump heights match the in-game measurements to 0.1–0.2 tiles. Loadouts are now a table (`Training/loadouts.json`, `-envloadouts`): items by ItemID name, the planner's jump height, and measured abilities (`navigate.gear_measure`: single-jump apex, total apex with every extra jump started at the top of the previous one, number of extra jumps, top run speed). With `-obs gear=1` the policy sees those four numbers, so gear is described by what it does, not by item id. A loadout trains and tests on the scenarios its jump can reach (`navigate.reach_sets`).
+
+| Loadout | Jump / total apex (tiles) | Extra jumps | Split |
+| --- | --- | --- | --- |
+| none, Hermes Boots | 6.1 | 0 | train |
+| Tsunami (± Hermes), Cloud, Fart, Sandstorm | 13.1, 11.1, 16.5, 20.9 | 1 | train |
+| Shiny Red Balloon (± Hermes), Cloud in a Balloon | 10.8, 19.5 | 0, 1 | train |
+| Blizzard in a Bottle | 14.2 | 1 | held out |
+| Frog Leg | 9.0 | 0 | held out |
+| Blizzard in a Balloon; Sandstorm in a Balloon + Hermes | 25.3; 36.7 | 1 | held out |
+| Bundle of Balloons | 60.0 | 3 | held out |
+
+**Experiment 1** (`gear_10m` with `gear=1`, `nogear_10m` without; 10 training loadouts, 10M steps, 6 worlds; 256 held-out scenarios per loadout). No difference: training loadouts 42 vs 47 (z = −0.5), held-out 22 vs 35 (z = −1.7). Every held-out item already scores 88–97%, and `navigate_v3`, which only ever wore Tsunami or nothing, does as well. **The test was too easy**: every scenario was planned for a 13-tile jump, so a bot can treat any bottle like Tsunami.
+
+**Routes that need the height** (`navigate.height_sets`: planned with the loadout's jump, unreachable with 13 tiles; 31–252 per world and height, about 7% of planned routes). Control: `navigate_v3` wearing Tsunami solves 11.8% of the 20-tile set, so they do need the height.
+
+| Loadout (held-out worlds) | n | `gear_10m` | `nogear_10m` | `navigate_v3` | gear vs no gear |
+| --- | --- | --- | --- | --- | --- |
+| Fart (train, 16) | 139 | 84.9 | 77.7 | 84.9 | 18 vs 8 |
+| Cloud in a Balloon (train, 19) | 245 | 69.8 | 58.0 | 66.1 | 45 vs 16 |
+| Sandstorm (train, 20) | 279 | 78.1 | 73.5 | 81.7 | 38 vs 25 |
+| Blizzard (held out, 14) | 89 | 79.8 | 53.9 | 71.9 | 29 vs 6 |
+| Blizzard in a Balloon (held out, 25) | 424 | 78.3 | 77.4 | 81.8 | 50 vs 46 |
+| Sandstorm in a Balloon + Hermes (held out, 36) | 365 | 81.6 | 74.8 | 83.6 | 65 vs 40 |
+| Bundle of Balloons (held out, 59) | 355 | **48.2** | 82.8 | 85.4 | **18 vs 141** |
+
+- **Where the height matters, the measured abilities help**: training loadouts 101 vs 49 (z = 4.3); held-out items inside or near the trained range 144 vs 92 (z = 3.4), Blizzard alone +26 points.
+- **Bundle of Balloons collapses with them** (z = −9.8): 3 extra jumps and a 60-tile apex, when training never had more than 1 extra jump or 21 tiles. The policy extrapolates its inputs and fails. Coverage of the ability range, not the features, is the problem: the next run adds training loadouts with 2–3 extra jumps (21–58 tiles), Blizzard and the Bundle still held out.
+- `navigate_v3` (30M steps) is as good as the 10M runs on most of these without any gear input: longer training matters here too.

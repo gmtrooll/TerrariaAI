@@ -59,7 +59,7 @@
    1,
    3.0
   ],
-  "measured_run_speed": 2.96
+  "measured_run_speed": 3.0
  },
  {
   "code": 4,
@@ -160,6 +160,77 @@
   "measured_run_speed": 5.89
  },
  {
+  "code": 10,
+  "name": "cloud_fart",
+  "items": [
+   "CloudinaBottle",
+   "FartinaJar"
+  ],
+  "split": "train",
+  "jump_tiles": 21,
+  "features": [
+   6.13,
+   21.46,
+   2,
+   3.0
+  ],
+  "measured_run_speed": 2.96
+ },
+ {
+  "code": 11,
+  "name": "sandstorm_cloud",
+  "items": [
+   "SandstorminaBottle",
+   "CloudinaBottle"
+  ],
+  "split": "train",
+  "jump_tiles": 25,
+  "features": [
+   6.13,
+   25.78,
+   2,
+   3.0
+  ],
+  "measured_run_speed": 2.64
+ },
+ {
+  "code": 12,
+  "name": "tsunami_fart_cloud",
+  "items": [
+   "TsunamiInABottle",
+   "FartinaJar",
+   "CloudinaBottle"
+  ],
+  "split": "train",
+  "jump_tiles": 28,
+  "features": [
+   6.13,
+   28.41,
+   3,
+   3.0
+  ],
+  "measured_run_speed": 2.96
+ },
+ {
+  "code": 13,
+  "name": "balloon_tsunami_sandstorm_cloud",
+  "items": [
+   "ShinyRedBalloon",
+   "TsunamiInABottle",
+   "SandstorminaBottle",
+   "CloudinaBottle"
+  ],
+  "split": "train",
+  "jump_tiles": 58,
+  "features": [
+   10.75,
+   58.08,
+   3,
+   3.0
+  ],
+  "measured_run_speed": 2.96
+ },
+ {
   "code": 20,
   "name": "blizzard",
   "items": [
@@ -173,7 +244,7 @@
    1,
    3.0
   ],
-  "measured_run_speed": 2.96
+  "measured_run_speed": 2.29
  },
  {
   "code": 21,

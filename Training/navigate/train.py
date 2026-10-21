@@ -93,6 +93,7 @@ def main():
     p.add_argument("--detour", type=float, default=0.0, help="share of episodes drawn from detour scenarios (0 = off)")
     p.add_argument("--categories", type=float, default=0.0, help="share of episodes drawn from the movement-category sets (0 = off)")
     p.add_argument("--damage-penalty", type=float, default=5.0, help="reward per full life lost (0 = off)")
+    p.add_argument("--height", action="store_true", help="also train each loadout on its <world>_h<J> sets (routes needing more than 13 tiles)")
     p.add_argument("--loadouts", default="tsunami", help="equipment variants, comma-separated: tsunami, none, or names from Training/loadouts.json")
     p.add_argument("--target-kl", type=float, default=0.0, help="stop an update early when the policy moves too far (0 = off)")
     p.add_argument("--physics-reward", action="store_true", help="progress reward from the physics movement graphs (option C)")
@@ -112,7 +113,7 @@ def main():
                          reward=RewardConfig(damage=args.damage_penalty,
                                              # physics distances drop in one step when a jump lands: no 3-tile cap
                                              max_progress_per_step=60.0 if args.physics_reward else 3.0),
-                         loadouts=args.loadouts.split(","),
+                         loadouts=args.loadouts.split(","), height=args.height,
                          graph_dir=str(Path(__file__).resolve().parents[1] / "movegraphs") if args.physics_reward else None)
     log = ProgressLog(run_dir, env)
     try:

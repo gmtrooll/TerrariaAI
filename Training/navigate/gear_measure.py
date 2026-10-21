@@ -38,6 +38,12 @@ LOADOUTS = [
     (7, "hermes", ["HermesBoots"], "train"),
     (8, "tsunami_hermes", ["TsunamiInABottle", "HermesBoots"], "train"),
     (9, "balloon_hermes", ["ShinyRedBalloon", "HermesBoots"], "train"),
+    # several extra jumps at once (Oct 21: Bundle of Balloons, 3 extra jumps and a 60-tile apex, was far outside the
+    # trained range and the gear-aware policy collapsed on it); Blizzard stays held out
+    (10, "cloud_fart", ["CloudinaBottle", "FartinaJar"], "train"),
+    (11, "sandstorm_cloud", ["SandstorminaBottle", "CloudinaBottle"], "train"),
+    (12, "tsunami_fart_cloud", ["TsunamiInABottle", "FartinaJar", "CloudinaBottle"], "train"),
+    (13, "balloon_tsunami_sandstorm_cloud", ["ShinyRedBalloon", "TsunamiInABottle", "SandstorminaBottle", "CloudinaBottle"], "train"),
     # held out: never worn in training
     (20, "blizzard", ["BlizzardinaBottle"], "test"),
     (21, "frogleg", ["FrogLeg"], "test"),

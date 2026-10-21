@@ -54,8 +54,9 @@ def band_of(d: float) -> str:
     return "5-15" if d < 15 else "15-30" if d < 30 else "30-60" if d < 60 else "60-120"
 
 
-def loadout_scenarios(world: str, name: str) -> list:
-    """The scenarios of one world for a loadout, with ids, loadout codes and route lengths for its jump height."""
+def loadout_scenarios(world: str, name: str, height: bool = False) -> list:
+    """The scenarios of one world for a loadout, with ids, loadout codes and route lengths for its jump height. With
+    height, also <world>_h<J>.jsonl when it exists (navigate.height_sets: routes that need more than 13 tiles)."""
     jump = LOADOUT_ROWS[name]["jump_tiles"] if name in LOADOUT_ROWS else (13 if name == "tsunami" else 6)
     code = loadout_code(name)
     suffix = "_j6" if jump == 6 else ""
@@ -71,6 +72,11 @@ def loadout_scenarios(world: str, name: str) -> list:
         if d >= 5:
             s["path_distance"] = int(d)
             s["band"] = band_of(d)
+            out.append(s)
+    if height and (scenario_files.SCENARIO_DIR / f"{world}_h{jump}.jsonl").exists():
+        for i, s in enumerate(scenario_files.load(world, f"_h{jump}")):
+            s["id"] = f"{world}_h{jump}:{i}"
+            s["loadout"] = code
             out.append(s)
     return out
 DONE, WIN, DIED, TIMEOUT, NEW_EPISODE = 1, 2, 4, 8, 16
@@ -154,7 +160,7 @@ class ScenarioSource:
 
     def __init__(self, world: str, curriculum: Curriculum, rng: random.Random, fixed_list: list = None,
                  replay: float = 0.0, stats: dict = None, loadouts: list = None, physics: bool = False, detour: float = 0.0,
-                 categories: float = 0.0):
+                 categories: float = 0.0, height: bool = False):
         self.world = world
         self.detour = detour
         self.categories = categories
@@ -174,7 +180,7 @@ class ScenarioSource:
         # One scenario set per equipment variant; an episode first picks a variant uniformly, then a band.
         self.sets = []
         for name in loadouts or ["tsunami"]:
-            rows = loadout_scenarios(world, name) if fixed_list is None else []
+            rows = loadout_scenarios(world, name, height=height) if fixed_list is None else []
             # Scenarios the movement graph cannot reach are kept: the graph still misses some moves (95.9% of the
             # scenarios bots solve are reachable in it, train_01, Oct 19), and the mod falls back to the grid distance
             # for an episode whose start is off the graph.
@@ -236,7 +242,8 @@ class NavigateVecEnv(VecEnv):
                  frame_skip: int = 4, fidelity: str = "world_updates=0,npc_spawns=0", bot_lean: bool = True,
                  reward: RewardConfig = None, curriculum: Curriculum = None, seed: int = 0, fixed_scenarios: dict = None,
                  games: GameManager = None, launch_timeout: float = 300, mode: str = "server", extra_args: list = None,
-                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None, detour: float = 0.0, categories: float = 0.0):
+                 replay: float = 0.0, loadouts: list = None, graph_dir: str = None, detour: float = 0.0, categories: float = 0.0,
+                 height: bool = False):
         """graph_dir: physics movement graphs (navigate.movegraph); the progress reward then uses physics route
         distances (option C), only physically reachable scenarios are used, and time limits follow physics times."""
         """mode "client" launches game windows instead of headless servers (for watching; see navigate.watch)."""
@@ -244,6 +251,7 @@ class NavigateVecEnv(VecEnv):
         self.replay = replay
         self.detour = detour
         self.categories = categories
+        self.height = height
         self.loadouts = loadouts or ["tsunami"]
         self.physics = graph_dir is not None
         self.reward_cfg = reward or RewardConfig()
@@ -366,7 +374,8 @@ class NavigateVecEnv(VecEnv):
         world = spec["world"]
         fixed = fixed_scenarios.get(world) if fixed_scenarios else None
         source = ScenarioSource(world, self.curriculum, self.rng, fixed, replay=self.replay, stats=self.scenario_stats,
-                                loadouts=self.loadouts, physics=self.physics, detour=self.detour, categories=self.categories)
+                                loadouts=self.loadouts, physics=self.physics, detour=self.detour, categories=self.categories,
+                                height=self.height)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.version = version
         if version < 2 and any(loadout_code(n) != 1 for n in self.loadouts):
