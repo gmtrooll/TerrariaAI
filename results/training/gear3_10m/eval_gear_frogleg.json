@@ -1,0 +1,1870 @@
+{
+  "policy": "model",
+  "run": "gear3_10m",
+  "obs": "grid=fovea,visibility=exposed,near=1,los=1,gear=1",
+  "deterministic": false,
+  "worlds": [
+    "eval_01",
+    "eval_02"
+  ],
+  "overall": {
+    "n": 256,
+    "success": 0.8867,
+    "died": 0.0078,
+    "mean_win_length": 51.3
+  },
+  "episodes": [
+    {
+      "id": "eval_01:66",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:892",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:12",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:86",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:471",
+      "win": true,
+      "died": false,
+      "l": 12,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:489",
+      "win": true,
+      "died": false,
+      "l": 12,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:89",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:830",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:480",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:806",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:832",
+      "win": true,
+      "died": false,
+      "l": 16,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:6",
+      "win": true,
+      "died": false,
+      "l": 17,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:470",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:898",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:877",
+      "win": true,
+      "died": false,
+      "l": 21,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:479",
+      "win": true,
+      "died": false,
+      "l": 22,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:818",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:185",
+      "win": true,
+      "died": false,
+      "l": 25,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:409",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:961",
+      "win": true,
+      "died": false,
+      "l": 26,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:822",
+      "win": true,
+      "died": false,
+      "l": 27,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:161",
+      "win": true,
+      "died": false,
+      "l": 28,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:559",
+      "win": true,
+      "died": false,
+      "l": 29,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:186",
+      "win": true,
+      "died": false,
+      "l": 31,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:8",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:550",
+      "win": true,
+      "died": false,
+      "l": 14,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:131",
+      "win": true,
+      "died": false,
+      "l": 33,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:882",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:521",
+      "win": true,
+      "died": false,
+      "l": 34,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:13",
+      "win": true,
+      "died": false,
+      "l": 21,
+      "snag": 3
+    },
+    {
+      "id": "eval_02:994",
+      "win": true,
+      "died": false,
+      "l": 27,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:150",
+      "win": true,
+      "died": false,
+      "l": 39,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:971",
+      "win": true,
+      "died": false,
+      "l": 30,
+      "snag": 12
+    },
+    {
+      "id": "eval_01:868",
+      "win": true,
+      "died": false,
+      "l": 41,
+      "snag": 3
+    },
+    {
+      "id": "eval_02:183",
+      "win": true,
+      "died": false,
+      "l": 41,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:154",
+      "win": true,
+      "died": false,
+      "l": 43,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:103",
+      "win": true,
+      "died": false,
+      "l": 44,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:195",
+      "win": true,
+      "died": false,
+      "l": 23,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:218",
+      "win": true,
+      "died": false,
+      "l": 45,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:585",
+      "win": true,
+      "died": false,
+      "l": 24,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:507",
+      "win": true,
+      "died": false,
+      "l": 20,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:632",
+      "win": true,
+      "died": false,
+      "l": 49,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:283",
+      "win": true,
+      "died": false,
+      "l": 51,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:80",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:632",
+      "win": true,
+      "died": false,
+      "l": 53,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:48",
+      "win": true,
+      "died": false,
+      "l": 16,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:887",
+      "win": true,
+      "died": false,
+      "l": 9,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:772",
+      "win": true,
+      "died": false,
+      "l": 55,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:608",
+      "win": true,
+      "died": false,
+      "l": 56,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:457",
+      "win": true,
+      "died": false,
+      "l": 58,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:169",
+      "win": true,
+      "died": false,
+      "l": 25,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:879",
+      "win": true,
+      "died": false,
+      "l": 6,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:644",
+      "win": true,
+      "died": false,
+      "l": 33,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:403",
+      "win": true,
+      "died": false,
+      "l": 18,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:260",
+      "win": true,
+      "died": false,
+      "l": 64,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:1183",
+      "win": true,
+      "died": false,
+      "l": 65,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:179",
+      "win": true,
+      "died": false,
+      "l": 23,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:348",
+      "win": true,
+      "died": false,
+      "l": 67,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:24",
+      "win": false,
+      "died": false,
+      "l": 68,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:437",
+      "win": true,
+      "died": false,
+      "l": 16,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:988",
+      "win": true,
+      "died": false,
+      "l": 39,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1037",
+      "win": true,
+      "died": false,
+      "l": 44,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1113",
+      "win": true,
+      "died": false,
+      "l": 74,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:1092",
+      "win": true,
+      "died": false,
+      "l": 75,
+      "snag": 46
+    },
+    {
+      "id": "eval_01:684",
+      "win": true,
+      "died": false,
+      "l": 34,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:93",
+      "win": true,
+      "died": false,
+      "l": 23,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:86",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:468",
+      "win": true,
+      "died": false,
+      "l": 17,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1091",
+      "win": true,
+      "died": false,
+      "l": 77,
+      "snag": 23
+    },
+    {
+      "id": "eval_01:523",
+      "win": true,
+      "died": false,
+      "l": 37,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:978",
+      "win": true,
+      "died": false,
+      "l": 47,
+      "snag": 7
+    },
+    {
+      "id": "eval_02:1151",
+      "win": true,
+      "died": false,
+      "l": 81,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:130",
+      "win": true,
+      "died": false,
+      "l": 30,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:977",
+      "win": true,
+      "died": false,
+      "l": 84,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:753",
+      "win": true,
+      "died": false,
+      "l": 86,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:457",
+      "win": false,
+      "died": false,
+      "l": 72,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:383",
+      "win": true,
+      "died": false,
+      "l": 88,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:850",
+      "win": true,
+      "died": false,
+      "l": 21,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1132",
+      "win": true,
+      "died": false,
+      "l": 90,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1108",
+      "win": true,
+      "died": false,
+      "l": 65,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:511",
+      "win": true,
+      "died": false,
+      "l": 17,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:807",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:292",
+      "win": true,
+      "died": false,
+      "l": 77,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:975",
+      "win": true,
+      "died": false,
+      "l": 46,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:919",
+      "win": true,
+      "died": false,
+      "l": 26,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:606",
+      "win": true,
+      "died": false,
+      "l": 52,
+      "snag": 4
+    },
+    {
+      "id": "eval_01:393",
+      "win": true,
+      "died": false,
+      "l": 95,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:510",
+      "win": true,
+      "died": false,
+      "l": 27,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:690",
+      "win": true,
+      "died": false,
+      "l": 86,
+      "snag": 6
+    },
+    {
+      "id": "eval_01:1130",
+      "win": true,
+      "died": false,
+      "l": 98,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:235",
+      "win": true,
+      "died": false,
+      "l": 49,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:320",
+      "win": true,
+      "died": false,
+      "l": 99,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:120",
+      "win": true,
+      "died": false,
+      "l": 27,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:844",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:14",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:361",
+      "win": true,
+      "died": false,
+      "l": 104,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:442",
+      "win": true,
+      "died": false,
+      "l": 12,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:600",
+      "win": true,
+      "died": false,
+      "l": 66,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:465",
+      "win": true,
+      "died": false,
+      "l": 17,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:881",
+      "win": true,
+      "died": false,
+      "l": 6,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:339",
+      "win": true,
+      "died": false,
+      "l": 83,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:21",
+      "win": false,
+      "died": false,
+      "l": 100,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:249",
+      "win": true,
+      "died": false,
+      "l": 77,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1076",
+      "win": true,
+      "died": false,
+      "l": 52,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:290",
+      "win": true,
+      "died": false,
+      "l": 31,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:920",
+      "win": true,
+      "died": false,
+      "l": 28,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:233",
+      "win": true,
+      "died": false,
+      "l": 57,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:883",
+      "win": true,
+      "died": false,
+      "l": 13,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:620",
+      "win": true,
+      "died": false,
+      "l": 47,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:791",
+      "win": true,
+      "died": false,
+      "l": 122,
+      "snag": 3
+    },
+    {
+      "id": "eval_02:976",
+      "win": true,
+      "died": false,
+      "l": 83,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:820",
+      "win": true,
+      "died": false,
+      "l": 11,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:723",
+      "win": true,
+      "died": false,
+      "l": 78,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:946",
+      "win": true,
+      "died": false,
+      "l": 72,
+      "snag": 15
+    },
+    {
+      "id": "eval_01:1188",
+      "win": true,
+      "died": false,
+      "l": 109,
+      "snag": 22
+    },
+    {
+      "id": "eval_01:202",
+      "win": true,
+      "died": false,
+      "l": 57,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:849",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:127",
+      "win": false,
+      "died": false,
+      "l": 128,
+      "snag": 4
+    },
+    {
+      "id": "eval_01:777",
+      "win": true,
+      "died": false,
+      "l": 41,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:929",
+      "win": true,
+      "died": false,
+      "l": 50,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:150",
+      "win": true,
+      "died": false,
+      "l": 45,
+      "snag": 5
+    },
+    {
+      "id": "eval_01:933",
+      "win": true,
+      "died": false,
+      "l": 42,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:390",
+      "win": true,
+      "died": false,
+      "l": 121,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:1036",
+      "win": true,
+      "died": false,
+      "l": 134,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:1016",
+      "win": true,
+      "died": false,
+      "l": 26,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:833",
+      "win": true,
+      "died": false,
+      "l": 1,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:894",
+      "win": false,
+      "died": false,
+      "l": 72,
+      "snag": 5
+    },
+    {
+      "id": "eval_02:843",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:253",
+      "win": true,
+      "died": false,
+      "l": 41,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:821",
+      "win": true,
+      "died": false,
+      "l": 12,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:868",
+      "win": true,
+      "died": false,
+      "l": 17,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:99",
+      "win": true,
+      "died": false,
+      "l": 13,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:994",
+      "win": true,
+      "died": false,
+      "l": 17,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:497",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:993",
+      "win": true,
+      "died": false,
+      "l": 58,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:157",
+      "win": true,
+      "died": false,
+      "l": 26,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:616",
+      "win": true,
+      "died": false,
+      "l": 144,
+      "snag": 3
+    },
+    {
+      "id": "eval_02:212",
+      "win": true,
+      "died": false,
+      "l": 55,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:975",
+      "win": false,
+      "died": false,
+      "l": 148,
+      "snag": 29
+    },
+    {
+      "id": "eval_02:603",
+      "win": true,
+      "died": false,
+      "l": 30,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:834",
+      "win": true,
+      "died": false,
+      "l": 1,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:20",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:498",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:211",
+      "win": true,
+      "died": false,
+      "l": 53,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:196",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:571",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1049",
+      "win": true,
+      "died": false,
+      "l": 33,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:14",
+      "win": true,
+      "died": false,
+      "l": 4,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:682",
+      "win": true,
+      "died": false,
+      "l": 155,
+      "snag": 83
+    },
+    {
+      "id": "eval_01:1163",
+      "win": true,
+      "died": false,
+      "l": 85,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:161",
+      "win": false,
+      "died": false,
+      "l": 144,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:633",
+      "win": true,
+      "died": false,
+      "l": 55,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:561",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1134",
+      "win": true,
+      "died": false,
+      "l": 162,
+      "snag": 24
+    },
+    {
+      "id": "eval_01:1095",
+      "win": false,
+      "died": false,
+      "l": 164,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:191",
+      "win": true,
+      "died": false,
+      "l": 25,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:513",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1046",
+      "win": true,
+      "died": false,
+      "l": 74,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:259",
+      "win": true,
+      "died": false,
+      "l": 43,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:398",
+      "win": false,
+      "died": true,
+      "l": 69,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:522",
+      "win": true,
+      "died": false,
+      "l": 25,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:689",
+      "win": true,
+      "died": false,
+      "l": 43,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:49",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:259",
+      "win": true,
+      "died": false,
+      "l": 57,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:382",
+      "win": true,
+      "died": false,
+      "l": 97,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:761",
+      "win": true,
+      "died": false,
+      "l": 36,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:630",
+      "win": true,
+      "died": false,
+      "l": 71,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1195",
+      "win": true,
+      "died": false,
+      "l": 61,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:387",
+      "win": true,
+      "died": false,
+      "l": 122,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:409",
+      "win": true,
+      "died": false,
+      "l": 8,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:899",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:261",
+      "win": true,
+      "died": false,
+      "l": 53,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:494",
+      "win": true,
+      "died": false,
+      "l": 13,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:940",
+      "win": false,
+      "died": false,
+      "l": 156,
+      "snag": 35
+    },
+    {
+      "id": "eval_02:1080",
+      "win": true,
+      "died": false,
+      "l": 40,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:601",
+      "win": true,
+      "died": false,
+      "l": 66,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:750",
+      "win": true,
+      "died": false,
+      "l": 95,
+      "snag": 3
+    },
+    {
+      "id": "eval_02:762",
+      "win": true,
+      "died": false,
+      "l": 99,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:198",
+      "win": true,
+      "died": false,
+      "l": 33,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:223",
+      "win": true,
+      "died": false,
+      "l": 61,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1079",
+      "win": true,
+      "died": false,
+      "l": 55,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:50",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:574",
+      "win": true,
+      "died": false,
+      "l": 22,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1122",
+      "win": true,
+      "died": false,
+      "l": 153,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:697",
+      "win": false,
+      "died": false,
+      "l": 188,
+      "snag": 14
+    },
+    {
+      "id": "eval_02:360",
+      "win": true,
+      "died": false,
+      "l": 133,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:80",
+      "win": true,
+      "died": false,
+      "l": 8,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:121",
+      "win": true,
+      "died": false,
+      "l": 35,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1070",
+      "win": false,
+      "died": false,
+      "l": 196,
+      "snag": 5
+    },
+    {
+      "id": "eval_01:1103",
+      "win": true,
+      "died": false,
+      "l": 56,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:7",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:204",
+      "win": true,
+      "died": false,
+      "l": 34,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:514",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:308",
+      "win": true,
+      "died": false,
+      "l": 83,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:514",
+      "win": true,
+      "died": false,
+      "l": 24,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:235",
+      "win": true,
+      "died": false,
+      "l": 32,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1097",
+      "win": true,
+      "died": false,
+      "l": 89,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:320",
+      "win": true,
+      "died": false,
+      "l": 141,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:748",
+      "win": true,
+      "died": false,
+      "l": 78,
+      "snag": 2
+    },
+    {
+      "id": "eval_02:382",
+      "win": true,
+      "died": false,
+      "l": 138,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:118",
+      "win": true,
+      "died": false,
+      "l": 27,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:641",
+      "win": true,
+      "died": false,
+      "l": 34,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:610",
+      "win": true,
+      "died": false,
+      "l": 124,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:535",
+      "win": true,
+      "died": false,
+      "l": 23,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:78",
+      "win": true,
+      "died": false,
+      "l": 15,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:345",
+      "win": true,
+      "died": false,
+      "l": 83,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:201",
+      "win": true,
+      "died": false,
+      "l": 62,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1147",
+      "win": true,
+      "died": false,
+      "l": 58,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:1006",
+      "win": false,
+      "died": true,
+      "l": 161,
+      "snag": 7
+    },
+    {
+      "id": "eval_01:374",
+      "win": true,
+      "died": false,
+      "l": 134,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:953",
+      "win": true,
+      "died": false,
+      "l": 18,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:226",
+      "win": true,
+      "died": false,
+      "l": 24,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:246",
+      "win": true,
+      "died": false,
+      "l": 34,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:526",
+      "win": true,
+      "died": false,
+      "l": 31,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:166",
+      "win": true,
+      "died": false,
+      "l": 31,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:352",
+      "win": true,
+      "died": false,
+      "l": 112,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:401",
+      "win": true,
+      "died": false,
+      "l": 10,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:215",
+      "win": true,
+      "died": false,
+      "l": 57,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:965",
+      "win": true,
+      "died": false,
+      "l": 40,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:625",
+      "win": true,
+      "died": false,
+      "l": 134,
+      "snag": 91
+    },
+    {
+      "id": "eval_01:1026",
+      "win": true,
+      "died": false,
+      "l": 25,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1023",
+      "win": true,
+      "died": false,
+      "l": 184,
+      "snag": 45
+    },
+    {
+      "id": "eval_01:312",
+      "win": true,
+      "died": false,
+      "l": 123,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:225",
+      "win": true,
+      "died": false,
+      "l": 80,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:366",
+      "win": true,
+      "died": false,
+      "l": 92,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:1034",
+      "win": true,
+      "died": false,
+      "l": 198,
+      "snag": 33
+    },
+    {
+      "id": "eval_02:945",
+      "win": false,
+      "died": false,
+      "l": 132,
+      "snag": 18
+    },
+    {
+      "id": "eval_01:881",
+      "win": false,
+      "died": false,
+      "l": 100,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:374",
+      "win": true,
+      "died": false,
+      "l": 136,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:42",
+      "win": true,
+      "died": false,
+      "l": 18,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:384",
+      "win": true,
+      "died": false,
+      "l": 148,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:1127",
+      "win": true,
+      "died": false,
+      "l": 136,
+      "snag": 16
+    },
+    {
+      "id": "eval_01:187",
+      "win": true,
+      "died": false,
+      "l": 41,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:702",
+      "win": false,
+      "died": false,
+      "l": 308,
+      "snag": 6
+    },
+    {
+      "id": "eval_02:303",
+      "win": true,
+      "died": false,
+      "l": 139,
+      "snag": 5
+    },
+    {
+      "id": "eval_02:1043",
+      "win": false,
+      "died": false,
+      "l": 196,
+      "snag": 5
+    },
+    {
+      "id": "eval_02:708",
+      "win": true,
+      "died": false,
+      "l": 173,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:1177",
+      "win": false,
+      "died": false,
+      "l": 324,
+      "snag": 58
+    },
+    {
+      "id": "eval_02:626",
+      "win": false,
+      "died": false,
+      "l": 264,
+      "snag": 204
+    },
+    {
+      "id": "eval_01:194",
+      "win": true,
+      "died": false,
+      "l": 28,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:355",
+      "win": false,
+      "died": false,
+      "l": 396,
+      "snag": 3
+    },
+    {
+      "id": "eval_01:1018",
+      "win": false,
+      "died": false,
+      "l": 280,
+      "snag": 103
+    },
+    {
+      "id": "eval_01:487",
+      "win": true,
+      "died": false,
+      "l": 19,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:701",
+      "win": true,
+      "died": false,
+      "l": 357,
+      "snag": 6
+    },
+    {
+      "id": "eval_01:1198",
+      "win": false,
+      "died": false,
+      "l": 368,
+      "snag": 4
+    },
+    {
+      "id": "eval_01:287",
+      "win": true,
+      "died": false,
+      "l": 42,
+      "snag": 1
+    },
+    {
+      "id": "eval_02:1162",
+      "win": false,
+      "died": false,
+      "l": 492,
+      "snag": 5
+    },
+    {
+      "id": "eval_01:1118",
+      "win": false,
+      "died": false,
+      "l": 400,
+      "snag": 8
+    },
+    {
+      "id": "eval_02:741",
+      "win": true,
+      "died": false,
+      "l": 79,
+      "snag": 2
+    },
+    {
+      "id": "eval_01:1193",
+      "win": false,
+      "died": false,
+      "l": 352,
+      "snag": 336
+    },
+    {
+      "id": "eval_02:648",
+      "win": false,
+      "died": false,
+      "l": 268,
+      "snag": 7
+    },
+    {
+      "id": "eval_01:718",
+      "win": true,
+      "died": false,
+      "l": 67,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:360",
+      "win": false,
+      "died": false,
+      "l": 488,
+      "snag": 4
+    },
+    {
+      "id": "eval_02:768",
+      "win": false,
+      "died": false,
+      "l": 404,
+      "snag": 5
+    },
+    {
+      "id": "eval_01:735",
+      "win": true,
+      "died": false,
+      "l": 162,
+      "snag": 1
+    },
+    {
+      "id": "eval_01:375",
+      "win": false,
+      "died": false,
+      "l": 488,
+      "snag": 4
+    }
+  ],
+  "by_world": {
+    "eval_01": {
+      "n": 128,
+      "success": 0.8594,
+      "died": 0.0078,
+      "mean_win_length": 51.2
+    },
+    "eval_02": {
+      "n": 128,
+      "success": 0.9141,
+      "died": 0.0078,
+      "mean_win_length": 51.3
+    }
+  },
+  "by_band": {
+    "15-30": {
+      "n": 64,
+      "success": 0.8906,
+      "died": 0.0,
+      "mean_win_length": 30.5
+    },
+    "30-60": {
+      "n": 64,
+      "success": 0.8906,
+      "died": 0.0156,
+      "mean_win_length": 62.4
+    },
+    "5-15": {
+      "n": 64,
+      "success": 0.9531,
+      "died": 0.0,
+      "mean_win_length": 14.6
+    },
+    "60-120": {
+      "n": 64,
+      "success": 0.8125,
+      "died": 0.0156,
+      "mean_win_length": 104.8
+    }
+  },
+  "by_layer": {
+    "cavern": {
+      "n": 85,
+      "success": 0.8235,
+      "died": 0.0118,
+      "mean_win_length": 49.8
+    },
+    "surface": {
+      "n": 97,
+      "success": 0.9175,
+      "died": 0.0103,
+      "mean_win_length": 51.5
+    },
+    "underground": {
+      "n": 74,
+      "success": 0.9189,
+      "died": 0.0,
+      "mean_win_length": 52.4
+    }
+  }
+}

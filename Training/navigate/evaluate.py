@@ -61,7 +61,8 @@ class Policy:
     """A trained run's policy: policy(obs) -> actions; policy.observe(dones) after every step (resets the memory
     of recurrent policies when an episode ended)."""
 
-    def __init__(self, run_dir: Path, config: dict, env, deterministic: bool, device: str = "cuda", checkpoint: str = "model.pt"):
+    def __init__(self, run_dir: Path, config: dict, env, deterministic: bool, device: str = None, checkpoint: str = "model.pt"):
+        device = device or ("cuda" if torch.cuda.is_available() and torch.cuda.device_count() > 0 else "cpu")  # CPU: watching and evaluating on a laptop
         self.deterministic = deterministic
         self.device = device
         self.sb3 = None

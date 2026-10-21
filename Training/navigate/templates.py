@@ -12,13 +12,14 @@ of the world stay valid, and a vault's own scenarios stay inside it. The paramet
 
     python -m navigate.templates --worlds train_01 train_02 --per-world 40 --seed 1
     python -m navigate.templates --worlds eval_01 eval_02 --per-world 30 --seed 900 --suffix _tmpl
-Saves the world (a backup of the .wld goes to K:/FirstMod_Sp_data/world_backups first) and writes the rows, which
+Saves the world (a backup of the .wld goes to <training save dir>/WorldBackups, or TML_WORLD_BACKUPS, first) and writes the rows, which
 carry category and band like the category sets, to Training/scenarios/<world><suffix>.jsonl (training reads
 _tmpl rows along with _cat ones; evaluate with --set _tmpl).
 """
 
 import argparse
 import json
+import os
 import random
 import shutil
 import sys
@@ -30,7 +31,7 @@ from terraria_mcp import config  # noqa: E402
 from terraria_mcp.game import GameManager  # noqa: E402
 from terraria_mcp.scenarios import SCENARIO_DIR  # noqa: E402
 
-BACKUPS = Path(r"K:\FirstMod_Sp_data\world_backups")
+BACKUPS = Path(os.environ.get("TML_WORLD_BACKUPS", config.SAVE_DIR / "WorldBackups"))  # this PC: K:\FirstMod_Sp_data\world_backups
 W, H = 36, 26        # vault box (tiles), including its rock shell (larger boxes: few sealed sites, 20 per world)
 FLOOR_DEPTH = 8      # the floor row is H - FLOOR_DEPTH below the box top: pits up to 6 deep keep rock under them
 MARGIN = 1           # solid rock required around the box (the shell is 2 tiles thick)

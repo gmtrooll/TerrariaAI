@@ -3,6 +3,8 @@
     python -m navigate.watch --run stride2                      # bots run held-out scenarios, camera on bot 1
     python -m navigate.watch --run stride2 --band 60-120        # only long routes
     python -m navigate.watch --run stride2 --mode follow        # the target is your own character: walk around
+    python -m navigate.watch --run gear3_10m --loadout bundle --set _h59   # wearing Bundle of Balloons, on routes
+                                                                          # that need its height (navigate.height_sets)
 
 In the window: keys 1-9 put the camera on a bot, 0 back on your own character. Yellow sparkles mark each bot's
 target, blue ones its route waypoint (12 path tiles ahead). The top of the screen shows the running tally. In follow
@@ -14,7 +16,7 @@ import argparse
 import json
 import random
 
-from navigate.env import BANDS, Curriculum, NavigateVecEnv
+from navigate.env import BANDS, Curriculum, NavigateVecEnv, loadout_code, loadout_names, loadout_scenarios
 from navigate.evaluate import EVAL_WORLDS, RESULTS, load_policy
 from terraria_mcp import scenarios as scenario_files
 
@@ -32,6 +34,8 @@ def main():
     p.add_argument("--deterministic", action="store_true", help="most likely action instead of sampling")
     p.add_argument("--port", type=int, default=5790)
     p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. ckpt_30M.pt")
+    p.add_argument("--loadout", choices=loadout_names(), default="tsunami", help="equipment the bots wear (Training/loadouts.json)")
+    p.add_argument("--set", default="", help="scenario set suffix instead of the loadout's own, e.g. _h59 or _bend")
     args = p.parse_args()
 
     run_dir = RESULTS / args.run
@@ -39,14 +43,15 @@ def main():
     if args.mode == "follow":
         lists = {args.world: [FOLLOW]}
     else:
-        rows = scenario_files.load(args.world)
+        rows = scenario_files.load(args.world, args.set) if args.set else loadout_scenarios(args.world, args.loadout)
         for i, s in enumerate(rows):
-            s["id"] = f"{args.world}:{i}"
+            s["id"] = f"{args.world}{args.set}:{i}" if args.set else s["id"]
+            s["loadout"] = loadout_code(args.loadout)
         rows = [s for s in rows if args.band is None or s["band"] == args.band]
         random.Random().shuffle(rows)
         lists = {args.world: rows}
 
-    print(f"launching a game window on {args.world} with {args.bots} bots running '{args.run}' ...", flush=True)
+    print(f"launching a game window on {args.world} with {args.bots} bots running '{args.run}' wearing {args.loadout} ...", flush=True)
     env = NavigateVecEnv([args.world], bots_per_server=args.bots, port=args.port, obs=config.get("obs", "grid=fovea,visibility=exposed"),
                          curriculum=Curriculum(fixed=True), fixed_scenarios=lists, mode="client", bot_lean=False,
                          extra_args=["-envrealtime", "-envcamera", "-1" if args.mode == "follow" else "0"],
