@@ -1,99 +1,102 @@
-# Terraria Reinforcement Learning Mod
+# Terraria Agent
 
-A custom tModLoader mod and Python training environment for teaching AI bots to play Terraria.
+A thesis project: an agent that carries out Terraria tasks given in plain words, built as a planner over skills trained with reinforcement learning in the real game (tModLoader 1.4.4). The first skill, **Navigate**, moves the player to any target on worlds it has never seen; it is trained with a custom PPO on headless game servers.
 
-This project sets up a full system for training bots in Terraria using Proximal Policy Optimization (PPO). It uses a real-time connection to link the C# game engine with the Python training loop.
+The plan: [docs/Terraria Agent Architecture and Plan.md](docs/Terraria%20Agent%20Architecture%20and%20Plan.md). The full history of experiments and results: [docs/Navigate Progress.md](docs/Navigate%20Progress.md).
 
-## Architecture & Technologies
+## Where it stands (21 October 2026)
 
-The project is split into two main parts that constantly talk to each other over a fast TCP socket connection:
+| | Success on held-out worlds |
+| --- | --- |
+| `navigate_v4`, with Tsunami in a Bottle (1,024 scenarios, mean of 3 runs) | **97.1%** |
+| `navigate_v4`, without an extra jump | 88.4% |
+| Best scripted bot (walk to the target, jump when stuck) | 54% |
 
-### 1. Game Environment (C# / tModLoader)
+`navigate_v4` trains from scratch in 2.5 hours on one PC (30M decisions, about 3,400 per second) and is at 95% after 51 minutes. First equipment results: describing gear to the policy by its measured abilities lets it use items it never trained with (Bundle of Balloons: 92% on routes that need its height), provided the training gear covers the range of abilities.
 
-- **Language:** C#
-- **Framework:** tModLoader (.NET)
-- Grabs the live game state, including a "vision grid" of the blocks around the player and the player's stats.
-- Takes action commands from the Python side and applies them directly to the player in-game.
-- Calculates distances and basic reward flags, then packs them up and sends them to the Python server.
+## Repository
 
-### 2. Training Pipeline (Python)
+| Path | What |
+| --- | --- |
+| `Common/Automation/` | Terraria MCP bridge (JSON over TCP), runtime C# execution, fixes that let bots run on a headless dedicated server |
+| `Common/Env/` | the Navigate training environment (protocol "TNV1"), loadouts, world integrity |
+| `Common/Observation/` | tile classes and the observation builder (grids, self state, capabilities, goal and waypoints) |
+| `Common/Systems/PathDistanceField.cs` | the grid route planner |
+| `Common/Planning/` | physics movement sampler and graph |
+| `Common/Scenarios/` | scenario and movement-category generators |
+| `Training/navigate/` | custom PPO (`train.py`, `ppo.py`, `model.py`), environment client (`env.py`), `evaluate.py`, `watch.py`, test-set and measurement tools, experiment queues (`queue_*.sh`) |
+| `Training/scenarios/` | scenario sets per world (`.jsonl`) |
+| `Training/loadouts.json` | equipment loadouts: items, measured abilities, planner jump height |
+| `worlds/` | the 16 training and test worlds the scenario sets belong to |
+| `results/training/<run>/` | config, training log and evaluations per run; model files for the runs listed below |
+| `tools/terraria_mcp/` | MCP server, launcher, bridge client, benchmarks, profiler; `tools/setup_machine.py` |
+| `docs/` | design documents and progress logs |
 
-- **Language:** Python
-- **ML Frameworks:** Stable Baselines 3, PyTorch, Gymnasium
-- **Algorithm:** Proximal Policy Optimization (PPO)
-- Trains multiple bots at the same time using vectorized environments (`VecEnv`). Frame stacking (`VecFrameStack`) can be turned on with `frame_stack` in the config to give the bots memory of what just happened (off by default).
-- Includes a live Streamlit dashboard (`dashboard.py`) to track how the training is going, watch model performance, and handle save files.
+Models in the repository: `navigate_v1` … `navigate_v4` (v4 is the best), `grid_ctrl_10m` (before the line-of-sight waypoint), `gear3_10m` and `nogear2_10m` (equipment).
 
-### Communication Layer (TCP Sockets)
+**Legacy.** The first version of the project (December 2025: hand-placed training zones, Stable-Baselines3) is still in the tree and not used by the current work: `Training/train_terraria.py`, `terraria_env.py`, `protocol.py`, `reward_system.py`, `zone_manager.py`, `dashboard.py`, `training_config.json`, `Training/tests/`, `TrainingZones/`, and on the mod side `Common/Players/Systems/RLInterface.cs`, `RLNetworkSystem.cs`, `Common/Systems/RLProtocol.cs`, `ZoneDatabase.cs`, `TrainingConfigLoader.cs`.
 
-To make sure actions happen instantly without lag, the C# mod and Python script talk over local TCP sockets. The C# client packs the game data (vision grids, stats) into tight binary buffers. The Python server reads this data, runs it through the AI model, and sends back a binary number that tells each bot what buttons to press (like move left, move right, or jump).
+## Setup
 
-The exact byte layout lives in two files that must change together: `Common/Systems/RLProtocol.cs` and `Training/protocol.py` (protocol version 2, observation version 2). In short:
+Windows, with Steam (Terraria + tModLoader), Python 3.12 and the .NET 8 SDK. Clone into tModLoader's `ModSources` folder, then run the setup script:
 
-1. **Handshake.** When the mod connects it sends a header (magic, protocol version, observation version, `num_bots`, stats size, grid size, `frame_skip`, `max_steps_per_zone`, world name). Python checks it and refuses the connection with a readable message (shown in the console and in the game chat) if anything differs, e.g. `num_bots`. Otherwise it answers with the first zone of every bot. Zones recorded in another world are ignored.
-2. **Every decision** (every `frame_skip` game ticks) the mod sends, for all bots: the stats vectors, the 40x40 grids, then per bot a path distance (float) and a flag byte (done, win, died, timeout, aborted, zone switched), then the last observation of every bot whose episode just ended.
-3. Python answers with one action per bot (bit 1 left, 2 right, 4 jump). It also sends each bot's *next* zone ahead of time, so when an episode ends the mod teleports the bot in the same tick and the observation Python gets is already the first one of the new episode.
+```powershell
+cd "$HOME\Documents\My Games\Terraria\tModLoader\ModSources"
+git clone https://github.com/gmtrooll/TerrariaAI.git FirstMod_Sp
+cd FirstMod_Sp
+python tools/setup_machine.py
+```
 
-The mod sends a packet, then waits for the actions, then applies them for the next `frame_skip` ticks. `reset()` reads the first packet, so the observation and reward returned by `step(a)` always describe the state after `a`.
+It finds tModLoader through Steam, copies the worlds into an isolated save folder (`Documents/My Games/Terraria/tModLoader-Train`, so personal worlds and mods are never touched), installs the Python packages, builds the mod and runs a short evaluation as a check. Training needs an NVIDIA GPU; everything else runs on the CPU. Details: [docs/Laptop Setup.md](docs/Laptop%20Setup.md).
 
-### Observation
+## Use
 
-- `vision`: 40x40 tiles around the bot (0 air, 0.5 platform, 1 solid).
-- `stats` (23 values, scaled to about [-1, 1]): velocity, facing, position inside the tile, jump frames left, Tsunami in a Bottle double jump available/active, liquid and debuff flags, fall distance, health, immunity frames, and the bot's **own zone target**: a has-target flag, the offset clamped to 20 tiles, the unit direction and a log-scaled distance. The full list is `STATS_FIELDS` in `Training/protocol.py`.
+From the `Training` folder. Anything that opens a game window needs Steam running.
 
-### Reward
+```bash
+# watch the best model on a world it never saw (keys 1-9: camera on a bot)
+python -m navigate.watch --run navigate_v4
+python -m navigate.watch --run navigate_v4 --mode follow                    # it follows your character
+python -m navigate.watch --run gear3_10m --loadout bundle --set _h59       # unseen gear, routes that need it
 
-`Training/reward_system.py`: +20 for reaching the target, -5 for dying, -1 for a timeout, plus `0.5 x` tiles of progress per step. Progress is measured with a path distance computed in the mod (`Common/Systems/PathDistanceField.cs`): a breadth-first search over the world from the target, built once per target, where the bot can walk, fall, and jump up at most `max_jump_tiles` above the ground. All weights are in `training_config.json`. Timeouts are reported to Stable-Baselines3 as truncations (not real terminal states).
+# evaluate on the held-out worlds (headless; sampled actions, as in training)
+python -m navigate.evaluate --run navigate_v4 --per-band 128 --tag big     # the 1,024-scenario set
+python -m navigate.evaluate --run navigate_v4 --set _bend --tag bend       # routes that bend away from the target
+python -m navigate.handmade --run navigate_v4 --repeats 8                  # hand-made ledge and pocket tests
 
-## Current State
+# train (navigate_v4's settings: 12 worlds x 16 bots, 30M steps, about 2.5 hours on an RTX 3060)
+python -m navigate.train --run my_run --worlds train_01 train_02 train_03 train_04 train_05 train_06 \
+    train_07 train_08 train_09 train_10 train_11 train_12 --bots 16 --steps 30000000 --bf16 --overlap \
+    --micro-batch 2048 --target-kl 0.03 --recurrent --obs grid=fovea,visibility=exposed,near=1,los=1 \
+    --detour 0.3 --loadouts tsunami,none --categories 0.3
+```
 
-The setup and communication are fully working, and the first models have been successfully trained. The bots can figure out basic movement and actions inside their specific training zones. However, they are currently overfitting, meaning they struggle when placed in new, untested areas. Future work will focus on making the training data and environments (the gym) better and more varied so the bots learn how to play in any situation.
+Comparing two models: evaluate both on the same fixed scenarios and count the scenarios only one of them solves (McNemar's test); single-run differences under about a point are noise.
 
-Note: before observation version 2, the bots did not see their own zone target (the target in their observation came from the manually placed target marker, or was zero), so they could only tell zones apart by the terrain. That alone explains much of the overfitting. Checkpoints trained before version 2 cannot be loaded by the current code.
+**Agents.** Open Claude Code in this folder: `.mcp.json` registers the Terraria MCP server, so an agent can build the mod, launch a client or a headless server, run C# inside the game, read state and tiles, inject input for any bot, step ticks and run benchmarks. Tool list: [tools/README.md](tools/README.md).
 
-## Configuration (`Training/training_config.json`)
+## How Navigate works
 
-Both sides read this file. The mod looks for it in `<tModLoader>/ModSources/FirstMod_Sp/Training/` and prints the path it used in the chat; it re-reads it every time a world is loaded.
+- **Game side.** Fake-player bots, 16–64 per headless server, several servers in parallel; physics is bit-identical to the client. Each server talks to the learner over its own socket: every 4 ticks it sends every bot's observation and episode events and receives actions. Episodes start anywhere a scenario says.
+- **Scenarios.** Start/target pairs generated from the planner's own search: 1,200 per world over 3 depth layers and 4 route-length bands, on 12 training and 2 held-out worlds, plus sets for bending routes, movement categories, obstacle templates and routes that need more jump height.
+- **Planner.** A cheapest-path search on the tile grid, matched to the game's rules (2-tile-wide body, measured jump heights, liquids, cobwebs, honey, fall damage, doors). It sets the progress reward and gives the policy its waypoints.
+- **Observation.** A 41 × 41 tile grid and a 30 × 17 overview of the player's screen (only tiles a player could see), self state, capabilities, and the goal with three waypoints (far with line of sight, near). Design: [docs/Observation Design.md](docs/Observation%20Design.md).
+- **Actions.** Three heads every 4 ticks: left/none/right, up/none/down, jump. [docs/Action Design.md](docs/Action%20Design.md).
+- **Learner.** PPO in PyTorch with overlapped collection, bf16, a GRU memory and a target-KL stop. [docs/Custom Learner Design.md](docs/Custom%20Learner%20Design.md).
+- **Reward.** +20 at the target, −5 for dying, −1 for timing out, +0.5 per tile of route progress, −5 per full life of damage.
 
-| Key | Used by | Meaning |
-|---|---|---|
-| `core_settings.num_bots` | both | Number of bots. Must be equal on both sides (checked at connect). The CLI `--num-bots` and the dashboard slider override the Python side only. |
-| `core_settings.port` | both | TCP port. |
-| `core_settings.max_steps_per_zone` | mod | Decisions before an episode times out. |
-| `core_settings.seed` | Python | Seed for Python, NumPy, PyTorch, PPO and zone sampling (`null` = random). |
-| `observation_settings.frame_skip` | mod | Game ticks per decision: each action is held for exactly this many ticks. |
-| `observation_settings.frame_stack` | Python | Number of stacked observations (1 = off). Changing it needs a new model. |
-| `training_hyperparameters.*` | Python | PPO settings. `batch_size` is the PPO minibatch size, not the number of bots. Loading a checkpoint keeps the hyperparameters it was saved with. |
-| `reward_settings.*` | Python | Win/death/timeout rewards, progress weight, and the per-step cap on progress. |
-| `path_settings.max_jump_tiles` | mod | How high above the ground the path search lets a bot go. The default 14 is an estimate (base jump about 6.5 tiles plus the Tsunami in a Bottle jump about 8); measure it in game and adjust. |
-| `path_settings.field_radius_tiles`, `off_path_penalty_tiles` | mod | Size of the path search around each target, and the penalty added to the straight-line distance when the bot is outside it or cut off from the target. |
-| `zone_settings.*` | Python | Difficulty range, performance-weighted sampling, and `zone_database_path` (by default the mod's `TrainingZones/zones_database.json`, which is this repository's folder when it is cloned into `ModSources`). |
-| `logging.debug` | both | Per-episode chat messages in game and console output in Python. Keep off with many bots. |
+## Documents
 
-Zone training statistics are written to `Training/logs/zone_stats.json` (the zone database itself is only written by the mod). Checkpoints go to `Training/models/` and TensorBoard logs (including `rollout/success_rate` and `episodes/*` outcome counts) to `Training/logs/`, whatever the current directory is.
-
-## Getting Started
-
-1. Place this repository in your tModLoader `ModSources` directory.
-2. Build the mod using the tModLoader game menu and enable it.
-3. In the `Training` folder, install the required packages:
-   ```bash
-   pip install -r requirements.txt
-   ```
-4. Start the training server or the dashboard:
-   ```bash
-   python train_terraria.py --dashboard
-   ```
-   or train from the command line: `python train_terraria.py --num-bots 16`.
-5. Load a Terraria world with the mod enabled to establish the connection, then spawn `num_bots` bots with the Bot Spawner (Ctrl + click) to begin training.
+| Document | Contents |
+| --- | --- |
+| [Terraria Agent Architecture and Plan](docs/Terraria%20Agent%20Architecture%20and%20Plan.md) | goal, the five layers, the skills, roadmap, evaluation plan, related work |
+| [Throughput and Automation Plan](docs/Throughput%20and%20Automation%20Plan.md) | headless servers, the MCP, benchmarks, learner speed |
+| [Navigate Progress](docs/Navigate%20Progress.md) | every experiment since 18 October, newest last |
+| [Overnight Log](docs/Overnight%20Log.md) | the first Navigate experiments |
+| [Observation](docs/Observation%20Design.md), [Action](docs/Action%20Design.md), [Custom Learner](docs/Custom%20Learner%20Design.md), [Physics Planner](docs/Physics%20Planner%20Design.md) design | the design decisions, from the decompiled game code |
+| [Movement Hazards](docs/Movement%20Hazards.md), [Movement Equipment](docs/Movement%20Equipment.md) | everything in the game that changes how a player moves, with code references |
+| [Laptop Setup](docs/Laptop%20Setup.md) | setting up a second machine; presenting |
 
 ## Tests
 
-The Python side is tested without the game: `Training/tests/fake_terraria.py` is a stand-in for the mod that speaks the real protocol.
-
-```bash
-pip install -r Training/requirements.txt
-pytest Training/tests
-```
-
-The tests also run on every push and pull request (GitHub Actions, `.github/workflows/python-tests.yml`). The C# mod has no automated tests; build it in tModLoader.
+The legacy Python pipeline has unit tests against a fake game (`pytest Training/tests`, run by GitHub Actions on every push). The current pipeline is checked inside the running game instead: the physics check (server against client), benchmarks, and the held-out evaluations above.
