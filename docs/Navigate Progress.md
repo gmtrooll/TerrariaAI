@@ -551,3 +551,21 @@ The planner now uses these numbers: the jump height of a cell comes from its tak
 - **Where the height matters, the measured abilities help**: training loadouts 101 vs 49 (z = 4.3); held-out items inside or near the trained range 144 vs 92 (z = 3.4), Blizzard alone +26 points.
 - **Bundle of Balloons collapses with them** (z = −9.8): 3 extra jumps and a 60-tile apex, when training never had more than 1 extra jump or 21 tiles. The policy extrapolates its inputs and fails. Coverage of the ability range, not the features, is the problem: the next run adds training loadouts with 2–3 extra jumps (21–58 tiles), Blizzard and the Bundle still held out.
 - `navigate_v3` (30M steps) is as good as the 10M runs on most of these without any gear input: longer training matters here too.
+
+**v4 repeated** (3 evaluation runs each, same build): 1,024 set v3 96.1 / 96.1 / 97.0, v4 97.2 / 97.0 / 97.2 (v4 better on 53 scenarios, v3 on 31, z = 2.4); bending routes v3 94.6 / 94.9 / 94.8, v4 95.7 / 95.5 / 96.1 (73 vs 39, z = 3.2); no extra jump tied. **`navigate_v4` = `v4cand12_30m`** (`results/training/navigate_v4/`) is the best model with Tsunami. Since v3 → v4 changed three things (category quota, templates, planner fix) and the 10M versions of each showed nothing, the gain appears only with the 30M budget.
+
+**Experiment 2: training on the routes that need height** (`gear2_10m`, `nogear2_10m` = experiment 1 + `--height`: each higher-jumping training loadout also trains on its `_h<J>` sets, about 12% of its pool). Held-out worlds' height sets:
+
+| Height set | `gear_10m` | `nogear_10m` | `gear2_10m` | `nogear2_10m` | gear2 vs nogear2 |
+| --- | --- | --- | --- | --- | --- |
+| Fart (train) | 84.9 | 77.7 | 83.5 | 83.5 | 10 vs 10 |
+| Cloud in a Balloon (train) | 69.8 | 58.0 | 71.0 | 63.7 | 37 vs 19 |
+| Sandstorm (train) | 78.1 | 73.5 | 84.2 | 78.5 | 30 vs 14 |
+| Blizzard (held out) | 79.8 | 53.9 | 79.8 | 66.3 | 16 vs 4 |
+| Blizzard in a Balloon (held out) | 78.3 | 77.4 | 84.2 | 82.8 | 37 vs 31 |
+| Sandstorm in a Balloon + Hermes (held out) | 81.6 | 74.8 | 80.8 | 80.8 | 39 vs 39 |
+| Bundle of Balloons (held out) | 48.2 | 82.8 | 61.7 | 60.3 | 63 vs 58 |
+
+- **Practising routes that need height teaches the bot to use it**: against experiment 1, without Bundle, 170 vs 130 with the gear input (z = 2.3) and 204 vs 112 without (z = 5.2). The main sets are unchanged (within 1–2 points per loadout).
+- **The gear input still helps on the training loadouts** (77 vs 43, z = 3.1); on held-out items the gain shrinks (z = 1.4).
+- **Bundle of Balloons stays hard for both**: with the gear input 48 → 62%, without it 83 → 60%. Learning to exploit height made the policy without gear input misjudge a 3-jump item too. Experiment 3 (training loadouts with 2–3 extra jumps) tests whether coverage fixes it.
