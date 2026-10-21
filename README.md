@@ -34,7 +34,7 @@ The plan: [docs/Terraria Agent Architecture and Plan.md](docs/Terraria%20Agent%2
 | `tools/terraria_mcp/` | MCP server, launcher, bridge client, benchmarks, profiler; `tools/setup_machine.py` |
 | `docs/` | design documents and progress logs |
 
-Models in the repository: `navigate_v1` … `navigate_v4` (v4 is the best), `grid_ctrl_10m` (before the line-of-sight waypoint), `gear3_10m` and `nogear2_10m` (equipment).
+Models in the repository (Git LFS): `navigate_v4` (the best), `grid_ctrl_10m` (before the line-of-sight waypoint, for the ledge comparison), `gear3_10m` and `nogear2_10m` (equipment, with and without the gear description). The other runs keep their configs, training logs and evaluations; their model files stay on the training PC.
 
 **The first version** of the project (December 2025: hand-placed training zones, Stable-Baselines3, a streamlit dashboard) was removed on 21 October 2026; it is kept under the git tag `legacy-zones-pipeline` (`git checkout legacy-zones-pipeline`).
 

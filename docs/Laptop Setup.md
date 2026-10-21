@@ -61,7 +61,7 @@ All commands from the `Training` folder. **Steam must be running** for anything 
 
 In the game window: keys 1–9 put the camera on a bot, 0 on your own character. Yellow sparkles mark targets, blue ones route waypoints. The terminal prints each episode's result and the running success rate.
 
-Models in the repository: `navigate_v1`, `navigate_v2`, `navigate_v3`, `navigate_v4` (best), `grid_ctrl_10m` (before the line-of-sight waypoint), `gear3_10m` and `nogear2_10m` (equipment). Loadout names are in `Training/loadouts.json`.
+Models in the repository (Git LFS, fetched by the clone): `navigate_v4` (best), `grid_ctrl_10m` (before the line-of-sight waypoint), `gear3_10m` and `nogear2_10m` (equipment). The earlier models (`navigate_v1`–`v3`) are not in the repository; their results are. Loadout names are in `Training/loadouts.json`.
 
 The documents to show: `docs/Navigate Progress.md` (full history), `docs/Movement Equipment.md`, `docs/Terraria Agent Architecture and Plan.md`. The handbook and the supervisor brief are claude.ai artifacts and open in a browser.
 
