@@ -85,3 +85,59 @@
 01:13 start grid_ctrl_10m
 02:10 done grid_ctrl_10m
 02:10 movement graph train_07
+02:16 start none_10m
+02:17 start mix_10m
+02:23 movement graph train_08
+02:34 movement graph train_09
+02:45 movement graph train_10
+02:58 movement graph train_11
+03:10 movegraph train_11 failed: stopping
+03:11 start none_10m
+03:16 start mix_10m
+03:33 night2: start none_10m
+03:40 none_10m failed
+03:40 start mix_10m
+03:41 mix_10m failed
+03:41 loadout evaluations
+03:46 night2: start none_10m
+04:38 start mix_10m
+05:29 loadout evaluations
+05:35 start detour_10m
+06:27 done night2
+06:28 night3: start los_10m
+07:21 done night3
+07:22 morning: start losdetour12_30m
+09:52 done morning
+11:14 day: start losdetour_10m
+12:06 start grid_ctrl_10m_s2
+12:58 start los_10m_s2
+13:49 start losdetourmix12_30m
+13:50 losdetourmix12_30m failed
+13:52 done day
+13:52 day2: bending-route evaluations
+14:07 done day2
+14:08 day3: start losblocked_10m
+15:06 done day3
+15:06 day4: start losdetourmix12_30m
+17:46 done day4
+17:47 evening: start losdetour_10m_s2
+17:52 losdetour_10m_s2 failed
+17:58 done evening
+18:04 evening: start losdetour_10m_s2
+18:58 done evening
+20:12 categories: start cat_10m
+21:07 categories: start cat_10m_s2
+22:08 done categories
+22:13 templates: start tmpl_10m
+23:24 templates: start tmpl_10m_s2
+00:43 done templates
+03:25 night5: start v4cand12_30m
+06:05 done night5
+06:05 gear: start gear_10m and nogear_10m
+07:20 gear: training done
+07:34 done gear
+07:49 gear2: start gear2_10m and nogear2_10m
+09:05 gear2: training done
+09:24 done gear2
+09:24 gear3: start gear3_10m
+10:22 done gear3

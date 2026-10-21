@@ -1,4 +1,4 @@
 displayName = FirstMod_Sp
 author = GMTrooll
 version = 0.1
-buildIgnore = Training\*, TrainingZones\*, models\*, ppo_terraria_logs\*, *.zip,tools\*, docs\*, results\*, .github\*, .agents\*, .claude\*, *.md, *.csproj, *.sln, .gitignore, .mcp.json
+buildIgnore = Training\*, TrainingZones\*, models\*, ppo_terraria_logs\*, *.zip,tools\*, docs\*, results\*, .github\*, .agents\*, .claude\*, *.md, *.csproj, *.sln, .gitignore, .mcp.json, worlds\*, .gitattributes
