@@ -1,12 +1,10 @@
-# Versions the test suite was run with (Python 3.12/3.13). For a CUDA build of torch on Windows,
-# install torch first from https://pytorch.org/get-started/locally/ with the same version.
-stable-baselines3==2.9.0
-gymnasium==1.4.0
-numpy==2.5.4
-torch==2.14.1
-tensorboard==2.21.0
-pytest==9.1.1
-
-# Dashboard only (not covered by the tests)
-streamlit>=1.30.0
-plotly>=5.18.0
+# Training and evaluation (tools/setup_machine.py installs these). On a machine with an NVIDIA GPU install the CUDA
+# build of torch first (https://pytorch.org/get-started/locally/); on Windows the PyPI wheel is the CPU build, enough for
+# watching and evaluating. The models were trained with torch 2.5.1 + CUDA 12.1.
+torch>=2.5
+stable-baselines3>=2.3
+gymnasium>=1.0
+numpy>=1.26
+tensorboard
+matplotlib
+pytest

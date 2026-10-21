@@ -1,0 +1,18 @@
+name: Repository checks
+
+# Code and data checks that need neither the game nor torch (Training/tests). The behaviour is checked in the running
+# game instead: physics_check, benchmarks and held-out evaluations (README).
+on:
+  push:
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install pytest
+      - run: pytest Training/tests -q

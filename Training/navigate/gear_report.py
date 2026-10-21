@@ -1,4 +1,4 @@
-"""Success per loadout for runs evaluated with `evaluate --loadout L --tag gear_L` (navigate/queue_gear.sh), and paired
+"""Success per loadout for runs evaluated with `evaluate --loadout L --tag gear_L` (experiments/queue_gear.sh), and paired
 comparisons of two runs per loadout and pooled over the training and the held-out loadouts.
 
     python -m navigate.gear_report gear_10m nogear_10m navigate_v3

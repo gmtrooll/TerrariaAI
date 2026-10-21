@@ -1,11 +1,6 @@
 # This file will automatically update with entries for new content after a build and reload.
 
 Items: {
-	TutorialSword: {
-		DisplayName: Big Sword
-		Tooltip: This is a BIG Sword
-	}
-
 	DebugMonitor: {
 		DisplayName: Debug Monitor
 		Tooltip: ""
@@ -18,11 +13,6 @@ Items: {
 
 	TimeTurner: {
 		DisplayName: Time Turner
-		Tooltip: ""
-	}
-
-	BotSpawner: {
-		DisplayName: Bot Spawner
 		Tooltip: ""
 	}
 }
@@ -89,16 +79,6 @@ Sp: {
 			}
 		}
 
-		BotSpawner: {
-			DisplayName: {
-				$parentVal: Bot Spawner
-			}
-
-			Tooltip: {
-				$parentVal: ""
-			}
-		}
-
 		TargetSpawner: {
 			DisplayName: {
 				$parentVal: Target Spawner
@@ -119,16 +99,6 @@ Sp: {
 			}
 		}
 
-		TutorialSword: {
-			DisplayName: {
-				$parentVal: Tutorial Sword
-			}
-
-			Tooltip: {
-				$parentVal: ""
-			}
-		}
-
 		BotTeleporter: {
 			DisplayName: {
 				$parentVal: Bot Teleporter
@@ -136,16 +106,6 @@ Sp: {
 
 			Tooltip: {
 				$parentVal: ""
-			}
-		}
-
-		ZoneMarkerTool: {
-			Tooltip: {
-				$parentVal: ""
-			}
-
-			DisplayName: {
-				$parentVal: Zone Marker Tool
 			}
 		}
 
@@ -164,14 +124,6 @@ Sp: {
 		TargetMarkerProjectile: {
 			DisplayName: {
 				$parentVal: Target Marker Projectile
-			}
-		}
-	}
-
-	Keybinds: {
-		"Extract Grid": {
-			DisplayName: {
-				$parentVal: Extract  Grid
 			}
 		}
 	}

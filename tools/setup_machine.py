@@ -90,6 +90,17 @@ def main():
     say(OK, f"worlds in {config.WORLDS_DIR}: {copied} copied, {kept} already there" + (f", {differ} differ" if differ else ""))
     problems += differ > 0
 
+    # The shipped models are in Git LFS: a clone without LFS has small pointer files instead
+    pointers = [m for m in (REPO / "results" / "training").glob("*/model.pt") if m.stat().st_size < 1024]
+    if pointers:
+        r = run(["git", "lfs", "pull"], cwd=REPO)
+        still = [m for m in pointers if m.stat().st_size < 1024]
+        say(OK if not still else FAIL, f"models fetched with git lfs pull ({len(pointers)} files)" if not still
+            else "model files are Git LFS pointers and `git lfs pull` failed: install Git LFS (git lfs install), then run it")
+        problems += bool(still)
+    else:
+        say(OK, "model files present")
+
     # 4. Python packages: the MCP server's own environment, and the training/evaluation packages
     venv_dir = REPO / "tools" / ".venv"
     py = venv_dir / "Scripts" / "python.exe"

@@ -7,7 +7,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
-# Training output (checkpoints and TensorBoard logs; already-tracked files stay tracked)
+# Training output: checkpoints and TensorBoard logs. The shipped models (results/training/<run>/model.pt) are in
+# Git LFS (.gitattributes); other checkpoints stay on the training PC.
 Training/logs/
 Training/models/
 ppo_terraria_logs/
@@ -21,7 +22,8 @@ tools/.venv/
 results/profiles/
 results/bench/physics_*.json
 
-# Training runs (progress.csv is small and kept; checkpoints are not)
+# Training runs (configs, progress.csv and evaluations are small and kept; checkpoints are not, except the shipped
+# model.pt files, added with git add -f)
 results/training/**/*.pt
 results/training/**/sb3_model*
 

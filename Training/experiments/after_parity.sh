@@ -26,4 +26,4 @@ python -m navigate.evaluate --policy greedy_wp --name baseline_greedy_wp --port 
 python -m navigate.evaluate --policy random --name baseline_random --port 5699 > $OUT/baseline_random_eval2.log 2>&1
 
 log "queue"
-bash navigate/overnight_queue.sh
+bash experiments/overnight_queue.sh

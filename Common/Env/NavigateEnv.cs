@@ -345,7 +345,7 @@ namespace FirstMod_Sp.Common.Env
             return field;
         }
 
-        /// <summary>Path distance in tiles from the bot's feet (as RLNetworkSystem.PathDistanceTiles), or the straight
+        /// <summary>Path distance in tiles from the bot's feet, or the straight
         /// distance plus a penalty when the bot is outside the field or cut off.</summary>
         private static Planning.PhysicsField GetPhysicsField(int tx, int ty, int loadout) {
             if (GraphDir == null) return null;

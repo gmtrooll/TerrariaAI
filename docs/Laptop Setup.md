@@ -7,7 +7,7 @@ How to run this project on a second Windows machine (written Oct 21 for the pres
 | What | How |
 | --- | --- |
 | Steam, Terraria and tModLoader | tModLoader is free on Steam but needs Terraria on the same account. Install it and **start it once** (it creates its folders). The version used here is 1.4.4.9, build 2026.08 stable; Steam keeps it current |
-| Git | `winget install Git.Git` |
+| Git, with Git LFS | `winget install Git.Git` (Git for Windows includes Git LFS; the model files are stored with it) |
 | Python 3.12 | `winget install Python.Python.3.12` (tick "Add to PATH") |
 | .NET 8 SDK | `winget install Microsoft.DotNet.SDK.8` |
 | Claude Code (for agents) | as on the PC |

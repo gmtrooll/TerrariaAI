@@ -24,21 +24,23 @@ The plan: [docs/Terraria Agent Architecture and Plan.md](docs/Terraria%20Agent%2
 | `Common/Systems/PathDistanceField.cs` | the grid route planner |
 | `Common/Planning/` | physics movement sampler and graph |
 | `Common/Scenarios/` | scenario and movement-category generators |
-| `Training/navigate/` | custom PPO (`train.py`, `ppo.py`, `model.py`), environment client (`env.py`), `evaluate.py`, `watch.py`, test-set and measurement tools, experiment queues (`queue_*.sh`) |
+| `Training/navigate/` | custom PPO (`train.py`, `ppo.py`, `model.py`), environment client (`env.py`), `evaluate.py`, `watch.py`, test-set and measurement tools |
+| `Training/experiments/` | the queue scripts that ran each experiment (flags, seeds and order), as a record |
+| `Training/tests/` | checks of code and data that need neither the game nor torch (run on every push) |
 | `Training/scenarios/` | scenario sets per world (`.jsonl`) |
 | `Training/loadouts.json` | equipment loadouts: items, measured abilities, planner jump height |
 | `worlds/` | the 16 training and test worlds the scenario sets belong to |
-| `results/training/<run>/` | config, training log and evaluations per run; model files for the runs listed below |
+| `results/training/<run>/` | config, training log and evaluations per run; model files (Git LFS) for the runs listed below |
 | `tools/terraria_mcp/` | MCP server, launcher, bridge client, benchmarks, profiler; `tools/setup_machine.py` |
 | `docs/` | design documents and progress logs |
 
 Models in the repository: `navigate_v1` … `navigate_v4` (v4 is the best), `grid_ctrl_10m` (before the line-of-sight waypoint), `gear3_10m` and `nogear2_10m` (equipment).
 
-**Legacy.** The first version of the project (December 2025: hand-placed training zones, Stable-Baselines3) is still in the tree and not used by the current work: `Training/train_terraria.py`, `terraria_env.py`, `protocol.py`, `reward_system.py`, `zone_manager.py`, `dashboard.py`, `training_config.json`, `Training/tests/`, `TrainingZones/`, and on the mod side `Common/Players/Systems/RLInterface.cs`, `RLNetworkSystem.cs`, `Common/Systems/RLProtocol.cs`, `ZoneDatabase.cs`, `TrainingConfigLoader.cs`.
+**The first version** of the project (December 2025: hand-placed training zones, Stable-Baselines3, a streamlit dashboard) was removed on 21 October 2026; it is kept under the git tag `legacy-zones-pipeline` (`git checkout legacy-zones-pipeline`).
 
 ## Setup
 
-Windows, with Steam (Terraria + tModLoader), Python 3.12 and the .NET 8 SDK. Clone into tModLoader's `ModSources` folder, then run the setup script:
+Windows, with Steam (Terraria + tModLoader), Git with Git LFS (included in Git for Windows), Python 3.12 and the .NET 8 SDK. Clone into tModLoader's `ModSources` folder, then run the setup script:
 
 ```powershell
 cd "$HOME\Documents\My Games\Terraria\tModLoader\ModSources"
@@ -99,4 +101,4 @@ Comparing two models: evaluate both on the same fixed scenarios and count the sc
 
 ## Tests
 
-The legacy Python pipeline has unit tests against a fake game (`pytest Training/tests`, run by GitHub Actions on every push). The current pipeline is checked inside the running game instead: the physics check (server against client), benchmarks, and the held-out evaluations above.
+`pytest Training/tests` (GitHub Actions, every push) checks what can be checked without the game: every Python file compiles, the loadout table is consistent, every scenario set has its world and matching reachability and height sets, every shipped model has its config. The behaviour is checked inside the running game: the physics check (server against client, bit-identical), benchmarks, and the held-out evaluations above.
