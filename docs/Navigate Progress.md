@@ -569,3 +569,19 @@ The planner now uses these numbers: the jump height of a cell comes from its tak
 - **Practising routes that need height teaches the bot to use it**: against experiment 1, without Bundle, 170 vs 130 with the gear input (z = 2.3) and 204 vs 112 without (z = 5.2). The main sets are unchanged (within 1–2 points per loadout).
 - **The gear input still helps on the training loadouts** (77 vs 43, z = 3.1); on held-out items the gain shrinks (z = 1.4).
 - **Bundle of Balloons stays hard for both**: with the gear input 48 → 62%, without it 83 → 60%. Learning to exploit height made the policy without gear input misjudge a 3-jump item too. Experiment 3 (training loadouts with 2–3 extra jumps) tests whether coverage fixes it.
+
+**Experiment 3: train on the whole ability range** (`gear3_10m` = `gear2_10m` + 4 training loadouts wearing several extra jumps at once: Cloud + Fart, Sandstorm + Cloud, Tsunami + Fart + Cloud, Balloon + Tsunami + Sandstorm + Cloud; 2–3 extra jumps, apex 21–58 tiles. Blizzard and the Bundle stay held out):
+
+| Height set | `gear2_10m` | `nogear2_10m` | `gear3_10m` | gear3 vs gear2 |
+| --- | --- | --- | --- | --- |
+| Fart (train) | 83.5 | 83.5 | 85.6 | 13 vs 10 |
+| Cloud in a Balloon (train) | 71.0 | 63.7 | 66.9 | 19 vs 29 |
+| Sandstorm (train) | 84.2 | 78.5 | 87.1 | 22 vs 14 |
+| Blizzard (held out) | 79.8 | 66.3 | 60.7 | 7 vs 24 |
+| Blizzard in a Balloon (held out) | 84.2 | 82.8 | 85.1 | 30 vs 26 |
+| Sandstorm in a Balloon + Hermes (held out) | 80.8 | 80.8 | 83.6 | 44 vs 34 |
+| **Bundle of Balloons (held out)** | 61.7 | 60.3 | **91.8** | **113 vs 6** |
+
+- **Covering the ability range fixes the out-of-range item**: Bundle of Balloons (3 extra jumps, 60 tiles, one of them the unseen Blizzard jump) goes from 62% to 92% on routes that need its height, and to 97.7% on the main set. Against the run without gear input, `gear3_10m` is better on held-out items 214 vs 87 (z = 7.3) and on training loadouts 81 vs 46 (z = 3.1).
+- Without the Bundle, the held-out items are unchanged against `gear2_10m` (81 vs 84); Blizzard alone falls (7 vs 24, 89 scenarios), possibly because each single-bottle loadout now gets fewer episodes (14 loadouts instead of 10). Needs a second seed.
+- **Conclusion for the equipment goal:** describe gear by measured abilities, practise routes that need those abilities, and cover the range of abilities in training; then an unseen item inside that range works. One seed, 10M steps each; next are second seeds, longer training and the other mechanics (run speed and dashes, wings and rocket boots, hooks).
