@@ -19,7 +19,7 @@ from pathlib import Path
 import numpy as np
 import torch
 
-from navigate.env import BANDS, LOADOUTS, Curriculum, NavigateVecEnv, detour_ratio
+from navigate.env import BANDS, Curriculum, NavigateVecEnv, detour_ratio, loadout_code, loadout_names, loadout_scenarios
 from navigate.model import ActorCritic, RecurrentActorCritic, make_encoder
 from terraria_mcp import scenarios as scenario_files
 
@@ -32,13 +32,16 @@ def fixed_lists(worlds, per_band: int, seed: int = 12345, loadout: str = "tsunam
     """per_band scenarios per band per world (fixed seed); with min_detour, instead every scenario whose route is at
     least that many times the straight-line distance."""
     rng = random.Random(seed)
-    suffix, code = LOADOUTS[loadout]
+    code = loadout_code(loadout)
     out = {}
     for w in worlds:
-        rows = scenario_files.load(w, scenario_set or suffix)
-        for i, s in enumerate(rows):
-            s["id"] = f"{w}{scenario_set or suffix}:{i}"
-            s["loadout"] = code
+        if scenario_set:
+            rows = scenario_files.load(w, scenario_set)
+            for i, s in enumerate(rows):
+                s["id"] = f"{w}{scenario_set}:{i}"
+                s["loadout"] = code
+        else:
+            rows = loadout_scenarios(w, loadout)
         if scenario_set:  # a separate test set (e.g. _bend): all of it
             out[w] = rows
             continue
@@ -122,7 +125,7 @@ def main():
     p.add_argument("--deterministic", action="store_true", help="take the most likely action instead of sampling")
     p.add_argument("--port", type=int, default=5690)
     p.add_argument("--tag", default="", help="written to eval_<tag>.json instead of eval.json")
-    p.add_argument("--loadout", choices=sorted(LOADOUTS), default="tsunami", help="equipment variant to evaluate")
+    p.add_argument("--loadout", choices=loadout_names(), default="tsunami", help="equipment variant to evaluate (Training/loadouts.json)")
     p.add_argument("--checkpoint", default="model.pt", help="model file in the run folder, e.g. model_20M.pt")
     p.add_argument("--obs-extra", default="", help="observation settings added to the run's, e.g. los=1")
     p.add_argument("--set", default="", help="evaluate all scenarios of Training/scenarios/<world><set>.jsonl, e.g. _bend")

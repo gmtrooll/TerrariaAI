@@ -48,6 +48,9 @@ namespace FirstMod_Sp.Common.Observation
         /// <summary>A "blocked" self feature: decisions in a row pressing left or right while barely moving (snags on
         /// slopes and overhangs, where the bot pressed on for hundreds of decisions without trying a jump, Oct 20).</summary>
         public static bool Blocked;
+        /// <summary>Measured gear abilities as capabilities (Env.Loadouts features: single-jump apex, total apex with every
+        /// extra jump, extra jumps, top run speed), so gear is described by what it does (Oct 21).</summary>
+        public static bool Gear;
         /// <summary>Refresh the overview every N observations of a bot (cached in between).</summary>
         public static int CoarseEvery = 4;
         public const int EntitySlots = 16;
@@ -97,8 +100,11 @@ namespace FirstMod_Sp.Common.Observation
                 case "blocked":
                     Blocked = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
                     break;
+                case "gear":
+                    Gear = value == "1" || value.Equals("true", StringComparison.OrdinalIgnoreCase);
+                    break;
                 default:
-                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint, near, los, blocked)");
+                    throw new ArgumentException($"unknown observation setting '{key}' (grid, visibility, light, coarse_every, entities, waypoint, near, los, blocked, gear)");
             }
         }
 
@@ -111,6 +117,7 @@ namespace FirstMod_Sp.Common.Observation
             NearWaypoint = false;
             WaypointLos = false;
             Blocked = false;
+            Gear = false;
             CoarseEvery = 4;
             if (Program.LaunchParameters.TryGetValue("-obs", out string spec) && !string.IsNullOrWhiteSpace(spec)) Apply(spec);
         }

@@ -23,6 +23,8 @@ namespace FirstMod_Sp.Common.Observation
         public bool LastLeft, LastRight, LastUp, LastDown, LastJump;
         /// <summary>Decisions in a row pressing left or right while barely moving (ObservationConfig.Blocked).</summary>
         public int BlockedDecisions;
+        /// <summary>Measured abilities of the current loadout (Env.Loadouts features), shown with -obs gear=1.</summary>
+        public float[] GearFeatures;
 
         /// <summary>Goal position in world pixels, or null when the skill has none.</summary>
         public Vector2? Target;

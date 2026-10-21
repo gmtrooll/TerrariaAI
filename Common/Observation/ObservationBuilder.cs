@@ -38,13 +38,17 @@ namespace FirstMod_Sp.Common.Observation
         private static readonly string[] BlockedSelfNames = BaseSelfNames.Concat(new[] { "blocked" }).ToArray();
         public static string[] SelfNames => ObservationConfig.Blocked ? BlockedSelfNames : BaseSelfNames;
 
-        public static readonly string[] CapabilityNames = {
+        private static readonly string[] BaseCapabilityNames = {
             "max_run_speed", "sprint_speed", "run_acceleration", "run_slowdown",
             "jump_duration", "jump_speed", "gravity", "max_fall_speed",
             "wing_time_max", "rocket_boots", "dash", "carpet", "wall_slide", "auto_jump",
             "no_fall_damage", "extra_fall", "water_walk", "lava_immune", "lava_immunity_max", "breathes_underwater",
             "slow_fall", "life_max", "defense", "no_knockback", "height", "gravity_control", "ice_skates",
         };
+        /// <summary>Measured abilities of the loadout (ObservationConfig.Gear; Env.Loadouts features).</summary>
+        public static readonly string[] GearNames = { "gear_jump_apex", "gear_total_apex", "gear_extra_jumps", "gear_run_speed" };
+        private static readonly string[] GearCapabilityNames = BaseCapabilityNames.Concat(GearNames).ToArray();
+        public static string[] CapabilityNames => ObservationConfig.Gear ? GearCapabilityNames : BaseCapabilityNames;
 
         private static readonly string[] BaseGoalNames = { "has_target", "dx", "dy", "dir_x", "dir_y", "log_distance",
             "has_waypoint", "wp_dx", "wp_dy", "wp_dir_x", "wp_dir_y" };
@@ -459,6 +463,13 @@ namespace FirstMod_Sp.Common.Observation
             o[f++] = p.height / 42f;
             o[f++] = B(p.gravControl || p.gravControl2);
             o[f++] = B(p.iceSkate);
+            if (ObservationConfig.Gear) {
+                float[] g = op.GearFeatures;
+                o[f++] = g != null ? g[0] / 20f : 0;  // tiles
+                o[f++] = g != null ? g[1] / 30f : 0;  // tiles
+                o[f++] = g != null ? g[2] / 4f : 0;
+                o[f++] = g != null ? g[3] / 10f : 0;  // px per tick
+            }
             return f;
         }
 

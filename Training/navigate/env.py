@@ -35,6 +35,44 @@ def command_dtype(scenario_ints: int) -> np.dtype:
 
 # Equipment variants: name -> (scenario set file suffix, loadout code sent to the server).
 LOADOUTS = {"tsunami": ("", 1), "none": ("_j6", 0)}
+# More loadouts: Training/loadouts.json (navigate.gear_measure: items, measured abilities, planner jump height), sent
+# to the servers with -envloadouts. A loadout with a 6-tile jump uses the _j6 sets, 13 tiles the main sets, any other
+# height the main sets filtered by <world>_reach.json (navigate.reach_sets: route distances for that jump height).
+LOADOUT_TABLE = Path(__file__).resolve().parents[1] / "loadouts.json"
+LOADOUT_ROWS = {r["name"]: r for r in json.loads(LOADOUT_TABLE.read_text())} if LOADOUT_TABLE.exists() else {}
+
+
+def loadout_code(name: str) -> int:
+    return LOADOUT_ROWS[name]["code"] if name in LOADOUT_ROWS else LOADOUTS[name][1]
+
+
+def loadout_names() -> list:
+    return sorted(set(LOADOUTS) | set(LOADOUT_ROWS))
+
+
+def band_of(d: float) -> str:
+    return "5-15" if d < 15 else "15-30" if d < 30 else "30-60" if d < 60 else "60-120"
+
+
+def loadout_scenarios(world: str, name: str) -> list:
+    """The scenarios of one world for a loadout, with ids, loadout codes and route lengths for its jump height."""
+    jump = LOADOUT_ROWS[name]["jump_tiles"] if name in LOADOUT_ROWS else (13 if name == "tsunami" else 6)
+    code = loadout_code(name)
+    suffix = "_j6" if jump == 6 else ""
+    rows = scenario_files.load(world, suffix)
+    for i, s in enumerate(rows):
+        s["id"] = f"{world}{suffix}:{i}"
+        s["loadout"] = code
+    if jump in (6, 13):
+        return rows
+    reach = json.loads((scenario_files.SCENARIO_DIR / f"{world}_reach.json").read_text())[str(jump)]
+    out = []
+    for s, d in zip(rows, reach):
+        if d >= 5:
+            s["path_distance"] = int(d)
+            s["band"] = band_of(d)
+            out.append(s)
+    return out
 DONE, WIN, DIED, TIMEOUT, NEW_EPISODE = 1, 2, 4, 8, 16
 BANDS = ["5-15", "15-30", "30-60", "60-120"]
 
@@ -136,11 +174,7 @@ class ScenarioSource:
         # One scenario set per equipment variant; an episode first picks a variant uniformly, then a band.
         self.sets = []
         for name in loadouts or ["tsunami"]:
-            suffix, code = LOADOUTS[name]
-            rows = scenario_files.load(world, suffix) if fixed_list is None else []
-            for i, s in enumerate(rows):
-                s["id"] = f"{world}{suffix}:{i}"
-                s["loadout"] = code
+            rows = loadout_scenarios(world, name) if fixed_list is None else []
             # Scenarios the movement graph cannot reach are kept: the graph still misses some moves (95.9% of the
             # scenarios bots solve are reachable in it, train_01, Oct 19), and the mod falls back to the grid distance
             # for an episode whose start is off the graph.
@@ -232,6 +266,8 @@ class NavigateVecEnv(VecEnv):
         args += list(extra_args or [])
         if graph_dir:
             args += ["-envgraph", str(graph_dir)]
+        if LOADOUT_TABLE.exists():
+            args += ["-envloadouts", str(LOADOUT_TABLE)]
         errors = []
 
         def launch(i, world):
@@ -333,7 +369,7 @@ class NavigateVecEnv(VecEnv):
                                 loadouts=self.loadouts, physics=self.physics, detour=self.detour, categories=self.categories)
         server = Server(world, conn, bots, obs_bytes, spec, source)
         server.version = version
-        if version < 2 and any(LOADOUTS[n][1] != 1 for n in self.loadouts):
+        if version < 2 and any(loadout_code(n) != 1 for n in self.loadouts):
             raise ConnectionError(f"server speaks protocol {version}, which has no loadouts; rebuild the mod")
         server.buffer = bytearray(4 + bots * (5 + obs_bytes) * 2 + bots * 4)
         server.queued_ints = np.zeros((bots, 6 if version >= 2 else 5), np.int32)

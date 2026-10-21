@@ -25,7 +25,8 @@ namespace FirstMod_Sp.Common.Env
     ///   spec_len i32 + spec UTF-8 JSON (observation layout, names, class table, world name).
     /// Learner to server: per bot, the current and the next scenario (each 6 x i32: start x, start y, target x,
     ///   target y, max decisions, loadout). Then the first step packet follows. Loadout: 0 = no extra jump,
-    ///   1 = Tsunami in a Bottle; the bot wears it for the episode and the route is planned for its jump height.
+    ///   1 = Tsunami in a Bottle, other codes from -envloadouts (Loadouts.cs); the bot wears it for the episode and the
+    ///   route is planned for its jump height.
     ///   (Version 1 had no loadout field; the learner reads the version from the handshake.)
     /// Step packet, server to learner: tick u32; per bot: flags u8, path_distance f32, observation bytes; then for
     ///   every bot whose episode ended (flags & DONE), in bot order: terminal path_distance f32 + terminal
@@ -51,8 +52,9 @@ namespace FirstMod_Sp.Common.Env
         public const int FieldRadius = 130, MaxJumpTiles = 13, MaxAirGapTiles = 5, MaxSafeFallTiles = 25;
         public const int LoadoutNone = 0, LoadoutTsunami = 1;
 
-        /// <summary>Planner jump height per loadout: measured apex 6.13 tiles for one jump, 13.12 with Tsunami.</summary>
-        public static int JumpTilesFor(int loadout) => loadout == LoadoutTsunami ? MaxJumpTiles : 6;
+        /// <summary>Planner jump height per loadout (Loadouts: built in, measured apex 6.13 tiles for one jump, 13.12 with
+        /// Tsunami; others from -envloadouts).</summary>
+        public static int JumpTilesFor(int loadout) => Loadouts.JumpTiles(loadout);
         public const float GoalRadiusTiles = 1.5f, OffPathPenaltyTiles = 10f;
         /// <summary>The observation's waypoint is this many path tiles ahead of the bot (inside the 41 x 41 grid).</summary>
         public const int WaypointSteps = 12, NearWaypointSteps = 3;
@@ -273,9 +275,9 @@ namespace FirstMod_Sp.Common.Env
             op.CoarseCache = null;
             b.Current = s;
             b.Trajectory.Clear();
-            // Equipment for this episode (accessory slot 3, as BotManagerSystem gives it at spawn).
-            int accessory = s.Loadout == LoadoutTsunami ? ItemID.TsunamiInABottle : ItemID.None;
-            if (p.armor[3].type != accessory) p.armor[3].SetDefaults(accessory);
+            // Equipment for this episode (accessory slots 3-7; BotManagerSystem gives Tsunami in slot 3 at spawn).
+            Loadouts.Equip(p, s.Loadout);
+            op.GearFeatures = Loadouts.Get(s.Loadout).Features;
             WorldIntegrity.Episode[b.Slot]++;  // changes this bot made in its last episode may now be restored
             if (s.TargetX >= 0) {
                 op.Target = new Vector2((s.TargetX + 0.5f) * 16f, (s.TargetY - 0.3f) * 16f);
